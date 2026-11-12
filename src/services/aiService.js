@@ -62,6 +62,10 @@ async function callGemini(contents, systemInstruction = '', timeoutMs = 12000) {
       } catch (err) {
         lastErr = err;
         const msg = String(err.message || '');
+        if (msg.includes('403') || msg.includes('PERMISSION_DENIED') || msg.includes('billing') || msg.includes('free tier')) {
+          // Project requires billing or free tier unavailable; fail fast to smart knowledge engine
+          throw err;
+        }
         if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available')) {
           continue;
         }
@@ -130,7 +134,6 @@ function checkSecurityViolation(studentData, query) {
     /\bstaff\b/i,
     /\bpassword\b/i,
     /\bcredential/i,
-    /\bdatabase\b/i,
     /\bsecret\b/i,
     /\blogin link\b/i,
     /\badmin link\b/i,
@@ -141,7 +144,8 @@ function checkSecurityViolation(studentData, query) {
     /\bvc number\b/i,
     /\bteacher contact\b/i,
     /\bavnadmin\b/i,
-    /\bmysql\b/i,
+    /\bmysql password\b/i,
+    /\bdatabase password\b/i,
     /\bsystem prompt\b/i,
     /\bbackend\b/i,
     /\bport 3000\b/i,
@@ -230,7 +234,7 @@ async function chatWithStudent(studentData, userQuestion) {
   }
 
   const promptHash = crypto.createHash('md5').update(`${studentData.id}:${userQuestion}`).digest('hex');
-  const cacheKey = `chat_v3_${promptHash}`;
+  const cacheKey = `chat_v4_${promptHash}`;
 
   const cached = await getCachedAI(cacheKey);
   if (cached) return cached;
@@ -266,99 +270,232 @@ ${JSON.stringify(studentData, null, 2)}
  * Handles complete portal knowledge, improvement strategies, Roman Urdu, and English
  */
 function generateStudentChatFallback(data, query) {
-  const q = String(query || '').toLowerCase().trim();
+  const rawQ = String(query || '').trim();
+  const q = rawQ.toLowerCase().replace(/[?!.,;:_-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const firstName = String(data.name || 'Student').split(' ')[0];
+  const weakest = data.weakest_course || { title: 'Communication Skills', course_code: 'ENG102', percentage: 63, grade: 'C' };
+  const strongest = data.strongest_course || { title: 'Programming Fundamentals', course_code: 'CS101', percentage: 91, grade: 'A' };
+  const attPct = data.attendance_overall || 86;
 
-  // 1. IMPROVEMENT / APPROVAL / STANDING ADVICE (User Query: "ma kya asa kro ka approve ho sako")
+  // 1. GREETINGS & SOCIAL CHIT-CHAT (Normal conversational responses)
+  if (
+    q === 'salam' || q === 'slam' || q === 'aoa' || q.includes('assalam') || 
+    q.includes('asalam') || q === 'hi' || q === 'hello' || q === 'hey' || 
+    q.startsWith('hi ') || q.startsWith('hello ')
+  ) {
+    return `Walaikum Assalam **${firstName}**! Kese hain aap? Main aapka AI Academic Advisor hoon. Aapki parhai, results ya portal ke hawale se main kya madad kar sakta hoon?`;
+  }
+
+  if (
+    q.includes('kaise ho') || q.includes('kese ho') || q.includes('how are you') || 
+    q.includes('kya haal') || q.includes('kya hal') || q.includes('theek ho')
+  ) {
+    return `Alhamdulillah main bilkul theek hoon! Aap sunayein **${firstName}**, parhai kesi chal rahi hai? Kisi subject ya result ke baray mein kuch poochna hai?`;
+  }
+
+  if (
+    q.includes('shukriya') || q.includes('thanks') || q.includes('thank you') || 
+    q.includes('jazakallah') || q.includes('meharbani')
+  ) {
+    return `Bohat shukriya **${firstName}**! You're welcome. Agar parhai, grades ya kisi bhi portal feature ke mutaliq koi aur sawal ho to bila-jhijak pooch sakte hain!`;
+  }
+
+  if (
+    q.includes('tum kaun ho') || q.includes('apna intro') || q.includes('who are you') || 
+    q.includes('kya kar sakte ho') || q === 'intro' || q === 'help'
+  ) {
+    return `Main aapka personal **GTIU AI Academic Advisor** hoon! Main aapke portal records (CGPA, marks, attendance, timetable, admit card, transcript) aur parhai ke sawalat mein bilkul simple alfaz mein aapki rehnumai karta hoon.`;
+  }
+
+  if (
+    q === 'ok' || q === 'theek hai' || q === 'acha' || q === 'sahi hai' || 
+    q === 'hmmm' || q === 'hmm' || q === 'done' || q === 'great'
+  ) {
+    return `Ji bilkul! Agar koi bhi cheez samajh na aaye ya mazeed guidance chahiye ho to zaroor batayein.`;
+  }
+
+  // 2. IMPROVEMENT / HOW TO APPROVE / STUDY TIPS ("ma kya asa kro ka approve ho sako")
   if (
     q.includes('approve') || q.includes('improve') || q.includes('behtar') || 
     q.includes('kya asa kro') || q.includes('kya aisa kro') || q.includes('kya karoon') || 
-    q.includes('kya kru') || q.includes('kya karu') || q.includes('pass') || 
-    q.includes('fail') || q.includes('probation') || q.includes('cgpa barhana') || 
-    q.includes('barhaun') || q.includes('study tips') || q.includes('strategy') || 
-    q.includes('parhai') || q.includes('tayari') || q.includes('guide')
+    q.includes('kya kru') || q.includes('kya karu') || q.includes('parhai') || 
+    q.includes('study tips') || q.includes('strategy') || q.includes('tayari') || 
+    q.includes('guide') || q.includes('tips') || q.includes('cgpa barhana') || 
+    q.includes('fail hone se')
   ) {
-    const weakest = data.weakest_course || { title: 'Core Subjects', course_code: 'General', percentage: 70 };
-    const strongest = data.strongest_course || { title: 'None', percentage: 80 };
-    const attPct = data.attendance_overall || 85;
+    return `Assalam-o-Alaikum **${firstName}**!\n\nAapka current CGPA **${data.cgpa}** hai jo already ek achi standing hai. Isko mazeed behtar karne aur 3.50+ (Dean's Honor Roll) target karne ke liye ye 4 simple steps follow karein:\n\n1. **Weak Subject Par Focus:** Aapka sab se kamzor subject **${weakest.course_code} (${weakest.title})** hai jisme score **${weakest.percentage}%** hai. Iske assignments aur past papers par thori extra tawajjah dein.\n2. **Sessional Marks:** Quizzes aur assignments mein poore 20 marks secure karein, yeh final score ko bohot boost karte hain.\n3. **Attendance Safe Rakhein:** Hazri hamesha 75% se ooper rakhein (filhaal aapki **${attPct}%** hai jo safe hai).\n4. **Final Exam Target:** Final paper 50 marks ka hota hai. Portal ke **'What-If Simulator'** tile par ja kar check karein ke target grade ke liye kitnay number chahiye!`;
+  }
 
-    let advicePoints = [];
-    if (data.cgpa >= 3.5) {
-      advicePoints.push(`🌟 **Dean's Honor Roll:** Aapka CGPA **${data.cgpa}** already outstanding hai! Top position aur Gold Medal ke liye 3.80+ target karein.`);
-    } else if (data.cgpa >= 3.0) {
-      advicePoints.push(`📈 **Target 3.50+ CGPA:** Aapka current CGPA **${data.cgpa}** kaafi behtar hai. Isko 3.50+ (Honor Roll) par le jane ke liye 4-credit core subjects mein A grade target karein.`);
-    } else if (data.cgpa >= 2.0) {
-      advicePoints.push(`⚠️ **Safe Standing:** Aapka CGPA **${data.cgpa}** passing threshold (2.00) se ooper hai, lekin isko 3.00+ tak barhana zaroori hai.`);
+  // 3. PASS / FAIL STATUS
+  if (
+    q.includes('pass') || q.includes('fail') || q.includes('status') || 
+    q.includes('standing') || q.includes('probation')
+  ) {
+    if (data.cgpa >= 2.0) {
+      return `Ji bilkul! Aapka academic status **Good Standing** hai aur aapka current CGPA **${data.cgpa}** hai, jo passing threshold (minimum 2.00 CGPA) se kafi behtar hai.`;
     } else {
-      advicePoints.push(`🚨 **Academic Warning:** Aapka CGPA **${data.cgpa}** hai jo ke minimum 2.00 se kam hai. Probation se nikalne ke liye low-grade subjects ko repeat karna zaroori hai.`);
+      return `Aapka current CGPA **${data.cgpa}** hai jo minimum required 2.00 se kam hai. Academic probation se nikalne ke liye low-grade subjects ko repeat karna zaroori hai.`;
     }
-
-    advicePoints.push(`1. **Weakest Course Focus:** Aapka sab se kamzor subject **${weakest.course_code} (${weakest.title})** hai jahan score **${weakest.percentage}%** hai. Is subject ke assignments aur quizzes mein maximum score karein.`);
-    advicePoints.push(`2. **Attendance Buffer:** Aapki overall attendance **${attPct}%** hai. University rules ke tehat **75%** se kam hazri par exam mein baithne ki ijazat nahi hoti, is liye attendance ko 85%+ par maintain rakhein.`);
-    advicePoints.push(`3. **Final Exam Strategy:** Final exam paper 50 marks ka hota hai. Portal ke **'What-If Simulator'** tile par ja kar check karein ke target grade (A ya B+) ke liye kitnay marks chahiye.`);
-    advicePoints.push(`4. **Sessional Marks:** 20 marks sessional (quizzes + assignments) aur 30 marks midterm ke hote hain. In mein full marks lena final CGPA ko bohot tezi se barhata hai.`);
-
-    return `Assalam-o-Alaikum **${data.name}**!\n\nAap is waqt **Semester ${data.current_semester} (${data.program_code})** mein hain aur aapka cumulative CGPA **${data.cgpa}** (${data.earned_ch}/${data.total_ch_required} Credit Hours) hai.\n\nAapko academically approve / excel hone ke liye comprehensive study roadmap yeh hai:\n\n${advicePoints.join('\n\n')}\n\n*Aap portal par **'My Results'** aur **'What-If Simulator'** tiles par click karke detailed calculations dekh sakte hain.*`;
   }
 
-  // 2. INTERIM TRANSCRIPT / DMC
-  if (q.includes('transcript') || q.includes('dmc') || q.includes('marksheet') || q.includes('degree audit')) {
-    return `Assalam-o-Alaikum **${data.name}**!\n\nOfficial **Interim Transcript** download karne ke liye:\n1. Portal ke main dashboard par **'Interim Transcript'** button par click karein.\n2. Yeh direct vector-accurate official PDF transcript generate kar dega.\n3. Isme aapke tamaam semesters ke courses, letter grades (A, B+, B, etc.), total earned credit hours (**${data.earned_ch} / ${data.total_ch_required} CHs**), aur verified CGPA (**${data.cgpa}**) official university stamp ke sath shaamil honge.`;
+  // 4. WEAKEST SUBJECT
+  if (
+    q.includes('weak') || q.includes('kamzor') || q.includes('sab se kam') || 
+    q.includes('low marks') || q.includes('lowest')
+  ) {
+    return `Aapka sab se kam marks wala subject **${weakest.course_code} (${weakest.title})** hai jisme aapka score **${weakest.percentage}%** (Grade: **${weakest.grade}**) hai.`;
   }
 
-  // 3. ADMIT CARD / ROLL NUMBER SLIP
-  if (q.includes('admit card') || q.includes('roll number slip') || q.includes('roll no slip') || q.includes('slip') || q.includes('date sheet') || q.includes('exam schedule')) {
-    return `Assalam-o-Alaikum **${data.name}**!\n\nApna **Examination Admit Card (Roll Number Slip)** download karne ke liye:\n1. Dashboard par **'Admit Card / Roll No Slip'** tile par click karein.\n2. Yeh aapki verified PDF slip generate kar dega jisme aapka Roll Number (**${data.registration_no}**), Examination Hall, Room Numbers, aur Subject-wise Datesheet mojood hogi.\n\n*Zaroori Note: Admit card sirf unhi students ko issue hota hai jinki attendance minimum 75% ho aur university fee dues clear hon.*`;
+  // 5. STRONGEST / BEST SUBJECT
+  if (
+    q.includes('strong') || q.includes('behtareen') || q.includes('sab se acha') || 
+    q.includes('highest') || q.includes('best') || q.includes('top marks')
+  ) {
+    return `Aapka sab se behtareen subject **${strongest.course_code} (${strongest.title})** hai jisme aapka score **${strongest.percentage}%** (Grade: **${strongest.grade}**) hai!`;
   }
 
-  // 4. ATTENDANCE / HAZRI / CHUTTI / SAFE BUNKS
-  if (q.includes('attendance') || q.includes('hazri') || q.includes('absent') || q.includes('miss') || q.includes('chutti') || q.includes('bunk') || q.includes('short')) {
+  // 6. CGPA / SGPA / RESULTS (Simple & Direct)
+  if (
+    q.includes('cgpa') || q.includes('pointer') || q.includes('gpa') || 
+    (q.includes('result') && !q.includes('all')) || q.includes('grades') || 
+    q.includes('number') || q.includes('marks')
+  ) {
+    // Check if asking for specific semester
+    const semMatch = q.match(/semester\s*(\d+)|sem\s*(\d+)/i);
+    if (semMatch) {
+      const semNum = parseInt(semMatch[1] || semMatch[2]);
+      const semObj = (data.semesters || []).find(s => s.semester_number === semNum);
+      if (semObj) {
+        return `Semester ${semNum} mein aapka SGPA **${semObj.sgpa}** (${semObj.percentage}%) tha aur aapne **${semObj.earned_ch} credit hours** earn kiye thay.`;
+      }
+    }
+    // If asking breakdown
+    if (q.includes('breakdown') || q.includes('detail') || q.includes('all') || q.includes('tamam')) {
+      const semList = (data.semesters || []).map(s => `• **Semester ${s.semester_number}:** SGPA **${s.sgpa}** (${s.percentage}%) - ${s.earned_ch} CHs`).join('\n');
+      return `Aapka current cumulative CGPA **${data.cgpa}** hai.\n\n**Semester-wise SGPA Breakdown:**\n${semList}`;
+    }
+    return `Aapka current cumulative CGPA **${data.cgpa}** hai (total **${data.earned_ch} / ${data.total_ch_required}** credit hours complete hain).`;
+  }
+
+  // 7. CREDIT HOURS
+  if (q.includes('credit hour') || q.includes('credit hours') || q.includes('ch')) {
+    return `Aapne ab tak total **${data.earned_ch} Credit Hours** mukammal kar liye hain (BSCS degree ke liye total ${data.total_ch_required} credit hours required hain).`;
+  }
+
+  // 8. ATTENDANCE / SAFE BUNKS / HAZRI
+  if (q.includes('chutti') || q.includes('bunk') || q.includes('miss') || q.includes('absent')) {
     const list = (data.attendance_summary || []).map(c => 
-      `• **${c.course_code} - ${c.title}**: ${c.percentage}% (${c.present}/${c.total} classes attended). Can safely miss: **${c.absences_allowed} class(es)**.`
+      `• **${c.course_code} (${c.title}):** ${c.percentage}% attendance. Aap mazeed **${c.absences_allowed} class(es)** miss kar sakte hain.`
     ).join('\n');
-    return `Assalam-o-Alaikum **${data.name}**!\n\nAapki Semester ${data.current_semester} ki overall attendance **${data.attendance_overall}%** hai.\n\nSubject-wise hazri aur safe chuttiyon ki breakdown:\n${list}\n\n*GTIU Policy: Har course mein minimum 75% attendance lazmi hai. 75% se kam hone par exam admit card block kar diya jata hai.*`;
+    return `Aapki overall attendance **${attPct}%** hai.\n\n**Subject-wise Safe Chuttiyon ki list:**\n${list}\n\n*Note: Exam mein baithne ke liye har course mein 75% attendance lazmi hai.*`;
   }
 
-  // 5. TIMETABLE / CLASSES / ROUTINE / ROOMS
-  if (q.includes('timetable') || q.includes('class') || q.includes('schedule') || q.includes('routine') || q.includes('room') || q.includes('timing')) {
+  if (q.includes('attendance') || q.includes('hazri')) {
+    return `Aapki Semester ${data.current_semester} ki overall attendance **${attPct}%** hai, jo ke safe limit (minimum 75%) se kafi ooper hai. Aap baghair kisi maslay ke exam mein appear ho sakte hain!`;
+  }
+
+  // 9. ADMIT CARD / ROLL NUMBER SLIP
+  if (q.includes('admit card') || q.includes('roll number slip') || q.includes('roll no slip') || q.includes('slip') || q.includes('datesheet') || q.includes('date sheet')) {
+    return `Apna **Admit Card (Roll Number Slip)** download karne ke liye portal ke dashboard par **'Admit Card / Roll No Slip'** tile par click karein. Yeh aapki verified PDF slip generate kar dega jisme Roll No (**${data.registration_no}**), Examination Hall aur datesheet shaamil hogi.`;
+  }
+
+  // 10. TRANSCRIPT / DMC
+  if (q.includes('transcript') || q.includes('dmc') || q.includes('marksheet') || q.includes('degree audit')) {
+    return `Official **Interim Transcript** download karne ke liye dashboard par **'Interim Transcript'** button par click karein. Yeh official university stamp ke sath verified complete PDF transcript generate kar dega.`;
+  }
+
+  // 11. PERSONAL DETAILS / FATHER / CONTACT
+  if (q.includes('father') || q.includes('walid') || q.includes('abu') || q.includes('baap')) {
+    return `Aapke walid ka naam **${data.father_name}** hai.`;
+  }
+
+  if (q.includes('roll no') || q.includes('roll number') || q.includes('registration')) {
+    return `Aapka official roll number / registration number **${data.registration_no}** hai.`;
+  }
+
+  if (q.includes('mera naam') || q.includes('my name') || q.includes('name kya')) {
+    return `Aapka registered naam **${data.name}** hai.`;
+  }
+
+  if (q.includes('phone') || q.includes('mobile') || q.includes('contact') || q.includes('email') || q.includes('number')) {
+    return `Aapke verified contact details yeh hain:\n• **Phone:** ${data.phone || '03132319799'}\n• **Father's Phone:** ${data.father_phone || '03001234567'}\n• **Email:** ${data.email || 'student@gtiu.edu.pk'}`;
+  }
+
+  if (q.includes('batch') || q.includes('program') || q.includes('degree') || q.includes('semester')) {
+    return `Aap **${data.program_code} (BS Computer Science)** ke Batch **${data.batch}** mein enrolled hain aur filhaal **Semester ${data.current_semester}** mein hain.`;
+  }
+
+  // 12. TIMETABLE / CLASSES / SCHEDULE
+  if (q.includes('timetable') || q.includes('class') || q.includes('schedule') || q.includes('timing') || q.includes('routine')) {
     const slots = (data.timetable_slots || []).map(t =>
-      `• **${t.day_of_week}**: ${t.course_code} (${t.course_title}) | ${t.start_time} - ${t.end_time} | Room: **${t.room}**`
+      `• **${t.day_of_week}:** ${t.course_code} (${t.course_title}) | ${t.start_time} - ${t.end_time} | Room: **${t.room}**`
     ).join('\n');
-    const display = slots.length > 0 ? slots : `• Monday to Friday: Scheduled classes in Room CS-Lab 1 & Room 204.`;
-    return `Assalam-o-Alaikum **${data.name}**!\n\nAapke Semester ${data.current_semester} (${data.program_code}) ka timetable yeh hai:\n\n${display}\n\nAap portal par **'My Timetable'** tile par click karke interactive day-wise schedule bhi dekh sakte hain.`;
+    const display = slots.length > 0 ? slots : `• Monday to Friday: Classes scheduled in CS-Lab 1 and Room 204.`;
+    return `Aapke Semester ${data.current_semester} ka timetable yeh hai:\n\n${display}\n\nAap dashboard par **'My Timetable'** tile par click karke bhi full view dekh sakte hain.`;
   }
 
-  // 6. REGISTERED COURSES / SUBJECTS
-  if (q.includes('registered') || q.includes('enrolled') || q.includes('subject') || q.includes('courses') || q.includes('kitne subject')) {
+  // 13. REGISTERED COURSES / SUBJECTS
+  if (q.includes('course') || q.includes('subject') || q.includes('enrolled') || q.includes('registered')) {
     const courses = (data.registered_courses || []).map(c =>
-      `• **${c.code}**: ${c.title} (${c.credit_hours} CH) - Instructor: ${c.teacher_name || 'Department Faculty'} (Sec: ${c.section || 'A'})`
+      `• **${c.code}:** ${c.title} (${c.credit_hours} CH) - Instructor: ${c.teacher_name || 'Faculty'}`
     ).join('\n');
     const display = courses.length > 0 ? courses : `• Total 5 Registered Core Courses for Semester ${data.current_semester}.`;
-    return `Assalam-o-Alaikum **${data.name}**!\n\nAap is waqt Semester ${data.current_semester} mein in courses mein registered hain:\n\n${display}\n\nAap portal par **'Registered Courses'** tile par click karke detailed syllabus aur status check kar sakte hain.`;
+    return `Aap is waqt Semester ${data.current_semester} mein in courses mein registered hain:\n\n${display}`;
   }
 
-  // 7. PERSONAL DETAILS / PROFILE / CONTACT / FATHER
-  if (q.includes('personal') || q.includes('profile') || q.includes('father') || q.includes('phone') || q.includes('contact') || q.includes('email') || q.includes('address')) {
-    return `Assalam-o-Alaikum **${data.name}**!\n\nAapke verified university records yeh hain:\n• **Full Name:** ${data.name}\n• **Father's Name:** ${data.father_name}\n• **Registration Number:** ${data.registration_no}\n• **Academic Program:** ${data.program_code}\n• **Current Semester:** Semester ${data.current_semester} (Batch ${data.batch})\n• **Student Contact:** ${data.phone || '03132319799'}\n• **Father's Contact:** ${data.father_phone || '03001234567'}\n• **Student Email:** ${data.email || 'student@gtiu.edu.pk'}\n• **Enrollment Status:** ${data.status || 'Active'}\n\nAap dashboard par **'Personal Details'** tile par click karke bhi apna profile dekh sakte hain.`;
+  // 14. FEE / CHALLAN / VOUCHER
+  if (q.includes('fee') || q.includes('challan') || q.includes('voucher') || q.includes('dues')) {
+    return `Fee status check karne aur challan download karne ke liye dashboard par **'Fee Status & Vouchers'** section par jayein. Wahan se aap tuition fee voucher download kar sakte hain.`;
   }
 
-  // 8. CGPA / SGPA / RESULTS / MARKS
-  if (q.includes('cgpa') || q.includes('sgpa') || q.includes('gpa') || q.includes('pointer') || q.includes('grades') || q.includes('marks') || q.includes('result')) {
-    const semList = (data.semesters || []).map(s => `• **Semester ${s.semester_number}**: SGPA **${s.sgpa}** (${s.percentage}%) - ${s.earned_ch} Credit Hours`).join('\n');
-    return `Assalam-o-Alaikum **${data.name}**!\n\nAapka current cumulative CGPA **${data.cgpa}** hai with **${data.earned_ch} earned credit hours** (out of ${data.total_ch_required} required for ${data.program_code}).\n\n**Semester-wise SGPA Breakdown:**\n${semList}\n\n*Pass hone ke liye minimum 2.00 CGPA zaroori hai. Detailed marks dekhne ke liye 'My Results' tile par click karein.*`;
+  // 15. WHAT-IF SIMULATOR
+  if (q.includes('simulator') || q.includes('what if') || q.includes('predict') || q.includes('kitne number')) {
+    return `**What-If Simulator** se aap final exam ke required marks calculate kar sakte hain. Dashboard par **'Predict SGPA / CGPA'** tile par click karein aur apna target grade choose karein!`;
   }
 
-  // 9. FEE STATUS / CHALLAN
-  if (q.includes('fee') || q.includes('fees') || q.includes('challan') || q.includes('voucher') || q.includes('dues')) {
-    return `Assalam-o-Alaikum **${data.name}**!\n\nFee status check karne aur challan download karne ke liye:\n1. Dashboard par **'Fee Status & Vouchers'** section par jayein.\n2. Wahan aap apne semester ki tuition fee, submission deadline, aur paid/unpaid status dekh sakte hain.\n3. **'Download Voucher'** button se aap bank challan download kar sakte hain.`;
+  // 16. COMPUTER SCIENCE & ACADEMIC CONCEPTS (Answering like a smart AI agent)
+  if (q.includes('oop') || q.includes('object oriented')) {
+    return `**Object-Oriented Programming (OOP)** ek software design model hai jisme data aur functions ko objects mein group kiya jata hai. Iske 4 main pillars hain:\n1. **Encapsulation:** Data aur code ko ek unit (class) mein bind karna.\n2. **Inheritance:** Parent class ke features child class mein reuse karna.\n3. **Polymorphism:** Ek hi function ya method ko mukhtalif tareeqon se execute karna.\n4. **Abstraction:** Complex internal details ko chupa kar sirf zaroori interface show karna.`;
   }
 
-  // 10. WHAT-IF SIMULATOR
-  if (q.includes('what if') || q.includes('simulator') || q.includes('target') || q.includes('kitne number')) {
-    return `Assalam-o-Alaikum **${data.name}**!\n\n**What-If Simulator** se aap apne final paper ke required marks calculate kar sakte hain:\n1. Dashboard par **'Predict SGPA / CGPA' (What-If Simulator)** tile par click karein.\n2. Apna subject select karein aur target grade (A, B+, ya B) chunein.\n3. Simulator aapke sessional marks aur midterm ko dekh kar exact bata dega ke final exam (50 marks) mein aapko kitnay marks chahiye!`;
+  if (q.includes('data structure') || q.includes('dsa')) {
+    return `**Data Structure** computer memory mein data ko systematically organize karne ka tareeqa hai taake efficient operations kiye ja sakein. Bunyadi data structures:\n• **Linear:** Arrays, Linked Lists, Stacks (LIFO), Queues (FIFO).\n• **Non-Linear:** Trees, Binary Search Trees, Graphs, Hash Tables.`;
   }
 
-  // 11. GENERAL GREETING / ASSISTANCE
-  return `Assalam-o-Alaikum **${data.name}**!\n\nMain aapka official **GTIU Academic Advisor** hoon. Main aapke zaati academic records (Reg: **${data.registration_no}**, Program: **${data.program_code}**, Semester **${data.current_semester}**) par advice dene ke liye hazir hoon.\n\nAap mujh se in cheezon ke baray mein pooch sakte hain:\n• *"CGPA kaise improve karoon?"* ya *"Kya karoon ke approve ho saku?"*\n• *"Meri attendance aur safe chuttiyan kitni hain?"*\n• *"Admit Card / Roll Number Slip kaise download karun?"*\n• *"Interim Transcript kaise milegi?"*\n• *"Mera timetable aur class timings kya hain?"*`;
+  if (q.includes('algorithm')) {
+    return `**Algorithm** kisi bhi problem ko solve karne ke liye step-by-step logic aur instructions ka majmooa hota hai. Ek ache algorithm ki khusosiyat yeh hai ke wo kam waqt (Time Complexity) aur kam memory (Space Complexity) mein sahi output de.`;
+  }
+
+  if (q.includes('operating system') || q === 'os' || q.includes(' os ')) {
+    return `**Operating System (OS)** ek fundamental system software hai jo computer hardware (CPU, Memory, Storage) aur software applications ke darmiyan bridge ka kaam karta hai (jaise Windows, Linux). Yeh Process Management, Memory Management, aur File Systems ko handle karta hai.`;
+  }
+
+  if (q.includes('database') || q.includes('dbms') || q.includes('sql')) {
+    return `**Database / DBMS** structured data ko electronically store, search aur manage karne ka system hai. **SQL (Structured Query Language)** ke zariye data queries (SELECT, INSERT, UPDATE, DELETE) run ki jati hain (jaise MySQL, PostgreSQL).`;
+  }
+
+  if (q.includes('python')) {
+    return `**Python** ek modern, high-level aur beginner-friendly programming language hai. Iska syntax bohot aasan hai aur yeh AI, Machine Learning, Data Science, Web Development (Django/Flask) aur Automation mein sab se zyada use hoti hai.`;
+  }
+
+  if (q.includes('ai') || q.includes('artificial intelligence') || q.includes('machine learning')) {
+    return `**Artificial Intelligence (AI)** computer systems ki aisi technology hai jo insaani aqal ki tarah seekh kar, analyze kar ke aur decisions le sakti hai. Iski branches mein Machine Learning (ML), Deep Learning, aur Natural Language Processing (NLP) shaamil hain.`;
+  }
+
+  if (q.includes('compiler') || q.includes('interpreter')) {
+    return `• **Compiler:** Poore source code ko ek hi baar mein machine language mein convert karta hai (jaise C++, Java).\n• **Interpreter:** Code ko line-by-line read aur execute karta hai (jaise Python, JavaScript).`;
+  }
+
+  if (q.includes('recursion')) {
+    return `**Recursion** programming ka ek aisa tareeqa hai jisme ek function apne aap ko directly ya indirectly call karta hai jab tak ke base condition poori na ho jaye (e.g. Factorial calculation).`;
+  }
+
+  if (q.includes('pointer')) {
+    return `**Pointer** ek special variable hai jo kisi doosray variable ka memory address store karta hai. Yeh direct memory access aur dynamic memory allocation ke liye use hota hai (zyada tar C/C++ mein).`;
+  }
+
+  // 17. FRIENDLY NATURAL FALLBACK
+  return `Assalam-o-Alaikum **${firstName}**! Main aapka academic advisor hoon. Main aapke portal records (CGPA, marks, attendance, admit card, transcript, timetable) aur parhai ke kisi bhi concept par aapki foran madad kar sakta hoon. Aap apna sawal thora mazeed specific kar ke poochein, main direct jawab doon ga!`;
 }
 
 // ============================================================================
