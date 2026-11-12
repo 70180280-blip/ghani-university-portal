@@ -94,15 +94,29 @@ app.use('/sample_uploads', express.static(path.join(__dirname, 'sample_uploads')
 app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 
+function readViewFile(filename) {
+  const candidates = [
+    path.join(__dirname, 'views', filename),
+    path.join(process.cwd(), 'views', filename),
+    path.join(__dirname, '..', 'views', filename)
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) {
+      return fs.readFileSync(c, 'utf8');
+    }
+  }
+  return `<!DOCTYPE html><html><head><title>Ghani University Portal</title></head><body style="font-family:sans-serif;padding:40px;text-align:center;"><h2>Ghani University Portal</h2><p>Loading application...</p><script>window.location.reload();</script></body></html>`;
+}
+
 // 6. View Routes
 app.get('/', (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+  res.send(readViewFile('index.html'));
 });
 
 app.get('/admin', (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.sendFile(path.join(__dirname, 'views', 'admin.html'));
+  res.send(readViewFile('admin.html'));
 });
 
 app.get('/login', (req, res) => {
