@@ -67,18 +67,15 @@ app.use(helmet({
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
-// 3. Session Management
-app.use(session({
+// 3. Session Management (Signed Cookie Session for 100% 24/7 Cloud & Serverless compatibility)
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
   name: 'gtiu_sid',
-  secret: process.env.SESSION_SECRET || 'gtiu-super-secret-key-sheikhupura-2026',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: false, // Set to true if behind HTTPS in production
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+  keys: [process.env.SESSION_SECRET || 'gtiu-super-secret-key-sheikhupura-2026', 'gtiu-backup-secret-key'],
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days persistent
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: false
 }));
 
 // 4. Static Assets (Strict No-Cache for live dev/updates)

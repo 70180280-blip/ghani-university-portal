@@ -23,8 +23,9 @@
   "author": "Ghani Technical & Islamic University",
   "license": "ISC",
   "dependencies": {
-    "@google/genai": "^0.1.2",
+    "@google/genai": "^3.0.0",
     "bcryptjs": "^3.0.2",
+    "cookie-session": "^2.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
