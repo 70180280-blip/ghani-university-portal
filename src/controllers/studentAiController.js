@@ -71,6 +71,35 @@ async function buildStudentAcademicContext(student) {
 
   const overallAtt = calculateAttendanceMetrics(attRows);
 
+  // Fetch active registered courses for current semester
+  let registeredCourses = [];
+  try {
+    const [rcRows] = await db.query(`
+      SELECT c.code, c.title, c.credit_hours, e.teacher_name, e.section, e.status
+      FROM enrollments e
+      JOIN courses c ON e.course_code = c.code
+      WHERE e.student_id = ? AND e.semester_number = ?
+    `, [student.id, student.current_semester]);
+    registeredCourses = rcRows || [];
+  } catch (err) {
+    console.warn('[Student AI Controller] Could not fetch enrollments:', err.message);
+  }
+
+  // Fetch timetable slots for this student's program and semester
+  let timetableSlots = [];
+  try {
+    const [ttRows] = await db.query(`
+      SELECT t.day_of_week, t.start_time, t.end_time, t.room, t.course_code, c.title as course_title
+      FROM timetable t
+      JOIN courses c ON t.course_code = c.code
+      WHERE t.program_code = ? AND t.semester_number = ?
+      ORDER BY FIELD(t.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'), t.start_time
+    `, [student.program_code, student.current_semester]);
+    timetableSlots = ttRows || [];
+  } catch (err) {
+    console.warn('[Student AI Controller] Could not fetch timetable:', err.message);
+  }
+
   return {
     id: student.id,
     name: student.name,
@@ -80,6 +109,12 @@ async function buildStudentAcademicContext(student) {
     batch: student.batch,
     current_semester: student.current_semester,
     total_ch_required: student.total_ch_required || 130,
+    phone: student.phone || '',
+    father_phone: student.father_phone || '',
+    email: student.email || '',
+    status: student.status || 'Active',
+    registered_courses: registeredCourses,
+    timetable_slots: timetableSlots,
     cgpa: overallStats.cgpa,
     earned_ch: overallStats.earnedCH,
     overall_percentage: overallStats.overallPercentage,
