@@ -1,0 +1,43 @@
+{
+  "name": "ghani-university-portal",
+  "version": "1.0.0",
+  "description": "Enterprise Academic Management Student Portal & Admin ERP for Ghani Technical & Islamic University Sheikhupura",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/calculations.test.js",
+    "test:all": "node --test tests/**/*.test.js",
+    "seed": "node src/db/seed.js",
+    "check": "node scripts/check-db.js",
+    "generate:samples": "node scripts/generate_sample_files.js"
+  },
+  "keywords": [
+    "university-portal",
+    "erp",
+    "fiori",
+    "student-portal",
+    "gemini-ai",
+    "education"
+  ],
+  "author": "Ghani Technical & Islamic University",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^0.1.2",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.12.0",
+    "officeparser": "^5.1.0",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.16.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "officegen": "^0.6.0"
+  }
+}

@@ -1,0 +1,366 @@
+/**
+ * Ghani University Portal - SAP Fiori Style Styling & Theme Rules
+ * Branding: Navy #0B2A7A, Sky Blue #1E88D6, Red #C4161C, Charcoal #4A4A4A
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
+
+:root {
+  --color-primary: #0B2A7A;
+  --color-accent: #1E88D6;
+  --color-danger: #C4161C;
+  --color-text-secondary: #4A4A4A;
+  --bg-main: #0B1120;
+  --bg-card: #1E293B;
+  --bg-card-hover: #283548;
+  --border-color: #334155;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --tile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+html.light {
+  --bg-main: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --border-color: #E2E8F0;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --tile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+}
+
+/* ========================================================================== */
+/* LIGHT THEME (Brightness Mode) SAP Fiori Styles                             */
+/* ========================================================================== */
+
+html.light body {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+/* Fiori Section Headers in Light Mode */
+html.light .fiori-section-header {
+  color: #0F172A !important;
+}
+html.light .fiori-section-header::after {
+  background: #CBD5E1 !important;
+}
+
+/* Fiori Tiles in Light Mode */
+html.light .fiori-tile {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .fiori-tile:hover {
+  background-color: #F8FAFC !important;
+  border-color: #1E88D6 !important;
+  box-shadow: 0 10px 15px -3px rgba(30, 136, 214, 0.15) !important;
+}
+
+html.light .fiori-tile h3 {
+  color: #0F172A !important;
+}
+
+html.light .fiori-tile .text-white {
+  color: #0F172A !important;
+}
+
+html.light .fiori-tile .text-slate-200 {
+  color: #1E293B !important;
+}
+
+html.light .fiori-tile .text-slate-300,
+html.light .fiori-tile .text-slate-400,
+html.light .fiori-tile p[id$="-sub"] {
+  color: #64748B !important;
+}
+
+html.light .fiori-tile .border-slate-700\/50,
+html.light .fiori-tile .border-slate-700,
+html.light .fiori-tile .border-slate-800 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Login View in Light Mode */
+html.light #login-section > div {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light #login-section h2 {
+  color: #0F172A !important;
+}
+
+html.light #login-section p {
+  color: #64748B !important;
+}
+
+html.light #login-section label {
+  color: #334155 !important;
+}
+
+html.light #login-section input {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light #login-section input:focus {
+  border-color: #1E88D6 !important;
+  background-color: #FFFFFF !important;
+}
+
+html.light #login-section input::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light #login-section .border-slate-800 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Student Banner in Light Mode */
+html.light #portal-section .rounded-2xl.bg-gradient-to-r {
+  background: linear-gradient(135deg, #0B2A7A 0%, #153E9B 50%, #1E88D6 100%) !important;
+  border-color: #38BDF8 !important;
+  box-shadow: 0 10px 25px -5px rgba(11, 42, 122, 0.25) !important;
+}
+
+html.light #portal-section .rounded-2xl.bg-gradient-to-r h2,
+html.light #portal-section .rounded-2xl.bg-gradient-to-r .text-white {
+  color: #FFFFFF !important;
+}
+
+html.light #portal-section .rounded-2xl.bg-gradient-to-r .text-slate-300 {
+  color: #E0F2FE !important;
+}
+
+html.light #portal-section .rounded-2xl.bg-gradient-to-r .bg-slate-800\/80 {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(8px);
+}
+
+html.light #portal-section .rounded-2xl.bg-gradient-to-r .text-slate-400 {
+  color: #E0F2FE !important;
+}
+
+/* Modal Windows in Light Mode */
+html.light #view-modal-container {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+}
+
+html.light #view-modal-container > div {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.light #view-modal-container > div > div:first-child {
+  background-color: #F8FAFC !important;
+  border-bottom-color: #E2E8F0 !important;
+}
+
+html.light #view-modal-title {
+  color: #0F172A !important;
+}
+
+html.light #view-modal-container .bg-slate-900,
+html.light #view-modal-container .bg-slate-950 {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light #view-modal-container .bg-slate-800\/80,
+html.light #view-modal-container .bg-slate-800\/50,
+html.light #view-modal-container .bg-slate-800 {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light #view-modal-container h2,
+html.light #view-modal-container h3,
+html.light #view-modal-container h4,
+html.light #view-modal-container .text-white {
+  color: #0F172A !important;
+}
+
+html.light #view-modal-container .text-slate-100,
+html.light #view-modal-container .text-slate-200 {
+  color: #1E293B !important;
+}
+
+html.light #view-modal-container .text-slate-300,
+html.light #view-modal-container .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.light #view-modal-container .border-slate-700,
+html.light #view-modal-container .border-slate-800 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Tables inside modal views */
+html.light #view-modal-container table th {
+  background-color: #F1F5F9 !important;
+  color: #334155 !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light #view-modal-container table td {
+  border-color: #E2E8F0 !important;
+  color: #1E293B !important;
+}
+
+html.light #view-modal-container table tr:hover td {
+  background-color: #F8FAFC !important;
+}
+
+/* Inputs & selects inside modals */
+html.light #view-modal-container input,
+html.light #view-modal-container select,
+html.light #view-modal-container textarea {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light #view-modal-container input::placeholder,
+html.light #view-modal-container textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* AI Chat bubbles in light mode */
+html.light #ai-chat-messages .bg-slate-800 {
+  background-color: #F1F5F9 !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+html.light #ai-chat-messages .text-slate-200 {
+  color: #1E293B !important;
+}
+
+/* Footer in Light Mode */
+html.light footer {
+  border-color: #E2E8F0 !important;
+  color: #64748B !important;
+}
+html.light footer p {
+  color: #64748B !important;
+}
+html.light footer a {
+  color: #64748B !important;
+}
+html.light footer a:hover {
+  color: #0F172A !important;
+}
+
+/* Fiori Top Shell Navigation Bar */
+.fiori-shell {
+  background: linear-gradient(90deg, #0B2A7A 0%, #153E9B 60%, #1E88D6 100%);
+  border-bottom: 2px solid #1E88D6;
+}
+
+/* Fiori Tiles */
+.fiori-tile {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--tile-shadow);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.fiori-tile:hover {
+  background-color: var(--bg-card-hover);
+  transform: translateY(-3px);
+  border-color: #1E88D6;
+  box-shadow: 0 10px 15px -3px rgba(30, 136, 214, 0.2);
+}
+
+.fiori-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0B2A7A, #1E88D6);
+  opacity: 0.8;
+}
+
+.fiori-tile.warning-tile::before {
+  background: #C4161C;
+}
+
+/* Fiori Section Headers */
+.fiori-section-header {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fiori-section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+  margin-left: 0.5rem;
+}
+
+/* Progress bar */
+.progress-bar-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1E88D6;
+}
+
+/* Print Styles for Transcripts and Admit Cards */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .printable-document {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+}

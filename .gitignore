@@ -1,0 +1,22 @@
+# Environment variables
+.env
+.env.txt
+.env.*
+
+# Certificates and keys
+ca.pem
+*.pem
+
+# Dependencies
+node_modules/
+
+# Logs and temp files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+dist/
+build/
+uploads/
+temp/
+

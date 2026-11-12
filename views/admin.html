@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin ERP Portal | Ghani Technical & Islamic University</title>
+  <link rel="icon" type="image/png" href="/images/logo.png" onerror="this.href='/images/logo.svg'">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gtiu: {
+              navy: '#0B2A7A',
+              sky: '#1E88D6',
+              red: '#C4161C',
+              charcoal: '#4A4A4A'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="/css/portal.css?v=20261108_commit_red_green">
+  <script>
+    // Bulletproof inline tab switcher guaranteed to run in all browser states
+    window.switchAdminTab = function(tabName) {
+      console.log('[Admin ERP] Switching tab to:', tabName);
+      const tabs = ['upload', 'overview', 'search', 'atrisk', 'students', 'audit', 'cleanup'];
+      tabs.forEach(function(t) {
+        var el = document.getElementById('tab-content-' + t);
+        var btn = document.getElementById('tab-btn-' + t);
+        if (el) {
+          el.classList.add('hidden');
+          el.style.display = 'none';
+        }
+        if (btn) {
+          btn.classList.remove('bg-sky-600', 'text-white');
+          btn.classList.add('text-slate-400');
+        }
+      });
+
+      var activeEl = document.getElementById('tab-content-' + tabName);
+      var activeBtn = document.getElementById('tab-btn-' + tabName);
+      if (activeEl) {
+        activeEl.classList.remove('hidden');
+        activeEl.style.display = 'block';
+      }
+      if (activeBtn) {
+        activeBtn.classList.add('bg-sky-600', 'text-white');
+        activeBtn.classList.remove('text-slate-400');
+      }
+
+      try {
+        if (tabName === 'students' && typeof window.loadStudentManager === 'function') {
+          window.loadStudentManager();
+        } else if (tabName === 'overview') {
+          if (typeof window.loadAdminDashboardStats === 'function') window.loadAdminDashboardStats();
+          if (typeof window.loadUploadHistory === 'function') window.loadUploadHistory();
+        } else if (tabName === 'atrisk' && typeof window.loadAtRiskReport === 'function') {
+          window.loadAtRiskReport();
+        } else if (tabName === 'audit' && typeof window.loadAuditLogs === 'function') {
+          window.loadAuditLogs();
+        }
+      } catch (err) {
+        console.error('Tab switch handler error:', err);
+      }
+    };
+  </script>
+  <script src="/js/admin.js?v=20261108_commit_red_green"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
+
+  <!-- Top Admin Shell Navigation -->
+  <header class="fiori-shell sticky top-0 z-40 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2">
+          <img src="/images/logo.png" alt="GTIU" class="h-9 w-9 rounded" onerror="this.style.display='none'" />
+          <div>
+            <h1 class="text-base font-bold leading-tight">GTIU Administration ERP</h1>
+            <p class="text-[10px] text-sky-200">Controller of Examinations & Registrar Office</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Live Database Status Dot Indicator (Green = Connected, Red = Disconnected) -->
+        <div id="db-indicator-pill" onclick="window.retryDbConnection()" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700 text-xs backdrop-blur-sm cursor-pointer select-none transition hover:border-slate-500 hover:bg-slate-800" title="Checking database connection...">
+          <span class="relative flex h-2.5 w-2.5 items-center justify-center">
+            <span id="db-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span id="db-status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)]"></span>
+          </span>
+          <span id="db-status-text" class="text-[11px] font-semibold text-emerald-300">MySQL Live</span>
+        </div>
+
+        <span id="admin-nav-user" class="text-xs font-bold text-sky-200 px-3 py-1 bg-white/10 rounded-lg">Admin</span>
+        <a href="/" class="px-3 py-1.5 text-xs text-sky-200 hover:text-white rounded-lg bg-sky-900/60 border border-sky-400/40 font-semibold flex items-center gap-1">
+          <span>Student Portal</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+        <button id="admin-logout-btn" class="px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow">
+          Logout
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 1. ADMIN LOGIN VIEW                                                   -->
+  <!-- ===================================================================== -->
+  <main id="admin-login-view" class="flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+      
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-blue-950/80 border border-sky-500/40 text-sky-400 mb-1">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white">Administrator Portal Sign In</h2>
+        <p class="text-xs text-slate-400">Ghani Technical & Islamic University Sheikhupura</p>
+      </div>
+
+      <div id="admin-login-error" class="hidden p-3 rounded-lg bg-red-950/50 border border-red-500/50 text-red-300 text-xs text-center font-medium"></div>
+
+      <form id="admin-login-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Username</label>
+          <input type="text" id="admin-username" required placeholder="Enter authorized username" autocomplete="username"
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 font-medium" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Password</label>
+          <input type="password" id="admin-password" required placeholder="••••••••" autocomplete="current-password"
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 font-medium" />
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white rounded-xl text-xs font-bold shadow-lg transition">
+          Sign In as Administrator
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 2. ADMIN DASHBOARD & WORKBENCH VIEW                                   -->
+  <!-- ===================================================================== -->
+  <main id="admin-dashboard-view" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    
+    <!-- Top Action Card: Upload Direct CTA -->
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-sky-950 via-blue-900 to-indigo-950 border border-sky-500/40 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded bg-sky-500 text-slate-950 font-black text-xs uppercase tracking-wider">Data Ingestion Center</span>
+          <span class="text-xs text-sky-200">Database is clean &amp; ready for your files</span>
+        </div>
+        <h2 class="text-lg sm:text-xl font-black text-white">Upload Student Lists, Marks &amp; Attendance</h2>
+        <p class="text-xs text-slate-300">
+          Upload any <strong>Excel (.xlsx, .xls, .csv)</strong>, <strong>PDF</strong>, or <strong>PowerPoint (.pptx)</strong> file containing student names, father names, student contact numbers, and father contact numbers.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <a href="/templates/sample_students_template.xlsx" download class="px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 text-sky-300 border border-slate-600 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download Excel Template
+        </a>
+        <button onclick="window.switchAdminTab('upload')" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          Upload Your File Now
+        </button>
+      </div>
+    </div>
+
+
+    <!-- KPI Counters Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div onclick="window.switchAdminTab('students')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center cursor-pointer hover:border-sky-500 transition">
+        <div>
+          <span class="text-xs text-slate-400">Total Students</span>
+          <p id="stat-students-count" class="text-2xl font-black text-sky-400">0</p>
+        </div>
+        <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
+      </div>
+      <div onclick="window.switchAdminTab('overview')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center cursor-pointer hover:border-emerald-500 transition">
+        <div>
+          <span class="text-xs text-slate-400">Upload History</span>
+          <p id="stat-uploads-count" class="text-2xl font-black text-emerald-400">0</p>
+        </div>
+        <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg></div>
+      </div>
+      <div onclick="window.switchAdminTab('courses')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center cursor-pointer hover:border-indigo-500 transition">
+        <div>
+          <span class="text-xs text-slate-400">Active Courses</span>
+          <p id="stat-courses-count" class="text-2xl font-black text-indigo-400">60</p>
+        </div>
+        <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
+      </div>
+      <div onclick="window.switchAdminTab('atrisk')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center cursor-pointer hover:border-red-500 transition">
+        <div>
+          <span class="text-xs text-slate-400">At-Risk Students</span>
+          <p id="stat-atrisk-count" class="text-2xl font-black text-red-400">0</p>
+        </div>
+        <div class="p-2 rounded-lg bg-red-500/10 text-red-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Tabs (Bulletproof inline onclick) -->
+    <div class="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-2">
+      <button id="tab-btn-upload" onclick="window.switchAdminTab('upload')" class="px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white transition shadow flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        <span>📤 Upload Files & Data</span>
+      </button>
+      <button id="tab-btn-students" onclick="window.switchAdminTab('students')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+        👥 Student Registry
+      </button>
+      <button id="tab-btn-courses" onclick="window.switchAdminTab('courses')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+        📚 Active Courses
+      </button>
+      <button id="tab-btn-overview" onclick="window.switchAdminTab('overview')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+        📊 Overview & Excel Exports
+      </button>
+      <button id="tab-btn-search" onclick="window.switchAdminTab('search')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+        🔍 AI Natural Search
+      </button>
+      <button id="tab-btn-atrisk" onclick="window.switchAdminTab('atrisk')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+        ⚠️ At-Risk Report
+      </button>
+      <button id="tab-btn-audit" onclick="window.switchAdminTab('audit')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+        🔒 Audit Logs
+      </button>
+      <button id="tab-btn-cleanup" onclick="window.switchAdminTab('cleanup')" class="px-4 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-950/40 transition border border-red-500/30 flex items-center gap-1.5 ml-auto">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span>🗑️ Purge &amp; Reset Data</span>
+      </button>
+    </div>
+
+    <!-- TAB 1 (DEFAULT): FILE UPLOAD & PREVIEW -->
+    <div id="tab-content-upload" class="space-y-6">
+      <div class="p-6 sm:p-8 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Upload Student Data File (Excel, PDF, or PowerPoint)
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Our AI ingestion engine automatically detects columns like <strong>Student Name</strong>, <strong>Father's Name</strong>, <strong>Student Contact Number</strong>, and <strong>Father's Contact Number</strong>.
+          </p>
+        </div>
+
+        <form id="admin-upload-form" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- File Picker -->
+            <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700 space-y-2">
+              <label class="block text-xs font-bold text-sky-300">Choose File to Ingest</label>
+              <input type="file" id="upload-file-input" required accept=".xlsx,.xls,.csv,.pdf,.pptx,.ppt,.png,.jpg,.jpeg"
+                     class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white hover:file:bg-sky-500 cursor-pointer" />
+              <p class="text-[11px] text-slate-400">Accepted: Excel (.xlsx, .xls, .csv), PDF, PowerPoint (.pptx)</p>
+            </div>
+
+            <!-- Plain Instruction -->
+            <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700 space-y-2">
+              <label class="block text-xs font-bold text-sky-300">Plain Instruction (Optional)</label>
+              <input type="text" id="upload-instruction-input" placeholder="e.g. 'This is student list with phone and father contact' or 'BSCS Batch 2024'"
+                     class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500" />
+              <p class="text-[11px] text-slate-400">Helps AI prioritize column mapping</p>
+            </div>
+
+          </div>
+
+          <button type="submit" class="px-6 py-3 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span>Process File & Generate AI Preview</span>
+          </button>
+        </form>
+
+        <div id="upload-status-box" class="hidden p-4 rounded-xl bg-slate-800/80 border border-slate-700"></div>
+      </div>
+
+      <!-- PREVIEW SCREEN -->
+      <div id="upload-preview-area" class="hidden p-6 rounded-2xl bg-slate-900 border border-sky-500/50 space-y-4 shadow-2xl">
+        <!-- Live Success Banner after Confirm -->
+        <div id="commit-success-container"></div>
+
+        <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span id="preview-indicator-dot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+              <span id="preview-heading-text">Extracted Data Preview (Review &amp; Click Red Button to Commit to MySQL)</span>
+            </h3>
+            <p id="preview-summary-text" class="text-xs text-slate-400 mt-1"></p>
+          </div>
+          <button id="confirm-upload-btn" onclick="window.confirmPreviewData()" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-red-900/50 flex items-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <span id="confirm-btn-label">Confirm &amp; Commit to Database</span>
+          </button>
+        </div>
+
+        <div id="preview-table-container" class="overflow-x-auto rounded-xl border border-slate-800"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: STUDENT REGISTRY -->
+    <div id="tab-content-students" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-white">Active Student Registry</h3>
+            <p class="text-xs text-slate-400">List of students in the system with student contact numbers and father contact numbers</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="window.switchAdminTab('upload')" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold transition">
+              + Upload Student List
+            </button>
+            <button onclick="window.handleDeleteAllStudents()" class="px-3.5 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-bold border border-red-500/40 transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span>Delete All Students</span>
+            </button>
+            <button onclick="window.loadStudentManager()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
+              Reload
+            </button>
+          </div>
+        </div>
+        <div id="student-manager-container"></div>
+      </div>
+    </div>
+
+    <!-- TAB: ACTIVE COURSES CATALOG -->
+    <div id="tab-content-courses" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-white">Active Courses Curriculum</h3>
+            <p class="text-xs text-slate-400">Complete curriculum course offerings with credit hours, lecture hours, and lab hours</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="window.loadCoursesCatalog()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
+              Reload Courses
+            </button>
+          </div>
+        </div>
+        <div id="courses-manager-container"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: OVERVIEW & EXPORTS -->
+    <div id="tab-content-overview" class="hidden space-y-6">
+      
+      <!-- Excel Exports Bar -->
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h3 class="text-sm font-bold text-white">Excel Institutional Exports</h3>
+          <p class="text-xs text-slate-400">Download formatted Excel spreadsheets for administrative records</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a href="/api/admin/export?type=students" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export Students (.xlsx)
+          </a>
+          <a href="/api/admin/export?type=results" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export Results (.xlsx)
+          </a>
+          <a href="/api/admin/export?type=attendance" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export Attendance (.xlsx)
+          </a>
+        </div>
+      </div>
+
+      <!-- Upload History Table -->
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <h3 class="text-sm font-bold text-white">Upload History & Rollback System</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 font-bold border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Filename</th>
+                <th class="py-2.5 px-3">Instruction</th>
+                <th class="py-2.5 px-3">Type</th>
+                <th class="py-2.5 px-3">Date Uploaded</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="upload-history-tbody" class="divide-y divide-slate-800">
+              <tr><td colspan="6" class="py-4 text-center text-slate-500">Loading history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 4: AI NATURAL SEARCH -->
+    <div id="tab-content-search" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div>
+          <h3 class="text-sm font-bold text-white">Safe AI Natural Language Database Query</h3>
+          <p class="text-xs text-slate-400">
+            Ask any question in plain language. The AI translates your prompt into a strictly validated, read-only parameterized query against whitelisted university tables.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2 text-xs">
+          <button onclick="window.handleAiSearch('students with attendance below 75%')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700">Attendance below 75%</button>
+          <button onclick="window.handleAiSearch('top 5 students by CGPA')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700">Top 5 students by CGPA</button>
+          <button onclick="window.handleAiSearch('students who failed one or more courses')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700">Who failed courses</button>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="ai-search-input" placeholder="e.g. 'Show me all students in BSCS' or 'Who failed Digital Logic?'"
+                 class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500" />
+          <button onclick="window.handleAiSearch()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition">
+            Search
+          </button>
+        </div>
+      </div>
+
+      <div id="ai-search-results-area" class="hidden p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div class="flex justify-between items-center text-xs">
+          <div id="ai-search-explanation" class="text-slate-300"></div>
+          <button id="ai-search-export-btn" onclick="window.exportAiSearchResults()" class="hidden px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs items-center gap-1.5 transition">
+            <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export to CSV
+          </button>
+        </div>
+        <div id="ai-search-table-container" class="overflow-x-auto rounded-xl border border-slate-800"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: AT-RISK REPORT -->
+    <div id="tab-content-atrisk" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white">AI Institutional At-Risk Students Audit</h3>
+            <p class="text-xs text-slate-400">Deterministic code flags students below 75% attendance, CGPA &lt; 2.0, or with failed courses; Gemini compiles the council report.</p>
+          </div>
+          <button onclick="window.loadAtRiskReport()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
+            Refresh Audit
+          </button>
+        </div>
+        <div id="atrisk-report-container"></div>
+      </div>
+    </div>
+
+    <!-- TAB 6: AUDIT LOGS -->
+    <div id="tab-content-audit" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white">System Security &amp; Audit Trail</h3>
+            <p class="text-xs text-slate-400">Immutable chronological log of all administrator operations</p>
+          </div>
+          <button onclick="window.loadAuditLogs()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
+            Refresh Logs
+          </button>
+        </div>
+        <div id="audit-logs-container"></div>
+      </div>
+    </div>
+
+    <!-- TAB 7: DATA MANAGEMENT & PURGE -->
+    <div id="tab-content-cleanup" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-red-500/30 space-y-6">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-red-500/20 text-red-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </span>
+            <span>Direct Page Data Removal &amp; Purge Center</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Easily delete any individual student or purge full datasets directly from this interface without running manual commands.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Option 1: Purge Students -->
+          <div class="p-5 rounded-xl bg-slate-800/50 border border-slate-700 flex flex-col justify-between space-y-4">
+            <div class="space-y-1.5">
+              <span class="text-xs font-bold text-slate-200">1. Remove All Students &amp; Grades</span>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Permanently deletes all student profiles, contacts, semester marks, and attendance logs.
+              </p>
+            </div>
+            <button onclick="window.handlePurgeCategory('students', 'all student records and grades')" class="w-full py-2.5 px-4 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-bold border border-red-500/40 transition">
+              🗑️ Delete All Students &amp; Results
+            </button>
+          </div>
+
+          <!-- Option 2: Purge Uploads -->
+          <div class="p-5 rounded-xl bg-slate-800/50 border border-slate-700 flex flex-col justify-between space-y-4">
+            <div class="space-y-1.5">
+              <span class="text-xs font-bold text-slate-200">2. Clear File Upload History</span>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Clears uploaded file history records, parsed backups, and ingestion logs.
+              </p>
+            </div>
+            <button onclick="window.handlePurgeCategory('uploads', 'all uploaded file logs')" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold transition">
+              🗑️ Clear Upload History
+            </button>
+          </div>
+
+          <!-- Option 3: Purge Schedules -->
+          <div class="p-5 rounded-xl bg-slate-800/50 border border-slate-700 flex flex-col justify-between space-y-4">
+            <div class="space-y-1.5">
+              <span class="text-xs font-bold text-slate-200">3. Clear Timetables &amp; Exam Slips</span>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Removes weekly class timetable schedules and examination seat plans.
+              </p>
+            </div>
+            <button onclick="window.handlePurgeCategory('schedules', 'all timetables and exam schedules')" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold transition">
+              🗑️ Clear Timetable &amp; Exam Schedules
+            </button>
+          </div>
+
+          <!-- Option 4: Full Factory Reset -->
+          <div class="p-5 rounded-xl bg-red-950/20 border border-red-500/50 flex flex-col justify-between space-y-4">
+            <div class="space-y-1.5">
+              <span class="text-xs font-bold text-red-400">4. Complete System Reset</span>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Wipes all dynamic portal data back to clean factory state. Keeps admin credentials and programs intact.
+              </p>
+            </div>
+            <button onclick="window.handlePurgeCategory('all', 'ALL university portal data')" class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black shadow-lg transition">
+              ⚠️ Complete Factory Reset &amp; Wipe
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

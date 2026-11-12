@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: ghani-university-portal
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: mysql-1080a8a4-student-86c7.g.aivencloud.com
+      - key: DB_PORT
+        value: "22240"
+      - key: DB_USER
+        value: avnadmin
+      - key: DB_NAME
+        value: defaultdb
+      - key: DB_SSL
+        value: "true"
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      - key: ADMIN_USERNAME
+        value: admin
