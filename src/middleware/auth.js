@@ -66,19 +66,11 @@ function requireAdminAuth(req, res, next) {
   if (req.session && req.session.admin) {
     return next();
   }
-  // Auto-authenticate localhost / local dev admin session seamlessly
-  const isLocal = req.hostname === 'localhost' || req.hostname === '127.0.0.1' || req.ip === '127.0.0.1' || req.ip === '::1' || !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
-  if (isLocal) {
-    if (req.session) {
-      req.session.admin = { id: 1, username: process.env.ADMIN_USERNAME || 'admin', role: 'SuperAdmin' };
-    }
-    return next();
-  }
   // API requests must ALWAYS receive JSON 401, never HTML 302 redirects
   if (req.originalUrl.startsWith('/api/') || req.xhr || req.headers.accept?.includes('json')) {
     return res.status(401).json({ success: false, error: 'Unauthorized: Admin access required or session expired.' });
   }
-  return res.redirect('/admin/login');
+  return res.redirect('/admin');
 }
 
 /**

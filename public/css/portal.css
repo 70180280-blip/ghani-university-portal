@@ -344,6 +344,26 @@ html.light footer a:hover {
   background: #1E88D6;
 }
 
+/* Table Overflow & Header Clipping Fix (Ghalti No. 10) */
+.table-container,
+.overflow-x-auto {
+  overflow-x: auto !important;
+  width: 100% !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+table th, table td {
+  white-space: nowrap;
+}
+
+table th {
+  min-width: 90px;
+}
+
+table th.text-right, table td.text-right {
+  min-width: 115px;
+}
+
 /* Print Styles for Transcripts and Admit Cards */
 @media print {
   body {

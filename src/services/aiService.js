@@ -384,10 +384,14 @@ function generateStudentChatFallback(data, query) {
 
   // 8. ATTENDANCE / SAFE BUNKS / HAZRI
   if (q.includes('chutti') || q.includes('bunk') || q.includes('miss') || q.includes('absent')) {
-    const list = (data.attendance_summary || []).map(c => 
-      `• **${c.course_code} (${c.title}):** ${c.percentage}% attendance. Aap mazeed **${c.absences_allowed} class(es)** miss kar sakte hain.`
-    ).join('\n');
-    return `Aapki overall attendance **${attPct}%** hai.\n\n**Subject-wise Safe Chuttiyon ki list:**\n${list}\n\n*Note: Exam mein baithne ke liye har course mein 75% attendance lazmi hai.*`;
+    const list = (data.attendance_summary || []).map(c => {
+      const allowed = Number(c.absences_allowed) || 0;
+      if (c.percentage < 75 || allowed <= 0) {
+        return `• **${c.course_code} (${c.title}):** ${c.percentage}% attendance. 🚨 **CRITICAL WARNING:** Attendance below 75%! You CANNOT miss any classes!`;
+      }
+      return `• **${c.course_code} (${c.title}):** ${c.percentage}% attendance. Aap mazeed **${allowed} class(es)** miss kar sakte hain.`;
+    }).join('\n');
+    return `Aapki overall attendance **${attPct}%** hai.\n\n**Subject-wise Safe Chuttiyon ki list:**\n${list}\n\n*Note: Exam mein baithne ke liye har course mein minimum 75% attendance lazmi hai.*`;
   }
 
   if (q.includes('attendance') || q.includes('hazri')) {

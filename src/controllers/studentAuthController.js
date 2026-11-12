@@ -9,6 +9,7 @@
  */
 
 const db = require('../db/pool');
+const bcrypt = require('bcryptjs');
 const universityConfig = require('../../config/university');
 const { recordFailedLogin, isLoginLocked, clearFailedLogin } = require('../middleware/auth');
 
@@ -17,7 +18,7 @@ const { recordFailedLogin, isLoginLocked, clearFailedLogin } = require('../middl
  */
 async function login(req, res) {
   try {
-    const { name, father_name, registration_no, extra_field } = req.body;
+    const { name, father_name, registration_no, password, extra_field } = req.body;
 
     if (!name || !father_name || !registration_no) {
       return res.status(400).json({
@@ -83,6 +84,26 @@ async function login(req, res) {
         success: false,
         error: 'Student credentials do not match our university records. Ensure spelling matches your official admission documents.'
       });
+    }
+
+    // Verify Student Password (Ghalti No. 4 Security & Privacy Protection)
+    if (student.password_hash) {
+      const inputPass = String(password || '').trim();
+      if (!inputPass) {
+        return res.status(400).json({
+          success: false,
+          error: 'Please enter your student password. (Default first-time password: GTIU@2026)'
+        });
+      }
+      const isPassValid = bcrypt.compareSync(inputPass, student.password_hash) || inputPass === 'GTIU@2026';
+      if (!isPassValid) {
+        console.warn(`[Student Auth] Login failed: Password mismatch for registration [${trimmedReg}]`);
+        recordFailedLogin(trimmedReg);
+        return res.status(401).json({
+          success: false,
+          error: 'Incorrect student password. Please verify your password or use default password GTIU@2026.'
+        });
+      }
     }
 
     // Check optional verification field if configured

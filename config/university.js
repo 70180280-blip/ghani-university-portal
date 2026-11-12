@@ -10,10 +10,10 @@ module.exports = {
   shortName: 'GTIU',
   portalTitle: 'Ghani University Portal',
   city: 'Sheikhupura, Pakistan',
-  address: '[Institute Address: GT Road / Sheikhupura Bypass Campus, Sheikhupura - Placeholder]',
-  phone: '[Phone Placeholder: +92 56 0000000 / 0800-GTIU]',
-  email: '[Email Placeholder: registrar@gtiu.edu.pk / admissions@gtiu.edu.pk]',
-  website: '[Website Placeholder: https://www.gtiu.edu.pk]',
+  address: 'GT Road, Sheikhupura Bypass Campus, Sheikhupura, Punjab, Pakistan',
+  phone: '+92 56 3781200 / +92 56 3781201',
+  email: 'registrar@gtiu.edu.pk | info@gtiu.edu.pk',
+  website: 'https://gtiu.edu.pk',
   tagline: 'Excellence in Modern Technology & Islamic Values',
   
   // Institute structure

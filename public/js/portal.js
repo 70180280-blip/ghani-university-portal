@@ -96,14 +96,16 @@ window.closeViewModal = function() {
   }
 };
 
-window.quickFillStudent = function(reg, name, father) {
+window.quickFillStudent = function(reg, name, father, pass = 'GTIU@2026') {
   const regInput = document.getElementById('login-reg-no');
   const nameInput = document.getElementById('login-student-name');
   const fatherInput = document.getElementById('login-father-name');
+  const passInput = document.getElementById('login-password');
 
   if (regInput) regInput.value = reg;
   if (nameInput) nameInput.value = name;
   if (fatherInput) fatherInput.value = father;
+  if (passInput) passInput.value = pass;
 
   // Auto trigger form submit
   const form = document.getElementById('student-login-form');
@@ -1520,6 +1522,7 @@ function setupEventListeners() {
       const name = document.getElementById('login-student-name').value;
       const father_name = document.getElementById('login-father-name').value;
       const registration_no = document.getElementById('login-reg-no').value;
+      const password = document.getElementById('login-password')?.value || '';
       const extra_field = document.getElementById('login-extra-field')?.value || '';
 
       const submitBtn = document.getElementById('login-submit-btn');
@@ -1532,7 +1535,7 @@ function setupEventListeners() {
         const res = await fetch('/api/student/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, father_name, registration_no, extra_field })
+          body: JSON.stringify({ name, father_name, registration_no, password, extra_field })
         });
         const data = await res.json();
 

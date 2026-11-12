@@ -49,6 +49,10 @@ async function adminFetch(url, options = {}) {
 // ============================================================================
 
 window.switchAdminTab = function(tabName) {
+  if (!currentAdmin) {
+    showAdminLogin();
+    return;
+  }
   const tabs = ['upload', 'overview', 'search', 'atrisk', 'students', 'courses', 'audit', 'cleanup'];
   tabs.forEach(t => {
     const el = document.getElementById(`tab-content-${t}`);
@@ -117,9 +121,9 @@ window.handleDeleteStudent = async function(id, name, reg) {
 };
 
 window.handleDeleteAllStudents = async function() {
-  const confirmText = prompt('WARNING: You are about to delete ALL students, marks, and attendance from the database.\nType "DELETE" below to confirm:');
-  if (confirmText !== 'DELETE') {
-    alert('Deletion cancelled. You must type DELETE to proceed.');
+  const confirmText = prompt('CRITICAL SECURITY WARNING:\nYou are about to permanently delete ALL student profiles, grades, and attendance records from the database.\n\nType exactly "DELETE UNIVERSITY DATA" to confirm:');
+  if (confirmText !== 'DELETE UNIVERSITY DATA') {
+    alert('Action cancelled. You must type "DELETE UNIVERSITY DATA" to confirm.');
     return;
   }
 
@@ -139,10 +143,10 @@ window.handleDeleteAllStudents = async function() {
 };
 
 window.handlePurgeCategory = async function(category, label) {
-  const promptWord = category === 'all' ? 'RESET' : 'PURGE';
-  const input = prompt(`CONFIRMATION REQUIRED:\nAre you sure you want to delete ${label}?\nType "${promptWord}" to execute:`);
-  if (input !== promptWord) {
-    alert(`Action cancelled. You must type "${promptWord}" to confirm.`);
+  const requiredPhrase = 'DELETE UNIVERSITY DATA';
+  const input = prompt(`CRITICAL PURGE CONFIRMATION:\nAre you sure you want to permanently delete ${label}?\n\nType exactly "${requiredPhrase}" to execute:`);
+  if (input !== requiredPhrase) {
+    alert(`Action cancelled. You must type "${requiredPhrase}" to confirm.`);
     return;
   }
 
@@ -221,7 +225,7 @@ window.loadDbStatus = async function() {
         text.innerText = stCount !== '' ? `MySQL Live (${stCount} Students)` : 'MySQL Live';
       }
       if (pill) {
-        pill.title = `MySQL Live: Connected to ${data.host || 'Cloud Aiven'}:${data.port || 22240}/${data.database || 'defaultdb'}. Current MySQL Data: ${data.counts?.students || 0} students, ${data.counts?.results || 0} results, ${data.counts?.attendance || 0} attendance. (Click to refresh)`;
+        pill.title = `MySQL Live: Cloud Database Connected. Current Records: ${data.counts?.students || 0} students, ${data.counts?.results || 0} results, ${data.counts?.attendance || 0} attendance. (Click to test connection)`;
       }
     } else {
       // RED DOT: Disconnected
@@ -636,19 +640,19 @@ window.loadStudentManager = async function() {
         </div>
 
         <div class="rounded-xl border border-slate-700 overflow-x-auto bg-slate-800/40 max-h-[600px] overflow-y-auto">
-          <table class="w-full text-left text-xs text-slate-300">
+          <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
             <thead class="bg-slate-900 text-slate-400 font-bold border-b border-slate-700 sticky top-0 z-10 shadow-sm">
               <tr>
-                <th class="py-2.5 px-3">#</th>
-                <th class="py-2.5 px-3">Reg No</th>
-                <th class="py-2.5 px-3">Student Name</th>
-                <th class="py-2.5 px-3">Father's Name</th>
-                <th class="py-2.5 px-3">Student Contact</th>
-                <th class="py-2.5 px-3">Father's Contact</th>
-                <th class="py-2.5 px-2 text-center">Batch / Program</th>
-                <th class="py-2.5 px-2 text-center">Sem</th>
-                <th class="py-2.5 px-3">Status</th>
-                <th class="py-2.5 px-3 text-right">Actions</th>
+                <th class="py-2.5 px-3 min-w-[40px]">#</th>
+                <th class="py-2.5 px-3 min-w-[130px] whitespace-nowrap">Reg No</th>
+                <th class="py-2.5 px-3 min-w-[150px] whitespace-nowrap">Student Name</th>
+                <th class="py-2.5 px-3 min-w-[150px] whitespace-nowrap">Father's Name</th>
+                <th class="py-2.5 px-3 min-w-[120px] whitespace-nowrap">Student Contact</th>
+                <th class="py-2.5 px-3 min-w-[120px] whitespace-nowrap">Father's Contact</th>
+                <th class="py-2.5 px-2 text-center min-w-[120px] whitespace-nowrap">Batch / Program</th>
+                <th class="py-2.5 px-2 text-center min-w-[50px] whitespace-nowrap">Sem</th>
+                <th class="py-2.5 px-3 min-w-[80px] whitespace-nowrap">Status</th>
+                <th class="py-2.5 px-3 text-right min-w-[120px] whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700/50">
@@ -658,16 +662,16 @@ window.loadStudentManager = async function() {
       const searchData = `${s.name} ${s.registration_no} ${s.father_name || ''} ${s.phone || ''} ${s.father_phone || ''}`.toLowerCase();
       html += `
         <tr class="hover:bg-slate-800/40 student-row" data-search="${escapeHtml(searchData)}">
-          <td class="py-2.5 px-3 text-slate-500">${idx + 1}</td>
-          <td class="py-2.5 px-3 font-bold text-sky-400 font-mono">${escapeHtml(s.registration_no)}</td>
-          <td class="py-2.5 px-3 font-semibold text-white">${escapeHtml(s.name)}</td>
-          <td class="py-2.5 px-3 text-slate-300">${escapeHtml(s.father_name || '—')}</td>
-          <td class="py-2.5 px-3 text-sky-300 font-mono font-medium">${escapeHtml(s.phone || '—')}</td>
-          <td class="py-2.5 px-3 text-emerald-300 font-mono font-medium">${escapeHtml(s.father_phone || '—')}</td>
-          <td class="py-2.5 px-2 text-center text-slate-300">${escapeHtml(s.batch || '')} <span class="text-[10px] text-slate-400">(${escapeHtml(s.program_code)})</span></td>
-          <td class="py-2.5 px-2 text-center font-bold text-slate-200">${s.current_semester || 1}</td>
-          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${escapeHtml(s.status || 'Active')}</span></td>
-          <td class="py-2.5 px-3 text-right">
+          <td class="py-2.5 px-3 text-slate-500 whitespace-nowrap">${idx + 1}</td>
+          <td class="py-2.5 px-3 font-bold text-sky-400 font-mono whitespace-nowrap">${escapeHtml(s.registration_no)}</td>
+          <td class="py-2.5 px-3 font-semibold text-white whitespace-nowrap">${escapeHtml(s.name)}</td>
+          <td class="py-2.5 px-3 text-slate-300 whitespace-nowrap">${escapeHtml(s.father_name || '—')}</td>
+          <td class="py-2.5 px-3 text-sky-300 font-mono font-medium whitespace-nowrap">${escapeHtml(s.phone || '—')}</td>
+          <td class="py-2.5 px-3 text-emerald-300 font-mono font-medium whitespace-nowrap">${escapeHtml(s.father_phone || '—')}</td>
+          <td class="py-2.5 px-2 text-center text-slate-300 whitespace-nowrap">${escapeHtml(s.batch || '')} <span class="text-[10px] text-slate-400">(${escapeHtml(s.program_code)})</span></td>
+          <td class="py-2.5 px-2 text-center font-bold text-slate-200 whitespace-nowrap">${s.current_semester || 1}</td>
+          <td class="py-2.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${escapeHtml(s.status || 'Active')}</span></td>
+          <td class="py-2.5 px-3 text-right whitespace-nowrap">
             <div class="flex justify-end items-center gap-1.5">
               <button onclick="window.promptEditStudent(${s.id})" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600 text-sky-300 hover:text-white rounded text-[11px] font-semibold border border-sky-500/30 transition">
                 Edit
@@ -690,43 +694,34 @@ window.loadStudentManager = async function() {
 
 window.promptEditStudent = async function(id) {
   try {
-    const res = await adminFetch(`/api/admin/students`);
+    const res = await adminFetch('/api/admin/students');
     const data = await res.json();
     const student = (data.students || []).find(s => s.id === id);
     if (!student) return alert('Student record not found.');
 
-    const name = prompt('Update Student Name:', student.name);
-    if (!name) return;
-    const father_name = prompt("Update Father's Name:", student.father_name);
-    if (!father_name) return;
-    const phone = prompt('Update Student Contact Number:', student.phone || '');
-    const father_phone = prompt("Update Father's Contact Number:", student.father_phone || '');
-    const email = prompt('Update Student Email / Gmail:', student.email || '');
-    const current_semester = prompt('Update Semester (1-8):', student.current_semester || 1);
+    document.getElementById('edit-student-id').value = student.id;
+    document.getElementById('edit-modal-reg').innerText = `Registration: ${student.registration_no} (${student.program_code || 'BSCS'}, Batch ${student.batch || '2023'})`;
+    document.getElementById('edit-student-name').value = student.name || '';
+    document.getElementById('edit-father-name').value = student.father_name || '';
+    document.getElementById('edit-student-phone').value = student.phone || '';
+    document.getElementById('edit-father-phone').value = student.father_phone || '';
+    document.getElementById('edit-student-email').value = student.email || '';
+    document.getElementById('edit-current-semester').value = student.current_semester || 1;
+    document.getElementById('edit-student-status').value = student.status || 'Active';
 
-    const updateRes = await adminFetch(`/api/admin/students/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        father_name,
-        phone,
-        father_phone,
-        email,
-        current_semester,
-        status: student.status || 'Active'
-      })
-    });
-    const updateData = await updateRes.json();
-    if (updateData.success) {
-      alert(updateData.message || 'Student updated successfully.');
-      if (window.loadStudentManager) window.loadStudentManager();
-    } else {
-      alert(`Error: ${updateData.error}`);
-    }
+    const errBox = document.getElementById('edit-modal-error');
+    if (errBox) errBox.classList.add('hidden');
+
+    const modal = document.getElementById('student-edit-modal');
+    if (modal) modal.classList.remove('hidden');
   } catch (err) {
-    alert(`Update error: ${err.message}`);
+    alert(`Could not open student edit modal: ${err.message}`);
   }
+};
+
+window.closeEditStudentModal = function() {
+  const modal = document.getElementById('student-edit-modal');
+  if (modal) modal.classList.add('hidden');
 };
 
 window.filterCoursesTable = function(query) {
@@ -981,19 +976,29 @@ async function checkAdminSession() {
 }
 
 function showAdminLogin() {
+  currentAdmin = null;
   const loginView = document.getElementById('admin-login-view');
   const dashView = document.getElementById('admin-dashboard-view');
+  const navUser = document.getElementById('admin-nav-user');
+  const logoutBtn = document.getElementById('admin-logout-btn');
   if (loginView) loginView.classList.remove('hidden');
   if (dashView) dashView.classList.add('hidden');
+  if (navUser) navUser.classList.add('hidden');
+  if (logoutBtn) logoutBtn.classList.add('hidden');
 }
 
 function showAdminDashboard() {
   const loginView = document.getElementById('admin-login-view');
   const dashView = document.getElementById('admin-dashboard-view');
   const navUser = document.getElementById('admin-nav-user');
+  const logoutBtn = document.getElementById('admin-logout-btn');
   if (loginView) loginView.classList.add('hidden');
   if (dashView) dashView.classList.remove('hidden');
-  if (navUser && currentAdmin) navUser.innerText = currentAdmin.username;
+  if (navUser) {
+    navUser.classList.remove('hidden');
+    navUser.innerText = currentAdmin?.username || 'Admin';
+  }
+  if (logoutBtn) logoutBtn.classList.remove('hidden');
 
   // Load live DB status
   if (window.loadDbStatus) window.loadDbStatus();
@@ -1258,6 +1263,67 @@ function setupAdminEventListeners() {
   const uploadForm = document.getElementById('admin-upload-form');
   if (uploadForm) {
     uploadForm.addEventListener('submit', handleFileUpload);
+  }
+
+  // Student Profile Edit Modal Form (Ghalti No. 9 Fix)
+  const studentEditForm = document.getElementById('student-edit-form');
+  if (studentEditForm) {
+    studentEditForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-student-id').value;
+      const name = document.getElementById('edit-student-name').value.trim();
+      const father_name = document.getElementById('edit-father-name').value.trim();
+      const phone = document.getElementById('edit-student-phone').value.trim();
+      const father_phone = document.getElementById('edit-father-phone').value.trim();
+      const email = document.getElementById('edit-student-email').value.trim();
+      const current_semester = parseInt(document.getElementById('edit-current-semester').value) || 1;
+      const status = document.getElementById('edit-student-status').value;
+
+      const saveBtn = document.getElementById('edit-save-btn');
+      const errBox = document.getElementById('edit-modal-error');
+      if (errBox) errBox.classList.add('hidden');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerText = 'Saving...';
+      }
+
+      try {
+        const updateRes = await adminFetch(`/api/admin/students/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            father_name,
+            phone,
+            father_phone,
+            email,
+            current_semester,
+            status
+          })
+        });
+        const updateData = await updateRes.json();
+        if (updateData.success) {
+          window.closeEditStudentModal();
+          if (window.loadStudentManager) window.loadStudentManager();
+          if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
+        } else {
+          if (errBox) {
+            errBox.innerText = updateData.error || 'Failed to update student.';
+            errBox.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        if (errBox) {
+          errBox.innerText = `Update error: ${err.message}`;
+          errBox.classList.remove('hidden');
+        }
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerText = 'Save Changes';
+        }
+      }
+    });
   }
 
   // Explicit event listeners for all Admin tabs (bulletproof backup to inline onclick)

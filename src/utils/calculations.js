@@ -230,6 +230,19 @@ function calculateAbsencesAllowed(present, totalConducted, totalExpectedInSemest
     ? Math.round((present / totalConducted) * 10000) / 100 
     : 100;
 
+  // CRITICAL LOGIC FIX (Ghalti No. 7): If current attendance is below minimum 75%,
+  // student CANNOT safely miss ANY classes! Safe leaves MUST be 0.
+  if (currentPct < minAttendancePct) {
+    return {
+      currentPct,
+      minAttendancePct,
+      isBelowThreshold: true,
+      consecutiveAllowedNow: 0,
+      totalRemainingInSemester: 0,
+      statusMsg: "CRITICAL WARNING: Attendance below 75%. You CANNOT miss any classes!"
+    };
+  }
+
   // Max absences allowed consecutively right now without dropping below 75%
   let consecutiveAllowedNow = 0;
   if (totalConducted > 0) {

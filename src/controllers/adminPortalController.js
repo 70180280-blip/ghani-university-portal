@@ -847,14 +847,14 @@ async function clearDatabaseCategory(req, res) {
  */
 async function getDbStatus(req, res) {
   try {
-    const info = db.getConnectionInfo();
     const [[sCount]] = await db.query('SELECT COUNT(*) as c FROM students');
     const [[rCount]] = await db.query('SELECT COUNT(*) as c FROM results');
     const [[aCount]] = await db.query('SELECT COUNT(*) as c FROM attendance');
     const [[uCount]] = await db.query('SELECT COUNT(*) as c FROM uploads');
     return res.json({
       success: true,
-      ...info,
+      isMySQL: true,
+      status: 'connected',
       counts: {
         students: sCount?.c || 0,
         results: rCount?.c || 0,
@@ -863,7 +863,7 @@ async function getDbStatus(req, res) {
       }
     });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({ success: false, isMySQL: false, error: 'Database service unavailable' });
   }
 }
 

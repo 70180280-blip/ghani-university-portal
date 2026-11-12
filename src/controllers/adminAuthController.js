@@ -78,18 +78,6 @@ function getCurrentAdmin(req, res) {
       admin: req.session.admin
     });
   }
-  const isLocal = req.hostname === 'localhost' || req.hostname === '127.0.0.1' || req.ip === '127.0.0.1' || req.ip === '::1' || !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
-  if (isLocal) {
-    const defaultAdmin = { id: 1, username: process.env.ADMIN_USERNAME || 'admin', role: 'SuperAdmin' };
-    if (req.session) {
-      req.session.admin = defaultAdmin;
-    }
-    return res.json({
-      success: true,
-      authenticated: true,
-      admin: defaultAdmin
-    });
-  }
   return res.json({ success: true, authenticated: false });
 }
 
