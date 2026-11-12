@@ -61,6 +61,8 @@ router.get('/upload/history', adminPortalController.getUploadHistory);
 
 router.get('/students', adminPortalController.getAllStudents);
 router.get('/courses', adminPortalController.getAllCourses);
+router.delete('/courses/:code', adminPortalController.deleteCourse);
+router.delete('/courses', adminPortalController.deleteAllCourses);
 router.put('/students/:id', adminPortalController.updateStudent);
 router.delete('/students/:id', adminPortalController.deleteStudent);
 router.delete('/students', adminPortalController.deleteAllStudents);

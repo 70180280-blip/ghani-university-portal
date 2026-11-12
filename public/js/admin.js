@@ -142,6 +142,48 @@ window.handleDeleteAllStudents = async function() {
   }
 };
 
+window.handleDeleteCourse = async function(code, title) {
+  if (!confirm(`Are you sure you want to permanently delete course "${code} - ${title}"?\nAll corresponding marks, attendance records, enrollments, and timetables for this course will also be removed.`)) {
+    return;
+  }
+
+  try {
+    const res = await adminFetch(`/api/admin/courses/${encodeURIComponent(code)}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      if (window.loadCoursesCatalog) window.loadCoursesCatalog();
+      if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
+    } else {
+      alert(`Error: ${data.error}`);
+    }
+  } catch (err) {
+    alert(`Delete error: ${err.message}`);
+  }
+};
+
+window.handleDeleteAllCourses = async function() {
+  const confirmText = prompt('CRITICAL SECURITY WARNING:\nYou are about to permanently delete ALL courses from the curriculum catalog along with all linked results and timetables.\n\nType exactly "DELETE UNIVERSITY DATA" to confirm:');
+  if (confirmText !== 'DELETE UNIVERSITY DATA') {
+    alert('Action cancelled. You must type "DELETE UNIVERSITY DATA" to confirm.');
+    return;
+  }
+
+  try {
+    const res = await adminFetch('/api/admin/courses', { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      if (window.loadCoursesCatalog) window.loadCoursesCatalog();
+      if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
+    } else {
+      alert(`Error: ${data.error}`);
+    }
+  } catch (err) {
+    alert(`Error: ${err.message}`);
+  }
+};
+
 window.handlePurgeCategory = async function(category, label) {
   const requiredPhrase = 'DELETE UNIVERSITY DATA';
   const input = prompt(`CRITICAL PURGE CONFIRMATION:\nAre you sure you want to permanently delete ${label}?\n\nType exactly "${requiredPhrase}" to execute:`);
@@ -162,6 +204,9 @@ window.handlePurgeCategory = async function(category, label) {
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
       if (category === 'students' || category === 'all') {
         if (window.loadStudentManager) window.loadStudentManager();
+      }
+      if (category === 'courses' || category === 'all') {
+        if (window.loadCoursesCatalog) window.loadCoursesCatalog();
       }
     } else {
       alert(`Purge Error: ${data.error}`);
@@ -786,6 +831,7 @@ window.loadCoursesCatalog = async function() {
                 <th class="py-2.5 px-2 text-center">Teaching Load</th>
                 <th class="py-2.5 px-3">Department</th>
                 <th class="py-2.5 px-3">Prerequisite</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700/50">
@@ -802,6 +848,11 @@ window.loadCoursesCatalog = async function() {
           <td class="py-2.5 px-2 text-center text-slate-300 font-mono text-[11px]">${c.lecture_hours || 3}h Lec ${c.lab_hours ? `+ ${c.lab_hours}h Lab` : ''}</td>
           <td class="py-2.5 px-3 text-slate-300">${escapeHtml(c.department || 'Department of Computer Science')}</td>
           <td class="py-2.5 px-3 text-slate-400 italic">${escapeHtml(c.prerequisite || 'None')}</td>
+          <td class="py-2.5 px-3 text-right">
+            <button onclick="window.handleDeleteCourse('${escapeHtml(c.code)}', '${escapeHtml(c.title || '')}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/30 transition">
+              🗑️ Delete
+            </button>
+          </td>
         </tr>
       `;
     });

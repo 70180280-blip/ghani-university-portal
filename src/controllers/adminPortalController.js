@@ -502,6 +502,60 @@ async function getAllCourses(req, res) {
 }
 
 /**
+ * 6b. Delete Single Course
+ */
+async function deleteCourse(req, res) {
+  try {
+    const { code } = req.params;
+    const adminUser = req.session.admin?.username || 'admin';
+
+    // Delete dependent records first to maintain relational integrity
+    await db.query('DELETE FROM results WHERE course_code = ?', [code]);
+    await db.query('DELETE FROM attendance WHERE course_code = ?', [code]);
+    await db.query('DELETE FROM enrollments WHERE course_code = ?', [code]);
+    await db.query('DELETE FROM timetable WHERE course_code = ?', [code]);
+    await db.query('DELETE FROM exam_schedule WHERE course_code = ?', [code]);
+    const [result] = await db.query('DELETE FROM courses WHERE code = ?', [code]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, error: 'Course not found.' });
+    }
+
+    await logAdminAction(adminUser, 'DELETE_COURSE', 'courses', code, `Deleted course ${code} and associated records`, req.ip);
+
+    return res.json({ success: true, message: `Course ${code} deleted successfully.` });
+  } catch (err) {
+    console.error('[Admin Portal] Error deleting course:', err);
+    return res.status(500).json({ success: false, error: 'Failed to delete course.' });
+  }
+}
+
+/**
+ * 6c. Delete All Courses
+ */
+async function deleteAllCourses(req, res) {
+  try {
+    const adminUser = req.session.admin?.username || 'admin';
+
+    await db.query('SET FOREIGN_KEY_CHECKS = 0');
+    await db.query('DELETE FROM results');
+    await db.query('DELETE FROM attendance');
+    await db.query('DELETE FROM enrollments');
+    await db.query('DELETE FROM timetable');
+    await db.query('DELETE FROM exam_schedule');
+    await db.query('DELETE FROM courses');
+    await db.query('SET FOREIGN_KEY_CHECKS = 1');
+
+    await logAdminAction(adminUser, 'DELETE_ALL_COURSES', 'courses', null, 'Deleted all courses and linked course data', req.ip);
+
+    return res.json({ success: true, message: 'All courses and linked academic records have been permanently cleared.' });
+  } catch (err) {
+    console.error('[Admin Portal] Error deleting all courses:', err);
+    return res.status(500).json({ success: false, error: 'Failed to delete all courses.' });
+  }
+}
+
+/**
  * 7. Manual Inline Edit: Student
  */
 async function updateStudent(req, res) {
@@ -819,7 +873,17 @@ async function clearDatabaseCategory(req, res) {
     } else if (category === 'schedules') {
       await db.query('DELETE FROM timetable');
       await db.query('DELETE FROM exam_schedule');
+    } else if (category === 'courses') {
+      await db.query('SET FOREIGN_KEY_CHECKS = 0');
+      await db.query('DELETE FROM results');
+      await db.query('DELETE FROM attendance');
+      await db.query('DELETE FROM enrollments');
+      await db.query('DELETE FROM timetable');
+      await db.query('DELETE FROM exam_schedule');
+      await db.query('DELETE FROM courses');
+      await db.query('SET FOREIGN_KEY_CHECKS = 1');
     } else if (category === 'all') {
+      await db.query('SET FOREIGN_KEY_CHECKS = 0');
       await db.query('DELETE FROM results');
       await db.query('DELETE FROM attendance');
       await db.query('DELETE FROM enrollments');
@@ -829,6 +893,8 @@ async function clearDatabaseCategory(req, res) {
       await db.query('DELETE FROM uploads');
       await db.query('DELETE FROM timetable');
       await db.query('DELETE FROM exam_schedule');
+      await db.query('DELETE FROM courses');
+      await db.query('SET FOREIGN_KEY_CHECKS = 1');
     } else {
       return res.status(400).json({ success: false, error: 'Invalid category specified.' });
     }
@@ -851,6 +917,7 @@ async function getDbStatus(req, res) {
     const [[rCount]] = await db.query('SELECT COUNT(*) as c FROM results');
     const [[aCount]] = await db.query('SELECT COUNT(*) as c FROM attendance');
     const [[uCount]] = await db.query('SELECT COUNT(*) as c FROM uploads');
+    const [[cCount]] = await db.query('SELECT COUNT(*) as c FROM courses');
     return res.json({
       success: true,
       isMySQL: true,
@@ -859,7 +926,8 @@ async function getDbStatus(req, res) {
         students: sCount?.c || 0,
         results: rCount?.c || 0,
         attendance: aCount?.c || 0,
-        uploads: uCount?.c || 0
+        uploads: uCount?.c || 0,
+        courses: cCount?.c || 0
       }
     });
   } catch (err) {
@@ -892,6 +960,8 @@ module.exports = {
   getUploadHistory,
   getAllStudents,
   getAllCourses,
+  deleteCourse,
+  deleteAllCourses,
   updateStudent,
   deleteStudent,
   deleteAllStudents,
