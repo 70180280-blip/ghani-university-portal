@@ -12,10 +12,16 @@ const adminAuthController = require('../controllers/adminAuthController');
 const adminPortalController = require('../controllers/adminPortalController');
 const { requireAdminAuth, loginRateLimiter } = require('../middleware/auth');
 
-// Multer storage configuration
-const uploadDir = path.resolve(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const os = require('os');
+
+// Multer storage configuration (Uses writable OS temp dir for serverless/cloud compatibility)
+const uploadDir = path.resolve(os.tmpdir(), 'gtiu_uploads');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('[Upload Dir] Using fallback for upload directory:', e.message);
 }
 
 const storage = multer.diskStorage({
