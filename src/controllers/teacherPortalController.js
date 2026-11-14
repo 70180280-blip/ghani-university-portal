@@ -44,7 +44,7 @@ async function getCourses(req, res) {
 }
 
 /**
- * Get students enrolled in a specific course
+ * Get students enrolled in a specific course (enriched with current grades and attendance)
  */
 async function getCourseStudents(req, res) {
   try {
@@ -52,20 +52,339 @@ async function getCourseStudents(req, res) {
     const teacherId = getActiveTeacherId(req);
     if (!teacherId) return res.status(401).json({ success: false, error: 'Unauthorized faculty.' });
 
-    const [students] = await db.query(
+    let [students] = await db.query(
       `SELECT s.id, s.registration_no, s.name, s.father_name, s.email, s.phone, s.program_code, s.batch, s.current_semester,
-              e.section, e.status as enrollment_status
+              e.section, e.status as enrollment_status,
+              r.id as result_id, r.assignment_marks, r.quiz_marks, r.mid_marks, r.final_marks,
+              r.total_obtained, r.total_max, r.percentage, r.grade, r.grade_point,
+              (SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.course_code = e.course_code) as total_attendance,
+              (SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.course_code = e.course_code AND a.status = 'present') as present_attendance
        FROM enrollments e
        JOIN students s ON e.student_id = s.id
+       LEFT JOIN results r ON r.student_id = s.id AND r.course_code = e.course_code
        WHERE e.course_code = ?
        ORDER BY s.registration_no ASC`,
       [code]
     );
 
+    // If no direct enrollments found yet, fall back to active students so teacher can grade & mark attendance
+    if (students.length === 0) {
+      const [allStudents] = await db.query(
+        `SELECT s.id, s.registration_no, s.name, s.father_name, s.email, s.phone, s.program_code, s.batch, s.current_semester,
+                'A' as section, 'Active' as enrollment_status,
+                r.id as result_id, r.assignment_marks, r.quiz_marks, r.mid_marks, r.final_marks,
+                r.total_obtained, r.total_max, r.percentage, r.grade, r.grade_point,
+                (SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.course_code = ?) as total_attendance,
+                (SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.course_code = ? AND a.status = 'present') as present_attendance
+         FROM students s
+         LEFT JOIN results r ON r.student_id = s.id AND r.course_code = ?
+         WHERE s.status = 'Active'
+         ORDER BY s.registration_no ASC`,
+        [code, code, code]
+      );
+      students = allStudents;
+    }
+
     return res.json({ success: true, course_code: code, students });
   } catch (err) {
     console.error('[Teacher Portal] Error getting course students:', err);
     return res.status(500).json({ success: false, error: 'Failed to retrieve enrolled students.' });
+  }
+}
+
+/**
+ * Save / Update student marks & grades for a course
+ */
+async function saveCourseGrades(req, res) {
+  try {
+    const { code } = req.params;
+    const { grades } = req.body;
+    const teacherId = getActiveTeacherId(req);
+    if (!teacherId) return res.status(401).json({ success: false, error: 'Unauthorized faculty.' });
+
+    if (!Array.isArray(grades) || grades.length === 0) {
+      return res.status(400).json({ success: false, error: 'No grade entries provided.' });
+    }
+
+    const { calculateSubjectPercentage, getGradeAndPoints } = require('../utils/calculations');
+
+    let savedCount = 0;
+    for (const g of grades) {
+      const studentId = parseInt(g.student_id, 10);
+      if (!studentId) continue;
+
+      const semNum = parseInt(g.semester_number || 1, 10);
+      const assign = parseFloat(g.assignment_marks || 0);
+      const quiz = parseFloat(g.quiz_marks || 0);
+      const mid = parseFloat(g.mid_marks || 0);
+      const finalExam = parseFloat(g.final_marks || 0);
+
+      const totalObtained = Math.min(100, Math.round((assign + quiz + mid + finalExam) * 100) / 100);
+      const totalMax = 100;
+      const pct = calculateSubjectPercentage(totalObtained, totalMax);
+      const { grade, gradePoint } = getGradeAndPoints(pct);
+      const isPassed = gradePoint > 0 ? 1 : 0;
+
+      await db.query(
+        `INSERT INTO results
+           (student_id, course_code, semester_number, assignment_marks, quiz_marks, mid_marks, final_marks, total_obtained, total_max, percentage, grade, grade_point, is_passed)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           assignment_marks = VALUES(assignment_marks),
+           quiz_marks = VALUES(quiz_marks),
+           mid_marks = VALUES(mid_marks),
+           final_marks = VALUES(final_marks),
+           total_obtained = VALUES(total_obtained),
+           total_max = VALUES(total_max),
+           percentage = VALUES(percentage),
+           grade = VALUES(grade),
+           grade_point = VALUES(grade_point),
+           is_passed = VALUES(is_passed),
+           updated_at = CURRENT_TIMESTAMP`,
+        [studentId, code, semNum, assign, quiz, mid, finalExam, totalObtained, totalMax, pct, grade, gradePoint, isPassed]
+      );
+
+      await db.query(
+        `INSERT IGNORE INTO enrollments (student_id, course_code, semester_number, status)
+         VALUES (?, ?, ?, 'Enrolled')`,
+        [studentId, code, semNum]
+      );
+
+      savedCount++;
+    }
+
+    return res.json({
+      success: true,
+      message: `Successfully saved and published grades for ${savedCount} student(s) to Student Portal!`,
+      savedCount
+    });
+  } catch (err) {
+    console.error('[Teacher Portal] Error saving grades:', err);
+    return res.status(500).json({ success: false, error: 'Failed to save student grades: ' + err.message });
+  }
+}
+
+/**
+ * Upload Excel / CSV file containing student marks for a course
+ */
+async function uploadCourseGradesFile(req, res) {
+  try {
+    const { code } = req.params;
+    const teacherId = getActiveTeacherId(req);
+    if (!teacherId) return res.status(401).json({ success: false, error: 'Unauthorized faculty.' });
+
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ success: false, error: 'Please choose an Excel or CSV file to upload.' });
+    }
+
+    const xlsx = require('xlsx');
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' });
+
+    if (rows.length === 0) {
+      return res.status(400).json({ success: false, error: 'The uploaded file has no data rows.' });
+    }
+
+    const { calculateSubjectPercentage, getGradeAndPoints } = require('../utils/calculations');
+
+    const [allStudents] = await db.query('SELECT id, registration_no, name, current_semester FROM students');
+    const studentMapByReg = new Map();
+    const studentMapByName = new Map();
+    allStudents.forEach(s => {
+      studentMapByReg.set(s.registration_no.toLowerCase().trim(), s);
+      studentMapByName.set(s.name.toLowerCase().trim(), s);
+    });
+
+    let updatedCount = 0;
+    for (const r of rows) {
+      const keys = Object.keys(r);
+      const regKey = keys.find(k => /reg|roll|student_id|id/i.test(k));
+      const nameKey = keys.find(k => /name|student/i.test(k) && !/reg|roll|id/i.test(k));
+      const midKey = keys.find(k => /mid/i.test(k));
+      const finalKey = keys.find(k => /final/i.test(k));
+      const assignKey = keys.find(k => /assign|sess|quiz|internal/i.test(k));
+      const totalKey = keys.find(k => /total|obtain/i.test(k));
+
+      const regVal = regKey ? String(r[regKey]).toLowerCase().trim() : '';
+      const nameVal = nameKey ? String(r[nameKey]).toLowerCase().trim() : '';
+
+      const matchedStudent = studentMapByReg.get(regVal) || studentMapByName.get(nameVal);
+      if (!matchedStudent) continue;
+
+      const mid = midKey ? parseFloat(r[midKey]) || 0 : 0;
+      const finalExam = finalKey ? parseFloat(r[finalKey]) || 0 : 0;
+      const assign = assignKey ? parseFloat(r[assignKey]) || 0 : 0;
+      let totalObtained = 0;
+
+      if (totalKey && r[totalKey] !== '') {
+        totalObtained = parseFloat(r[totalKey]) || 0;
+      } else {
+        totalObtained = Math.min(100, Math.round((assign + mid + finalExam) * 100) / 100);
+      }
+
+      const totalMax = 100;
+      const pct = calculateSubjectPercentage(totalObtained, totalMax);
+      const { grade, gradePoint } = getGradeAndPoints(pct);
+      const isPassed = gradePoint > 0 ? 1 : 0;
+      const semNum = matchedStudent.current_semester || 1;
+
+      await db.query(
+        `INSERT INTO results
+           (student_id, course_code, semester_number, assignment_marks, quiz_marks, mid_marks, final_marks, total_obtained, total_max, percentage, grade, grade_point, is_passed)
+         VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           assignment_marks = VALUES(assignment_marks),
+           mid_marks = VALUES(mid_marks),
+           final_marks = VALUES(final_marks),
+           total_obtained = VALUES(total_obtained),
+           total_max = VALUES(total_max),
+           percentage = VALUES(percentage),
+           grade = VALUES(grade),
+           grade_point = VALUES(grade_point),
+           is_passed = VALUES(is_passed),
+           updated_at = CURRENT_TIMESTAMP`,
+        [matchedStudent.id, code, semNum, assign, mid, finalExam, totalObtained, totalMax, pct, grade, gradePoint, isPassed]
+      );
+
+      await db.query(
+        `INSERT IGNORE INTO enrollments (student_id, course_code, semester_number, status)
+         VALUES (?, ?, ?, 'Enrolled')`,
+        [matchedStudent.id, code, semNum]
+      );
+
+      updatedCount++;
+    }
+
+    return res.json({
+      success: true,
+      message: `Parsed file successfully! Recorded marks for ${updatedCount} student(s) in course ${code}.`,
+      updatedCount
+    });
+  } catch (err) {
+    console.error('[Teacher Portal] Error uploading grades file:', err);
+    return res.status(500).json({ success: false, error: 'Failed to process file: ' + err.message });
+  }
+}
+
+/**
+ * Save / Update class attendance for a specific lecture date
+ */
+async function saveCourseAttendance(req, res) {
+  try {
+    const { code } = req.params;
+    const { lecture_date, attendance } = req.body;
+    const teacherId = getActiveTeacherId(req);
+    if (!teacherId) return res.status(401).json({ success: false, error: 'Unauthorized faculty.' });
+
+    if (!lecture_date || !Array.isArray(attendance) || attendance.length === 0) {
+      return res.status(400).json({ success: false, error: 'Lecture date and attendance records are required.' });
+    }
+
+    let markedCount = 0;
+    for (const a of attendance) {
+      const studentId = parseInt(a.student_id, 10);
+      if (!studentId) continue;
+      const status = ['present', 'absent', 'leave'].includes(a.status) ? a.status : 'present';
+      const remarks = String(a.remarks || '').trim();
+
+      await db.query(
+        `INSERT INTO attendance (student_id, course_code, lecture_date, status, remarks)
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE status = VALUES(status), remarks = VALUES(remarks)`,
+        [studentId, code, lecture_date, status, remarks]
+      );
+      markedCount++;
+    }
+
+    return res.json({
+      success: true,
+      message: `Attendance marked for ${markedCount} student(s) on ${lecture_date}!`,
+      markedCount
+    });
+  } catch (err) {
+    console.error('[Teacher Portal] Error saving attendance:', err);
+    return res.status(500).json({ success: false, error: 'Failed to save attendance: ' + err.message });
+  }
+}
+
+/**
+ * Upload attendance sheet file
+ */
+async function uploadCourseAttendanceFile(req, res) {
+  try {
+    const { code } = req.params;
+    const teacherId = getActiveTeacherId(req);
+    if (!teacherId) return res.status(401).json({ success: false, error: 'Unauthorized faculty.' });
+
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ success: false, error: 'Please choose an Excel or CSV file to upload.' });
+    }
+
+    const xlsx = require('xlsx');
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' });
+
+    if (rows.length === 0) {
+      return res.status(400).json({ success: false, error: 'Uploaded file contains no rows.' });
+    }
+
+    const [allStudents] = await db.query('SELECT id, registration_no, name FROM students');
+    const studentMapByReg = new Map();
+    const studentMapByName = new Map();
+    allStudents.forEach(s => {
+      studentMapByReg.set(s.registration_no.toLowerCase().trim(), s);
+      studentMapByName.set(s.name.toLowerCase().trim(), s);
+    });
+
+    const defaultDate = new Date().toISOString().split('T')[0];
+    let count = 0;
+
+    for (const r of rows) {
+      const keys = Object.keys(r);
+      const regKey = keys.find(k => /reg|roll|id/i.test(k));
+      const nameKey = keys.find(k => /name/i.test(k) && !/reg|id/i.test(k));
+      const statusKey = keys.find(k => /status|attendance|present/i.test(k));
+      const dateKey = keys.find(k => /date/i.test(k));
+
+      const regVal = regKey ? String(r[regKey]).toLowerCase().trim() : '';
+      const nameVal = nameKey ? String(r[nameKey]).toLowerCase().trim() : '';
+      const student = studentMapByReg.get(regVal) || studentMapByName.get(nameVal);
+      if (!student) continue;
+
+      let dateVal = defaultDate;
+      if (dateKey && r[dateKey]) {
+        try {
+          const parsed = new Date(r[dateKey]);
+          if (!isNaN(parsed.getTime())) dateVal = parsed.toISOString().split('T')[0];
+        } catch (e) {}
+      }
+
+      let status = 'present';
+      if (statusKey) {
+        const raw = String(r[statusKey]).toLowerCase().trim();
+        if (raw.startsWith('a') || raw === '0' || raw === 'false') status = 'absent';
+        else if (raw.startsWith('l')) status = 'leave';
+      }
+
+      await db.query(
+        `INSERT INTO attendance (student_id, course_code, lecture_date, status)
+         VALUES (?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE status = VALUES(status)`,
+        [student.id, code, dateVal, status]
+      );
+      count++;
+    }
+
+    return res.json({
+      success: true,
+      message: `Parsed attendance for ${count} record(s) in course ${code}!`,
+      count
+    });
+  } catch (err) {
+    console.error('[Teacher Portal] Error uploading attendance:', err);
+    return res.status(500).json({ success: false, error: 'Failed to process attendance file: ' + err.message });
   }
 }
 
@@ -330,6 +649,10 @@ async function updateMeetingRequest(req, res) {
 module.exports = {
   getCourses,
   getCourseStudents,
+  saveCourseGrades,
+  uploadCourseGradesFile,
+  saveCourseAttendance,
+  uploadCourseAttendanceFile,
   getMaterials,
   createMaterial,
   deleteMaterial,

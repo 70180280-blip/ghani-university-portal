@@ -1,5 +1,16 @@
 /**
  * Ghani University Teacher Faculty Portal Frontend Engine
+ * 
+ * Features:
+ * - Faculty Authentication & Profile
+ * - Assigned Courses Management
+ * - Student Marks & Gradebook Entry (Mid, Final, Sessional, Auto-calc Total, %, Grade)
+ * - Excel/CSV Marks Upload to Database
+ * - Class Attendance Register & Daily Attendance Marking
+ * - Excel/CSV Attendance Upload to Database
+ * - Slate Task / Assignment Publishing
+ * - Student Submissions Evaluation & Feedback
+ * - Student Consultation Meeting Management
  */
 
 (function () {
@@ -11,7 +22,9 @@
     materials: [],
     submissions: [],
     meetings: [],
-    activeTab: 'overview'
+    currentGradeStudents: [],
+    currentAttStudents: [],
+    activeTab: 'courses'
   };
 
   const T = window.Teacher;
@@ -48,15 +61,34 @@
     }, 3500);
   }
 
-  // Teacher Fetch API
   async function teacherFetch(url, options = {}) {
     options.headers = options.headers || {};
     options.headers['Accept'] = 'application/json';
     return fetch(url, options);
   }
 
+  // Determine Letter Grade and Grade Point from Percentage
+  function calcGrade(pct) {
+    if (pct >= 85) return { grade: 'A', gpa: '4.00', color: 'emerald' };
+    if (pct >= 80) return { grade: 'A-', gpa: '3.67', color: 'emerald' };
+    if (pct >= 75) return { grade: 'B+', gpa: '3.33', color: 'sky' };
+    if (pct >= 70) return { grade: 'B', gpa: '3.00', color: 'sky' };
+    if (pct >= 65) return { grade: 'B-', gpa: '2.67', color: 'blue' };
+    if (pct >= 61) return { grade: 'C+', gpa: '2.33', color: 'amber' };
+    if (pct >= 58) return { grade: 'C', gpa: '2.00', color: 'amber' };
+    if (pct >= 55) return { grade: 'C-', gpa: '1.67', color: 'amber' };
+    if (pct >= 50) return { grade: 'D', gpa: '1.00', color: 'orange' };
+    return { grade: 'F', gpa: '0.00', color: 'red' };
+  }
+
   // Initialize
   async function initTeacherPortal() {
+    // Set default date for attendance
+    const dateInput = document.getElementById('att-lecture-date');
+    if (dateInput) {
+      dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
     try {
       const res = await teacherFetch('/api/teacher/me');
       const data = await res.json();
@@ -93,7 +125,6 @@
     if (infoEl) infoEl.innerText = `${teacher.designation || 'Faculty'} • ${teacher.department || 'Ghani University'}`;
     if (welcomeEl) welcomeEl.innerText = teacher.name;
 
-    // Load initial data
     loadTeacherStats();
     loadTeacherCourses();
   }
@@ -145,7 +176,6 @@
   window.switchTeacherTab = function (tabName) {
     T.activeTab = tabName;
 
-    // Toggle button styles
     document.querySelectorAll('.teacher-tab-btn').forEach(b => {
       if (b.getAttribute('data-tab') === tabName) {
         b.classList.add('bg-[#0D9488]', 'text-white', 'shadow');
@@ -156,14 +186,20 @@
       }
     });
 
-    // Toggle contents
     document.querySelectorAll('.teacher-tab-pane').forEach(p => p.classList.add('hidden'));
     const activePane = document.getElementById(`teacher-tab-${tabName}`);
     if (activePane) activePane.classList.remove('hidden');
 
     if (tabName === 'courses') loadTeacherCourses();
+    if (tabName === 'grades') {
+      const select = document.getElementById('gradebook-course-select');
+      if (select && select.value) window.Teacher.loadCourseGrades(select.value);
+    }
+    if (tabName === 'attendance') {
+      const select = document.getElementById('att-course-select');
+      if (select && select.value) window.Teacher.loadCourseAttendance(select.value);
+    }
     if (tabName === 'materials') loadTeacherMaterials();
-    if (tabName === 'submissions') loadAllSubmissions();
     if (tabName === 'meetings') loadTeacherMeetings();
   };
 
@@ -210,6 +246,9 @@
 
       T.courses = data.courses || [];
 
+      // Populate course selectors for Gradebook and Attendance tabs
+      populateCourseDropdowns();
+
       if (T.courses.length === 0) {
         container.innerHTML = '<div class="p-8 text-center text-xs text-slate-400">No courses assigned to your faculty profile yet. Contact University Registrar Office.</div>';
         return;
@@ -218,19 +257,29 @@
       let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
       T.courses.forEach(c => {
         html += `
-          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 shadow-md hover:border-[#0D9488]/50 transition">
-            <div class="flex justify-between items-start gap-2">
-              <div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#2563EB]/20 text-[#2563EB] border border-[#2563EB]/30">${c.course_code}</span>
-                <h3 class="text-sm font-bold text-white mt-1">${escapeHtml(c.course_title)}</h3>
+          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-md hover:border-[#0D9488]/50 transition flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#2563EB]/20 text-[#2563EB] border border-[#2563EB]/30">${c.course_code}</span>
+                  <h3 class="text-sm font-bold text-white mt-1">${escapeHtml(c.course_title)}</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/15 text-teal-400 border border-teal-500/30">Sec ${c.section || 'A'}</span>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/15 text-teal-400 border border-teal-500/30">Section ${c.section || 'A'}</span>
+              <p class="text-xs text-slate-400">${escapeHtml(c.department || 'Computer Science')} • ${c.credit_hours || 3} Credit Hours</p>
+              <div class="text-xs text-slate-300">👥 <strong>${c.enrolled_count || 0}</strong> Enrolled Students</div>
             </div>
-            <p class="text-xs text-slate-400">${escapeHtml(c.department || 'Computer Science')}</p>
-            <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
-              <span class="text-slate-400">👥 <strong>${c.enrolled_count || 0}</strong> Enrolled Students</span>
-              <a href="/slate?tab=channels&course=${c.course_code}" target="_blank" class="text-teal-400 hover:underline font-bold flex items-center gap-1">
-                <span>Slate Channel</span> →
+
+            <!-- Action buttons: Enter Marks, Mark Attendance, Open Slate -->
+            <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2">
+              <button onclick="window.Teacher.jumpToGrades('${c.course_code}')" class="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+                <span>📊 Marks</span>
+              </button>
+              <button onclick="window.Teacher.jumpToAttendance('${c.course_code}')" class="px-3 py-1.5 bg-teal-700 hover:bg-teal-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+                <span>📅 Attendance</span>
+              </button>
+              <a href="/slate?tab=channels&course=${c.course_code}" target="_blank" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-teal-300 rounded-lg text-xs font-bold border border-slate-700 flex items-center gap-1 ml-auto">
+                <span>💬 Slate</span>
               </a>
             </div>
           </div>
@@ -243,7 +292,433 @@
     }
   }
 
-  // 3. Load Materials & Works
+  function populateCourseDropdowns() {
+    const gSelect = document.getElementById('gradebook-course-select');
+    const aSelect = document.getElementById('att-course-select');
+
+    let opts = '<option value="">Select Assigned Course</option>';
+    T.courses.forEach(c => {
+      opts += `<option value="${escapeHtml(c.course_code)}">${c.course_code} - ${escapeHtml(c.course_title)} (Sec ${c.section || 'A'})</option>`;
+    });
+
+    if (gSelect) {
+      const prevVal = gSelect.value;
+      gSelect.innerHTML = opts;
+      if (prevVal) gSelect.value = prevVal;
+    }
+    if (aSelect) {
+      const prevVal = aSelect.value;
+      aSelect.innerHTML = opts;
+      if (prevVal) aSelect.value = prevVal;
+    }
+  }
+
+  window.Teacher.jumpToGrades = function(courseCode) {
+    window.switchTeacherTab('grades');
+    const select = document.getElementById('gradebook-course-select');
+    if (select) {
+      select.value = courseCode;
+      window.Teacher.loadCourseGrades(courseCode);
+    }
+  };
+
+  window.Teacher.jumpToAttendance = function(courseCode) {
+    window.switchTeacherTab('attendance');
+    const select = document.getElementById('att-course-select');
+    if (select) {
+      select.value = courseCode;
+      window.Teacher.loadCourseAttendance(courseCode);
+    }
+  };
+
+  // =========================================================================
+  // GRADEBOOK: ENTER STUDENT MARKS & RESULTS
+  // =========================================================================
+
+  window.Teacher.loadCourseGrades = async function(courseCode) {
+    const tbody = document.getElementById('gradebook-table-body');
+    if (!tbody) return;
+
+    if (!courseCode) {
+      tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-400">Please select an assigned course to view the gradebook.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-xs text-slate-400">Loading student roster and current marks...</td></tr>';
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${courseCode}/students`);
+      const data = await res.json();
+      if (!data.success) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-400">${data.error}</td></tr>`;
+        return;
+      }
+
+      T.currentGradeStudents = data.students || [];
+
+      if (T.currentGradeStudents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-400">No students are currently enrolled in this course.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      T.currentGradeStudents.forEach(s => {
+        const mid = s.mid_marks !== null && s.mid_marks !== undefined ? s.mid_marks : '';
+        const finalM = s.final_marks !== null && s.final_marks !== undefined ? s.final_marks : '';
+        const assign = s.assignment_marks !== null && s.assignment_marks !== undefined ? s.assignment_marks : '';
+
+        const mNum = parseFloat(mid) || 0;
+        const fNum = parseFloat(finalM) || 0;
+        const aNum = parseFloat(assign) || 0;
+        const total = (mNum + fNum + aNum).toFixed(1);
+        const gradeInfo = calcGrade(parseFloat(total));
+
+        html += `
+          <tr id="grade-row-${s.id}" class="hover:bg-slate-800/30 transition">
+            <td class="p-3 font-mono font-bold text-sky-400">${escapeHtml(s.registration_no)}</td>
+            <td class="p-3 font-bold text-white">${escapeHtml(s.name)}</td>
+            <td class="p-3 text-center">
+              <input type="number" id="mid-${s.id}" value="${mid}" min="0" max="30" step="0.5" placeholder="0-30"
+                     oninput="window.Teacher.recalcRow(${s.id})"
+                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#0D9488]" />
+            </td>
+            <td class="p-3 text-center">
+              <input type="number" id="final-${s.id}" value="${finalM}" min="0" max="50" step="0.5" placeholder="0-50"
+                     oninput="window.Teacher.recalcRow(${s.id})"
+                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#0D9488]" />
+            </td>
+            <td class="p-3 text-center">
+              <input type="number" id="assign-${s.id}" value="${assign}" min="0" max="20" step="0.5" placeholder="0-20"
+                     oninput="window.Teacher.recalcRow(${s.id})"
+                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#0D9488]" />
+            </td>
+            <td class="p-3 text-center font-bold text-white text-xs">
+              <span id="total-${s.id}">${total}</span> / 100
+            </td>
+            <td class="p-3 text-center font-bold text-slate-300 text-xs">
+              <span id="pct-${s.id}">${total}%</span>
+            </td>
+            <td class="p-3 text-center">
+              <span id="grade-${s.id}" class="px-2 py-0.5 rounded text-[11px] font-black bg-${gradeInfo.color}-500/20 text-${gradeInfo.color}-400 border border-${gradeInfo.color}-500/30">
+                ${gradeInfo.grade} (${gradeInfo.gpa})
+              </span>
+            </td>
+            <td class="p-3 text-right">
+              <button onclick="window.Teacher.saveSingleGrade(${s.id}, '${courseCode}')" class="px-2.5 py-1 bg-teal-600/30 hover:bg-[#0D9488] text-teal-200 hover:text-white rounded-lg text-xs font-bold transition">
+                Save
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-400">Failed to load gradebook: ${err.message}</td></tr>`;
+    }
+  };
+
+  window.Teacher.recalcRow = function(studentId) {
+    const mid = parseFloat(document.getElementById(`mid-${studentId}`)?.value || 0);
+    const finalM = parseFloat(document.getElementById(`final-${studentId}`)?.value || 0);
+    const assign = parseFloat(document.getElementById(`assign-${studentId}`)?.value || 0);
+
+    const total = Math.min(100, Math.round((mid + finalM + assign) * 10) / 10);
+    const gradeInfo = calcGrade(total);
+
+    const totalEl = document.getElementById(`total-${studentId}`);
+    const pctEl = document.getElementById(`pct-${studentId}`);
+    const gradeEl = document.getElementById(`grade-${studentId}`);
+
+    if (totalEl) totalEl.innerText = total.toFixed(1);
+    if (pctEl) pctEl.innerText = total.toFixed(1) + '%';
+    if (gradeEl) {
+      gradeEl.className = `px-2 py-0.5 rounded text-[11px] font-black bg-${gradeInfo.color}-500/20 text-${gradeInfo.color}-400 border border-${gradeInfo.color}-500/30`;
+      gradeEl.innerText = `${gradeInfo.grade} (${gradeInfo.gpa})`;
+    }
+  };
+
+  window.Teacher.saveSingleGrade = async function(studentId, courseCode) {
+    const mid = document.getElementById(`mid-${studentId}`)?.value;
+    const finalM = document.getElementById(`final-${studentId}`)?.value;
+    const assign = document.getElementById(`assign-${studentId}`)?.value;
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${courseCode}/grades`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          grades: [{
+            student_id: studentId,
+            mid_marks: mid,
+            final_marks: finalM,
+            assignment_marks: assign,
+            quiz_marks: 0
+          }]
+        })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showTeacherToast(data.error || 'Failed to save grade.', 'error');
+        return;
+      }
+      showTeacherToast('Student marks saved successfully!');
+    } catch (err) {
+      showTeacherToast('Error saving: ' + err.message, 'error');
+    }
+  };
+
+  window.Teacher.saveAllGrades = async function() {
+    const courseCode = document.getElementById('gradebook-course-select')?.value;
+    if (!courseCode) {
+      showTeacherToast('Please select a course first.', 'error');
+      return;
+    }
+
+    if (!T.currentGradeStudents || T.currentGradeStudents.length === 0) {
+      showTeacherToast('No student records to save.', 'error');
+      return;
+    }
+
+    const payload = [];
+    T.currentGradeStudents.forEach(s => {
+      const mid = document.getElementById(`mid-${s.id}`)?.value;
+      const finalM = document.getElementById(`final-${s.id}`)?.value;
+      const assign = document.getElementById(`assign-${s.id}`)?.value;
+
+      payload.push({
+        student_id: s.id,
+        semester_number: s.current_semester || 1,
+        mid_marks: mid,
+        final_marks: finalM,
+        assignment_marks: assign,
+        quiz_marks: 0
+      });
+    });
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${courseCode}/grades`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grades: payload })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showTeacherToast(data.error || 'Failed to save grades.', 'error');
+        return;
+      }
+      showTeacherToast(data.message || 'All grades saved to database!');
+    } catch (err) {
+      showTeacherToast('Failed to save all grades: ' + err.message, 'error');
+    }
+  };
+
+  window.Teacher.handleUploadGradesFile = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const courseCode = document.getElementById('gradebook-course-select')?.value;
+    if (!courseCode) {
+      showTeacherToast('Please select a course before uploading marks.', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      showTeacherToast('Processing and parsing marks file...');
+      const res = await fetch(`/api/teacher/courses/${courseCode}/upload-grades`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showTeacherToast(data.error || 'Failed to process marks file.', 'error');
+        return;
+      }
+      showTeacherToast(data.message || 'Marks uploaded successfully!');
+      window.Teacher.loadCourseGrades(courseCode);
+    } catch (err) {
+      showTeacherToast('Upload error: ' + err.message, 'error');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  // =========================================================================
+  // ATTENDANCE: CLASS ATTENDANCE REGISTER
+  // =========================================================================
+
+  window.Teacher.loadCourseAttendance = async function(courseCode) {
+    const tbody = document.getElementById('attendance-table-body');
+    if (!tbody) return;
+
+    if (!courseCode) {
+      tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-400">Please select an assigned course to view the attendance roll.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-xs text-slate-400">Loading student attendance list...</td></tr>';
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${courseCode}/students`);
+      const data = await res.json();
+      if (!data.success) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">${data.error}</td></tr>`;
+        return;
+      }
+
+      T.currentAttStudents = data.students || [];
+
+      if (T.currentAttStudents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-400">No students are currently enrolled in this course.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      T.currentAttStudents.forEach(s => {
+        const total = s.total_attendance || 0;
+        const pres = s.present_attendance || 0;
+        const pct = total > 0 ? Math.round((pres / total) * 100) : 100;
+        const isLow = pct < 75;
+
+        html += `
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-3 font-mono font-bold text-sky-400">${escapeHtml(s.registration_no)}</td>
+            <td class="p-3 font-bold text-white">${escapeHtml(s.name)}</td>
+            <td class="p-3 text-xs">
+              <span class="font-bold ${isLow ? 'text-red-400' : 'text-emerald-400'}">${pct}%</span>
+              <span class="text-slate-400 text-[11px]">(${pres}/${total} lectures)</span>
+            </td>
+            <td class="p-3 text-center">
+              <div class="inline-flex items-center gap-3 bg-slate-900 border border-slate-700/80 px-3 py-1 rounded-xl">
+                <label class="flex items-center gap-1 cursor-pointer text-xs text-emerald-400 font-bold">
+                  <input type="radio" name="att-${s.id}" value="present" checked class="accent-emerald-500" />
+                  <span>Present</span>
+                </label>
+                <label class="flex items-center gap-1 cursor-pointer text-xs text-red-400 font-bold">
+                  <input type="radio" name="att-${s.id}" value="absent" class="accent-red-500" />
+                  <span>Absent</span>
+                </label>
+                <label class="flex items-center gap-1 cursor-pointer text-xs text-amber-400 font-bold">
+                  <input type="radio" name="att-${s.id}" value="leave" class="accent-amber-500" />
+                  <span>Leave</span>
+                </label>
+              </div>
+            </td>
+            <td class="p-3">
+              <input type="text" id="att-remarks-${s.id}" placeholder="e.g. Chapter 4 Lecture"
+                     class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200" />
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Failed to load attendance: ${err.message}</td></tr>`;
+    }
+  };
+
+  window.Teacher.markAllPresent = function() {
+    if (!T.currentAttStudents) return;
+    T.currentAttStudents.forEach(s => {
+      const radio = document.querySelector(`input[name="att-${s.id}"][value="present"]`);
+      if (radio) radio.checked = true;
+    });
+    showTeacherToast('All students marked Present.');
+  };
+
+  window.Teacher.saveAllAttendance = async function() {
+    const courseCode = document.getElementById('att-course-select')?.value;
+    const date = document.getElementById('att-lecture-date')?.value;
+
+    if (!courseCode) {
+      showTeacherToast('Please select a course first.', 'error');
+      return;
+    }
+    if (!date) {
+      showTeacherToast('Please select a lecture date.', 'error');
+      return;
+    }
+
+    if (!T.currentAttStudents || T.currentAttStudents.length === 0) {
+      showTeacherToast('No students to mark attendance for.', 'error');
+      return;
+    }
+
+    const payload = [];
+    T.currentAttStudents.forEach(s => {
+      const checkedRadio = document.querySelector(`input[name="att-${s.id}"]:checked`);
+      const status = checkedRadio ? checkedRadio.value : 'present';
+      const remarks = document.getElementById(`att-remarks-${s.id}`)?.value || '';
+
+      payload.push({
+        student_id: s.id,
+        status,
+        remarks
+      });
+    });
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${courseCode}/attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lecture_date: date,
+          attendance: payload
+        })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showTeacherToast(data.error || 'Failed to save attendance.', 'error');
+        return;
+      }
+      showTeacherToast(data.message || 'Attendance saved to database!');
+      window.Teacher.loadCourseAttendance(courseCode);
+    } catch (err) {
+      showTeacherToast('Error saving attendance: ' + err.message, 'error');
+    }
+  };
+
+  window.Teacher.handleUploadAttendanceFile = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const courseCode = document.getElementById('att-course-select')?.value;
+    if (!courseCode) {
+      showTeacherToast('Please select a course before uploading attendance.', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      showTeacherToast('Uploading and parsing attendance file...');
+      const res = await fetch(`/api/teacher/courses/${courseCode}/upload-attendance`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showTeacherToast(data.error || 'Failed to upload attendance file.', 'error');
+        return;
+      }
+      showTeacherToast(data.message || 'Attendance parsed and recorded!');
+      window.Teacher.loadCourseAttendance(courseCode);
+    } catch (err) {
+      showTeacherToast('Upload error: ' + err.message, 'error');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  // =========================================================================
+  // MATERIALS & SLATE WORKS
+  // =========================================================================
+
   async function loadTeacherMaterials() {
     const container = document.getElementById('teacher-materials-container');
     if (!container) return;
@@ -294,7 +769,6 @@
     }
   }
 
-  // 4. View Submissions for a Material
   window.Teacher.viewSubmissions = async function (materialId, title) {
     const modal = document.getElementById('teacher-submissions-modal');
     const container = document.getElementById('submissions-list-container');
@@ -400,7 +874,10 @@
     } catch (e) {}
   };
 
-  // 5. Load Meetings
+  // =========================================================================
+  // MEETINGS: CONSULTATION REQUESTS
+  // =========================================================================
+
   async function loadTeacherMeetings() {
     const container = document.getElementById('teacher-meetings-container');
     if (!container) return;

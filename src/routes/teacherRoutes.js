@@ -4,6 +4,12 @@
 
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 }
+});
 
 const teacherAuthController = require('../controllers/teacherAuthController');
 const teacherPortalController = require('../controllers/teacherPortalController');
@@ -20,6 +26,14 @@ router.use(requireTeacherAuth);
 // Courses & Enrolled Students
 router.get('/courses', teacherPortalController.getCourses);
 router.get('/courses/:code/students', teacherPortalController.getCourseStudents);
+
+// Student Academic Results & Gradebook
+router.post('/courses/:code/grades', teacherPortalController.saveCourseGrades);
+router.post('/courses/:code/upload-grades', upload.single('file'), teacherPortalController.uploadCourseGradesFile);
+
+// Student Attendance Register & Upload
+router.post('/courses/:code/attendance', teacherPortalController.saveCourseAttendance);
+router.post('/courses/:code/upload-attendance', upload.single('file'), teacherPortalController.uploadCourseAttendanceFile);
 
 // Course Materials, Assignments & Quizzes
 router.get('/materials', teacherPortalController.getMaterials);
