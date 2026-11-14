@@ -78,5 +78,15 @@ router.post('/ai/search', adminPortalController.aiSearch);
 router.get('/ai/at-risk', adminPortalController.getAtRiskReport);
 router.get('/audit-logs', adminPortalController.getAuditLogs);
 
+// Faculty & Slate Management
+router.get('/teachers', adminPortalController.getTeachers);
+router.post('/teachers', adminPortalController.createTeacher);
+router.put('/teachers/:id', adminPortalController.updateTeacher);
+router.delete('/teachers/:id', adminPortalController.deleteTeacher);
+router.post('/teachers/:id/assign-course', adminPortalController.assignCourseToTeacher);
+router.delete('/teachers/assignments/:assignmentId', adminPortalController.removeCourseAssignment);
+router.get('/slate/overview', adminPortalController.getSlateOverview);
+router.post('/slate/impersonate-teacher/:id', adminPortalController.impersonateTeacher);
+
 module.exports = router;
 

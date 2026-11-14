@@ -74,6 +74,32 @@ function requireAdminAuth(req, res, next) {
 }
 
 /**
+ * Ensure teacher is authenticated
+ */
+function requireTeacherAuth(req, res, next) {
+  if (req.session && (req.session.teacher || req.session.admin)) {
+    return next();
+  }
+  if (req.originalUrl.startsWith('/api/') || req.xhr || req.headers.accept?.includes('json')) {
+    return res.status(401).json({ success: false, error: 'Unauthorized: Teacher access required or session expired.' });
+  }
+  return res.redirect('/teacher');
+}
+
+/**
+ * Ensure either student, teacher, or admin is authenticated (for Slate access)
+ */
+function requireSlateAuth(req, res, next) {
+  if (req.session && (req.session.student || req.session.teacher || req.session.admin)) {
+    return next();
+  }
+  if (req.originalUrl.startsWith('/api/') || req.xhr || req.headers.accept?.includes('json')) {
+    return res.status(401).json({ success: false, error: 'Unauthorized: Please log in as student, teacher, or admin to access Slate.' });
+  }
+  return res.redirect('/login');
+}
+
+/**
  * Rate Limiter for Login endpoints
  */
 const loginRateLimiter = rateLimit({
@@ -100,6 +126,8 @@ const aiRateLimiter = rateLimit({
 module.exports = {
   requireStudentAuth,
   requireAdminAuth,
+  requireTeacherAuth,
+  requireSlateAuth,
   recordFailedLogin,
   isLoginLocked,
   clearFailedLogin,

@@ -53,7 +53,7 @@ window.switchAdminTab = function(tabName) {
     showAdminLogin();
     return;
   }
-  const tabs = ['upload', 'overview', 'search', 'atrisk', 'students', 'courses', 'audit', 'cleanup'];
+  const tabs = ['upload', 'overview', 'search', 'atrisk', 'students', 'courses', 'faculty', 'audit', 'cleanup'];
   tabs.forEach(t => {
     const el = document.getElementById(`tab-content-${t}`);
     const btn = document.getElementById(`tab-btn-${t}`);
@@ -91,6 +91,9 @@ window.switchAdminTab = function(tabName) {
     }
     if (tabName === 'courses') {
       if (typeof window.loadCoursesCatalog === 'function') window.loadCoursesCatalog();
+    }
+    if (tabName === 'faculty') {
+      if (typeof window.loadTeachersManager === 'function') window.loadTeachersManager();
     }
     if (tabName === 'audit') {
       if (typeof window.loadAuditLogs === 'function') window.loadAuditLogs();
@@ -1407,7 +1410,7 @@ function setupAdminEventListeners() {
   }
 
   // Explicit event listeners for all Admin tabs (bulletproof backup to inline onclick)
-  const tabNames = ['upload', 'students', 'courses', 'overview', 'search', 'atrisk', 'audit', 'cleanup'];
+  const tabNames = ['upload', 'students', 'courses', 'faculty', 'overview', 'search', 'atrisk', 'audit', 'cleanup'];
   tabNames.forEach(t => {
     const btn = document.getElementById(`tab-btn-${t}`);
     if (btn) {
@@ -1418,6 +1421,253 @@ function setupAdminEventListeners() {
     }
   });
 }
+
+// ============================================================================
+// FACULTY & SLATE LMS MANAGEMENT (Admin Supervision & Impersonation)
+// ============================================================================
+
+window.loadTeachersManager = async function() {
+  const tbody = document.getElementById('teachers-table-body');
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400">Loading faculty and slate metrics...</td></tr>';
+  }
+
+  try {
+    const [tRes, sRes] = await Promise.all([
+      adminFetch('/api/admin/teachers'),
+      adminFetch('/api/admin/slate/overview')
+    ]);
+
+    const tData = await tRes.json();
+    const sData = await sRes.json();
+
+    // Update Slate KPI stats
+    if (sData.success && sData.stats) {
+      const stats = sData.stats;
+      const tEl = document.getElementById('slate-stat-teachers');
+      const cEl = document.getElementById('slate-stat-convs');
+      const mEl = document.getElementById('slate-stat-materials');
+      const sEl = document.getElementById('slate-stat-submissions');
+      if (tEl) tEl.innerText = stats.activeTeachers || 0;
+      if (cEl) cEl.innerText = stats.conversations || 0;
+      if (mEl) mEl.innerText = stats.materialsUploaded || 0;
+      if (sEl) sEl.innerText = stats.studentSubmissions || 0;
+    }
+
+    if (!tData.success || !tData.teachers) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-400">Failed to load teachers roster.</td></tr>';
+      return;
+    }
+
+    const teachers = tData.teachers;
+    if (teachers.length === 0) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400">No faculty records found. Click "+ Add New Teacher" to register faculty.</td></tr>';
+      return;
+    }
+
+    let rowsHtml = '';
+    teachers.forEach(t => {
+      const courses = t.assigned_courses || [];
+      let coursesHtml = '<div class="flex flex-wrap gap-1">';
+      if (courses.length === 0) {
+        coursesHtml += '<span class="text-slate-500 italic text-[11px]">No courses assigned</span>';
+      } else {
+        courses.forEach(c => {
+          coursesHtml += `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono bg-blue-900/30 text-sky-300 border border-blue-600/30">
+              <strong>${escapeHtml(c.course_code)}</strong> (${escapeHtml(c.section || 'A')})
+              <button onclick="window.handleRemoveCourseAssignment(${c.assignment_id})" class="text-red-400 hover:text-red-200 ml-1 font-bold" title="Remove course">&times;</button>
+            </span>
+          `;
+        });
+      }
+      coursesHtml += '</div>';
+
+      rowsHtml += `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-3 font-mono font-bold text-sky-400">${escapeHtml(t.teacher_id)}</td>
+          <td class="p-3 font-bold text-white">${escapeHtml(t.name)}</td>
+          <td class="p-3 text-slate-300">
+            <div>${escapeHtml(t.email)}</div>
+            <div class="text-[10px] text-slate-500">${escapeHtml(t.phone || '—')}</div>
+          </td>
+          <td class="p-3 text-slate-300">${escapeHtml(t.department || '—')}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+              ${escapeHtml(t.designation || 'Faculty')}
+            </span>
+          </td>
+          <td class="p-3">${coursesHtml}</td>
+          <td class="p-3 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="window.openAssignCourseModal(${t.id}, '${escapeHtml(t.name)}')" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600 text-sky-300 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition">
+                + Course
+              </button>
+              <button onclick="window.handleImpersonateTeacher(${t.id})" class="px-2.5 py-1 bg-teal-600/20 hover:bg-[#0D9488] text-teal-300 hover:text-white rounded-lg text-xs font-bold border border-teal-500/30 transition" title="Log into teacher workbench">
+                👨‍🏫 Login
+              </button>
+              <button onclick="window.handleDeleteTeacher(${t.id}, '${escapeHtml(t.name)}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/30 transition">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    if (tbody) tbody.innerHTML = rowsHtml;
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-400">Error: ${escapeHtml(err.message)}</td></tr>`;
+  }
+};
+
+window.openCreateTeacherModal = function() {
+  const modal = document.getElementById('create-teacher-modal');
+  if (modal) modal.classList.remove('hidden');
+};
+
+window.closeCreateTeacherModal = function() {
+  const modal = document.getElementById('create-teacher-modal');
+  if (modal) modal.classList.add('hidden');
+};
+
+window.handleCreateTeacher = async function(e) {
+  if (e) e.preventDefault();
+  const teacherId = document.getElementById('new-t-id')?.value.trim();
+  const name = document.getElementById('new-t-name')?.value.trim();
+  const email = document.getElementById('new-t-email')?.value.trim();
+  const password = document.getElementById('new-t-pass')?.value;
+  const dept = document.getElementById('new-t-dept')?.value.trim();
+  const desig = document.getElementById('new-t-desig')?.value.trim();
+  const phone = document.getElementById('new-t-phone')?.value.trim();
+
+  try {
+    const res = await adminFetch('/api/admin/teachers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        teacher_id: teacherId,
+        name,
+        email,
+        password,
+        department: dept,
+        designation: desig,
+        phone
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      window.showAdminToast(data.error || 'Failed to create teacher.', 'error');
+      return;
+    }
+
+    window.showAdminToast(`Faculty member ${name} registered successfully!`);
+    window.closeCreateTeacherModal();
+    window.loadTeachersManager();
+  } catch (err) {
+    window.showAdminToast('Error: ' + err.message, 'error');
+  }
+};
+
+window.handleDeleteTeacher = async function(id, name) {
+  if (!confirm(`Are you sure you want to delete teacher "${name}"?\nAll course assignments and faculty records will be deleted.`)) return;
+
+  try {
+    const res = await adminFetch(`/api/admin/teachers/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!data.success) {
+      window.showAdminToast(data.error || 'Failed to delete teacher.', 'error');
+      return;
+    }
+    window.showAdminToast(`Teacher ${name} deleted successfully.`);
+    window.loadTeachersManager();
+  } catch (err) {
+    window.showAdminToast('Delete error: ' + err.message, 'error');
+  }
+};
+
+window.openAssignCourseModal = function(teacherId, teacherName) {
+  const modal = document.getElementById('assign-course-modal');
+  const tIdInput = document.getElementById('assign-teacher-id');
+  const tNameEl = document.getElementById('assign-modal-teacher-name');
+
+  if (tIdInput) tIdInput.value = teacherId;
+  if (tNameEl) tNameEl.innerText = `Teacher: ${teacherName}`;
+  if (modal) modal.classList.remove('hidden');
+};
+
+window.closeAssignCourseModal = function() {
+  const modal = document.getElementById('assign-course-modal');
+  if (modal) modal.classList.add('hidden');
+};
+
+window.handleAssignCourseSubmit = async function(e) {
+  if (e) e.preventDefault();
+  const teacherId = document.getElementById('assign-teacher-id')?.value;
+  const courseCode = document.getElementById('assign-course-code')?.value.trim();
+  const section = document.getElementById('assign-course-section')?.value.trim();
+  const semester = document.getElementById('assign-course-semester')?.value.trim();
+
+  if (!courseCode) {
+    window.showAdminToast('Course code is required.', 'error');
+    return;
+  }
+
+  try {
+    const res = await adminFetch(`/api/admin/teachers/${teacherId}/assign-course`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        course_code: courseCode,
+        section: section || 'A',
+        semester: semester || 'Fall 2026'
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      window.showAdminToast(data.error || 'Failed to assign course.', 'error');
+      return;
+    }
+
+    window.showAdminToast(`Course ${courseCode} assigned successfully!`);
+    window.closeAssignCourseModal();
+    window.loadTeachersManager();
+  } catch (err) {
+    window.showAdminToast('Assignment error: ' + err.message, 'error');
+  }
+};
+
+window.handleRemoveCourseAssignment = async function(assignmentId) {
+  if (!confirm('Remove this course assignment from the teacher?')) return;
+
+  try {
+    const res = await adminFetch(`/api/admin/teachers/assignments/${assignmentId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!data.success) {
+      window.showAdminToast(data.error || 'Failed to remove assignment.', 'error');
+      return;
+    }
+
+    window.showAdminToast('Course assignment removed.');
+    window.loadTeachersManager();
+  } catch (err) {
+    window.showAdminToast('Error: ' + err.message, 'error');
+  }
+};
+
+window.handleImpersonateTeacher = async function(teacherId) {
+  try {
+    const res = await adminFetch(`/api/admin/slate/impersonate-teacher/${teacherId}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success && data.redirectUrl) {
+      window.open(data.redirectUrl, '_blank');
+    } else {
+      window.showAdminToast(data.error || 'Failed to impersonate teacher.', 'error');
+    }
+  } catch (err) {
+    window.showAdminToast('Error: ' + err.message, 'error');
+  }
+};
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';

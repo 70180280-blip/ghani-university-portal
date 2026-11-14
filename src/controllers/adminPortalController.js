@@ -954,6 +954,240 @@ async function retryDbConnection(req, res) {
   }
 }
 
+/**
+ * 18. Faculty & Slate Management (Admin)
+ */
+async function getTeachers(req, res) {
+  try {
+    const [teachers] = await db.query(
+      `SELECT t.*,
+              (SELECT COUNT(*) FROM teacher_course_assignments tca WHERE tca.teacher_id = t.id) as assigned_courses_count
+       FROM teachers t
+       ORDER BY t.name ASC`
+    );
+
+    for (const t of teachers) {
+      delete t.password_hash;
+      const [assignments] = await db.query(
+        `SELECT tca.id as assignment_id, tca.course_code, tca.section, c.title as course_title
+         FROM teacher_course_assignments tca
+         LEFT JOIN courses c ON tca.course_code = c.code
+         WHERE tca.teacher_id = ?`,
+        [t.id]
+      );
+      t.assignments = assignments;
+    }
+
+    return res.json({ success: true, teachers });
+  } catch (err) {
+    console.error('[Admin] Error getting teachers:', err);
+    return res.status(500).json({ success: false, error: 'Failed to retrieve teachers.' });
+  }
+}
+
+async function createTeacher(req, res) {
+  try {
+    const { teacher_id, name, email, password, department, designation, phone, office_room } = req.body;
+    if (!teacher_id || !name || !email || !password) {
+      return res.status(400).json({ success: false, error: 'Teacher ID, Name, Email, and Password are required.' });
+    }
+
+    const bcrypt = require('bcryptjs');
+    const passwordHash = bcrypt.hashSync(password, 10);
+
+    const [existing] = await db.query('SELECT id FROM teachers WHERE teacher_id = ? OR email = ?', [teacher_id, email]);
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, error: 'A teacher with this Teacher ID or Email already exists.' });
+    }
+
+    const [result] = await db.query(
+      `INSERT INTO teachers (teacher_id, name, email, password_hash, department, designation, phone, office_room, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Active')`,
+      [
+        teacher_id.trim().toUpperCase(),
+        name.trim(),
+        email.trim().toLowerCase(),
+        passwordHash,
+        department || 'Department of Computer Science',
+        designation || 'Assistant Professor',
+        phone || null,
+        office_room || null
+      ]
+    );
+
+    const adminUser = req.session.admin?.username || 'admin';
+    await logAdminAction(adminUser, 'CREATE_TEACHER', 'teachers', result.insertId, `Created faculty account: ${name} (${teacher_id})`, req.ip);
+
+    return res.json({ success: true, message: `Teacher ${name} added successfully!`, teacherId: result.insertId });
+  } catch (err) {
+    console.error('[Admin] Error creating teacher:', err);
+    return res.status(500).json({ success: false, error: 'Failed to create teacher account.' });
+  }
+}
+
+async function updateTeacher(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, email, department, designation, phone, office_room, status, password } = req.body;
+
+    const [t] = await db.query('SELECT * FROM teachers WHERE id = ?', [id]);
+    if (t.length === 0) return res.status(404).json({ success: false, error: 'Teacher not found.' });
+
+    let passUpdate = '';
+    const params = [
+      name || t[0].name,
+      email || t[0].email,
+      department || t[0].department,
+      designation || t[0].designation,
+      phone || t[0].phone,
+      office_room || t[0].office_room,
+      status || t[0].status
+    ];
+
+    if (password && password.trim().length >= 4) {
+      const bcrypt = require('bcryptjs');
+      const hash = bcrypt.hashSync(password.trim(), 10);
+      passUpdate = ', password_hash = ?';
+      params.push(hash);
+    }
+    params.push(id);
+
+    await db.query(
+      `UPDATE teachers SET name = ?, email = ?, department = ?, designation = ?, phone = ?, office_room = ?, status = ? ${passUpdate} WHERE id = ?`,
+      params
+    );
+
+    const adminUser = req.session.admin?.username || 'admin';
+    await logAdminAction(adminUser, 'UPDATE_TEACHER', 'teachers', id, `Updated faculty account: ${name || t[0].name}`, req.ip);
+
+    return res.json({ success: true, message: 'Teacher profile updated successfully.' });
+  } catch (err) {
+    console.error('[Admin] Error updating teacher:', err);
+    return res.status(500).json({ success: false, error: 'Failed to update teacher profile.' });
+  }
+}
+
+async function deleteTeacher(req, res) {
+  try {
+    const { id } = req.params;
+    const [t] = await db.query('SELECT name FROM teachers WHERE id = ?', [id]);
+    if (t.length === 0) return res.status(404).json({ success: false, error: 'Teacher not found.' });
+
+    await db.query('DELETE FROM teachers WHERE id = ?', [id]);
+
+    const adminUser = req.session.admin?.username || 'admin';
+    await logAdminAction(adminUser, 'DELETE_TEACHER', 'teachers', id, `Deleted teacher ${t[0].name}`, req.ip);
+
+    return res.json({ success: true, message: `Teacher ${t[0].name} deleted successfully.` });
+  } catch (err) {
+    console.error('[Admin] Error deleting teacher:', err);
+    return res.status(500).json({ success: false, error: 'Failed to delete teacher.' });
+  }
+}
+
+async function assignCourseToTeacher(req, res) {
+  try {
+    const { id } = req.params;
+    const { course_code, section, academic_year, term } = req.body;
+
+    if (!course_code) return res.status(400).json({ success: false, error: 'Course code is required.' });
+
+    const [existing] = await db.query(
+      'SELECT id FROM teacher_course_assignments WHERE teacher_id = ? AND course_code = ?',
+      [id, course_code]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, error: 'Course already assigned to this teacher.' });
+    }
+
+    await db.query(
+      `INSERT INTO teacher_course_assignments (teacher_id, course_code, section, academic_year, term)
+       VALUES (?, ?, ?, ?, ?)`,
+      [id, course_code, section || 'A', academic_year || '2026-2027', term || 'Fall']
+    );
+
+    // Auto-create course group conversation on Slate if not yet created
+    const [conv] = await db.query('SELECT id FROM conversations WHERE type = "course_group" AND course_code = ?', [course_code]);
+    if (conv.length === 0) {
+      const [c] = await db.query('SELECT title FROM courses WHERE code = ?', [course_code]);
+      const title = c.length > 0 ? `${course_code} - ${c[0].title}` : course_code;
+      await db.query(
+        'INSERT INTO conversations (type, course_code, title, last_message_text, last_message_at) VALUES ("course_group", ?, ?, "Welcome to the course communication slate.", NOW())',
+        [course_code, title]
+      );
+    }
+
+    return res.json({ success: true, message: `Course ${course_code} assigned successfully!` });
+  } catch (err) {
+    console.error('[Admin] Error assigning course:', err);
+    return res.status(500).json({ success: false, error: 'Failed to assign course.' });
+  }
+}
+
+async function removeCourseAssignment(req, res) {
+  try {
+    const { assignmentId } = req.params;
+    await db.query('DELETE FROM teacher_course_assignments WHERE id = ?', [assignmentId]);
+    return res.json({ success: true, message: 'Course assignment removed.' });
+  } catch (err) {
+    console.error('[Admin] Error removing course assignment:', err);
+    return res.status(500).json({ success: false, error: 'Failed to remove assignment.' });
+  }
+}
+
+async function getSlateOverview(req, res) {
+  try {
+    const [[teachersCount]] = await db.query('SELECT COUNT(*) as count FROM teachers WHERE status = "Active"');
+    const [[convsCount]] = await db.query('SELECT COUNT(*) as count FROM conversations');
+    const [[msgsCount]] = await db.query('SELECT COUNT(*) as count FROM messages');
+    const [[materialsCount]] = await db.query('SELECT COUNT(*) as count FROM course_materials');
+    const [[submissionsCount]] = await db.query('SELECT COUNT(*) as count FROM assignment_submissions');
+    const [[meetingsCount]] = await db.query('SELECT COUNT(*) as count FROM meeting_requests WHERE status = "pending"');
+    const [[reportsCount]] = await db.query('SELECT COUNT(*) as count FROM message_reports WHERE status = "pending"');
+
+    return res.json({
+      success: true,
+      stats: {
+        activeTeachers: teachersCount?.count || 0,
+        conversations: convsCount?.count || 0,
+        messagesSent: msgsCount?.count || 0,
+        materialsUploaded: materialsCount?.count || 0,
+        studentSubmissions: submissionsCount?.count || 0,
+        pendingMeetings: meetingsCount?.count || 0,
+        pendingReports: reportsCount?.count || 0
+      }
+    });
+  } catch (err) {
+    console.error('[Admin] Error getting slate overview:', err);
+    return res.status(500).json({ success: false, error: 'Failed to retrieve slate overview.' });
+  }
+}
+
+async function impersonateTeacher(req, res) {
+  try {
+    const { id } = req.params;
+    const [t] = await db.query('SELECT * FROM teachers WHERE id = ?', [id]);
+    if (t.length === 0) return res.status(404).json({ success: false, error: 'Teacher not found.' });
+
+    const teacher = t[0];
+    req.session.teacher = {
+      id: teacher.id,
+      teacher_id: teacher.teacher_id,
+      name: teacher.name,
+      email: teacher.email,
+      department: teacher.department,
+      designation: teacher.designation,
+      status: teacher.status
+    };
+
+    return res.json({ success: true, redirectUrl: '/teacher' });
+  } catch (err) {
+    console.error('[Admin] Error impersonating teacher:', err);
+    return res.status(500).json({ success: false, error: 'Failed to access teacher portal.' });
+  }
+}
+
 module.exports = {
   getDashboardStats,
   uploadFile,
@@ -974,6 +1208,14 @@ module.exports = {
   getAtRiskReport,
   getAuditLogs,
   getDbStatus,
-  retryDbConnection
+  retryDbConnection,
+  getTeachers,
+  createTeacher,
+  updateTeacher,
+  deleteTeacher,
+  assignCourseToTeacher,
+  removeCourseAssignment,
+  getSlateOverview,
+  impersonateTeacher
 };
 

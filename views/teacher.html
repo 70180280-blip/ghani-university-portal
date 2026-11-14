@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghani University Faculty Portal | Teacher Workbench &amp; Slate</title>
+  <link rel="icon" type="image/png" href="/images/logo.png" onerror="this.href='/favicon.ico'">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gu: {
+              navy: '#142B4A',
+              royal: '#2563EB',
+              teal: '#0D9488',
+              bg: '#F1F5F9',
+              white: '#FFFFFF'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #0B132B;
+      color: #E2E8F0;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
+
+  <!-- ============================================================ -->
+  <!-- TEACHER LOGIN VIEW                                           -->
+  <!-- ============================================================ -->
+  <div id="teacher-login-view" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0B132B] via-[#142B4A] to-[#0A192F]">
+    <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-20 h-20 mx-auto bg-white/10 p-2 rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
+          <img src="/images/logo.png" alt="Ghani University Logo" class="h-16 w-auto object-contain" onerror="this.src='/favicon.png'">
+        </div>
+        <h1 class="text-2xl font-black text-white tracking-wider">GHANI UNIVERSITY</h1>
+        <p class="text-xs uppercase tracking-widest text-[#0D9488] font-bold">Faculty &amp; Teacher Portal</p>
+        <p class="text-xs text-slate-400">Sheikhupura Campus • Academic Management &amp; Slate LMS</p>
+      </div>
+
+      <div id="teacher-login-error" class="hidden p-3 rounded-xl bg-red-900/50 border border-red-500/50 text-red-200 text-xs font-semibold text-center"></div>
+
+      <form onsubmit="window.handleTeacherLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Faculty Email / Teacher ID</label>
+          <input type="text" id="teacher-login-ident" required placeholder="dr.kamran@gu.edu.pk or GU-FAC-01"
+                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] transition">
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Password</label>
+            <span class="text-[11px] text-slate-400">Default: teacher123</span>
+          </div>
+          <input type="password" id="teacher-login-pass" required placeholder="••••••••"
+                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] transition">
+        </div>
+
+        <button type="submit"
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-[#2563EB] to-[#0D9488] hover:from-blue-600 hover:to-teal-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-teal-900/40 transition transform active:scale-[0.99] flex items-center justify-center gap-2">
+          <span>Sign In to Faculty Portal</span>
+          <span>→</span>
+        </button>
+      </form>
+
+      <div class="pt-4 border-t border-slate-800 space-y-2 text-center text-xs text-slate-400">
+        <div class="flex justify-center gap-4 text-xs font-medium">
+          <a href="/" class="text-sky-400 hover:underline">Student Portal</a>
+          <span>•</span>
+          <a href="/slate" class="text-teal-400 hover:underline">University Slate</a>
+          <span>•</span>
+          <a href="/admin" class="text-slate-400 hover:underline">Admin ERP</a>
+        </div>
+        <p class="text-[11px] text-slate-500">For credentials assistance, contact Registrar Academic Office.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TEACHER DASHBOARD VIEW                                       -->
+  <!-- ============================================================ -->
+  <div id="teacher-dashboard-view" class="hidden flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="bg-[#142B4A] border-b border-slate-800 text-white px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-lg">
+      <div class="flex items-center gap-3">
+        <a href="/teacher" class="flex items-center gap-3">
+          <img src="/images/logo.png" alt="Ghani University Logo" class="h-10 w-auto rounded-lg bg-white/10 p-1 object-contain" onerror="this.src='/favicon.png'">
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base font-black tracking-wider leading-none">GHANI UNIVERSITY</h1>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0D9488]/30 text-teal-300 border border-teal-400/30 uppercase">Faculty Portal</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-0.5">Academic Instruction &amp; Communication Management</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="/slate" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#0D9488] hover:opacity-90 text-white text-xs font-bold shadow flex items-center gap-1.5 transition">
+          <span>💬</span>
+          <span>Open Slate LMS</span>
+        </a>
+        <div class="hidden md:flex flex-col text-right pl-3 border-l border-white/20">
+          <span id="teacher-header-name" class="text-xs font-bold leading-tight">Faculty Member</span>
+          <span id="teacher-header-info" class="text-[10px] text-teal-300 leading-tight">Department of Computer Science</span>
+        </div>
+        <button onclick="window.handleTeacherLogout()" class="px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white text-xs font-semibold border border-red-500/30 transition">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub-bar: Navigation Tabs -->
+    <div class="bg-slate-900 border-b border-slate-800 px-4 sm:px-8 py-2 flex items-center justify-between overflow-x-auto gap-2">
+      <div class="flex items-center gap-1">
+        <button onclick="window.switchTeacherTab('courses')" data-tab="courses" class="teacher-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-[#0D9488] text-white shadow">
+          <span>📚</span>
+          <span>My Assigned Courses</span>
+        </button>
+        <button onclick="window.switchTeacherTab('materials')" data-tab="materials" class="teacher-tab-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-2">
+          <span>📝</span>
+          <span>Upload Work / Assignments</span>
+        </button>
+        <button onclick="window.switchTeacherTab('meetings')" data-tab="meetings" class="teacher-tab-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-2">
+          <span>📅</span>
+          <span>Student Meeting Requests</span>
+        </button>
+        <a href="/slate?tab=channels" class="px-4 py-2 rounded-xl text-xs font-semibold text-teal-400 hover:text-teal-300 transition flex items-center gap-2">
+          <span>👥</span>
+          <span>Class Discussion Slate</span>
+        </a>
+      </div>
+
+      <div class="hidden sm:block">
+        <button onclick="window.Teacher.openUploadModal()" class="px-3.5 py-1.5 bg-[#0D9488] hover:bg-teal-600 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
+          <span>+</span>
+          <span>Publish Work / Task</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+      <!-- Hero Banner / KPI Stat Row -->
+      <section class="bg-gradient-to-r from-[#142B4A] via-[#1E3A8A] to-[#0D9488] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur">Academic Session 2026</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-400/20 text-teal-200 border border-teal-300/30">Fall Semester</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black">Welcome, <span id="teacher-welcome-name">Professor</span></h2>
+            <p class="text-xs sm:text-sm text-slate-200 max-w-xl">
+              Publish lecture materials, assign quizzes, evaluate student submissions, manage one-on-one consultation slots, and collaborate on the official Ghani University Slate.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="window.Teacher.openUploadModal()" class="px-4 py-2.5 bg-white text-[#142B4A] hover:bg-slate-100 rounded-2xl text-xs font-bold shadow-lg transition flex items-center gap-2">
+              <span>📤</span>
+              <span>Upload Work / Task</span>
+            </button>
+            <a href="/slate" class="px-4 py-2.5 bg-[#0D9488] hover:bg-teal-600 text-white rounded-2xl text-xs font-bold shadow-lg transition flex items-center gap-2">
+              <span>💬</span>
+              <span>Open Slate Chat</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 KPI metric cards inside hero -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-white/15">
+          <div class="bg-black/20 backdrop-blur rounded-2xl p-4 border border-white/10">
+            <p class="text-[11px] font-semibold text-slate-300">Assigned Courses</p>
+            <p id="stat-teacher-courses" class="text-2xl font-black text-white mt-1">0</p>
+          </div>
+          <div class="bg-black/20 backdrop-blur rounded-2xl p-4 border border-white/10">
+            <p class="text-[11px] font-semibold text-slate-300">Enrolled Students</p>
+            <p id="stat-teacher-students" class="text-2xl font-black text-[#93C5FD] mt-1">0</p>
+          </div>
+          <div class="bg-black/20 backdrop-blur rounded-2xl p-4 border border-white/10">
+            <p class="text-[11px] font-semibold text-slate-300">Published Tasks &amp; Works</p>
+            <p id="stat-teacher-tasks" class="text-2xl font-black text-teal-300 mt-1">0</p>
+          </div>
+          <div class="bg-black/20 backdrop-blur rounded-2xl p-4 border border-white/10">
+            <p class="text-[11px] font-semibold text-slate-300">Pending Meeting Requests</p>
+            <p id="stat-teacher-meetings" class="text-2xl font-black text-amber-300 mt-1">0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 1: Assigned Courses -->
+      <section id="teacher-tab-courses" class="teacher-tab-pane space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-bold text-white">My Assigned Courses</h3>
+            <p class="text-xs text-slate-400">Courses allocated by Academic Administration for Fall 2026</p>
+          </div>
+          <a href="/slate?tab=channels" class="text-xs font-bold text-teal-400 hover:underline">View All Slate Channels →</a>
+        </div>
+
+        <div id="teacher-courses-container" class="min-h-[200px]">
+          <!-- Loaded dynamically via window.Teacher.loadTeacherCourses -->
+        </div>
+      </section>
+
+      <!-- TAB 2: Materials & Uploaded Work -->
+      <section id="teacher-tab-materials" class="teacher-tab-pane hidden space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h3 class="text-lg font-bold text-white">Uploaded Course Materials, Assignments &amp; Quizzes</h3>
+            <p class="text-xs text-slate-400">Works uploaded to the Slate repository. Students can download tasks and submit completed solutions.</p>
+          </div>
+          <button onclick="window.Teacher.openUploadModal()" class="px-4 py-2 bg-[#0D9488] hover:bg-teal-600 text-white rounded-xl text-xs font-bold shadow flex items-center gap-2">
+            <span>+</span>
+            <span>Upload Work Material</span>
+          </button>
+        </div>
+
+        <div id="teacher-materials-container" class="min-h-[200px]">
+          <!-- Loaded dynamically via window.Teacher.loadTeacherMaterials -->
+        </div>
+      </section>
+
+      <!-- TAB 3: Meetings -->
+      <section id="teacher-tab-meetings" class="teacher-tab-pane hidden space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-bold text-white">Student Meeting &amp; Consultation Requests</h3>
+            <p class="text-xs text-slate-400">Approve, decline, or provide time advice for student consultation sessions</p>
+          </div>
+        </div>
+
+        <div id="teacher-meetings-container" class="min-h-[200px]">
+          <!-- Loaded dynamically via window.Teacher.loadTeacherMeetings -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#142B4A] border-t border-slate-800 text-slate-400 py-4 px-6 text-center text-xs">
+      <p>&copy; 2026 GHANI UNIVERSITY • Faculty Academic Portal &amp; Communication Slate • Sheikhupura Campus</p>
+    </footer>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: UPLOAD WORK / MATERIAL                                -->
+  <!-- ============================================================ -->
+  <div id="teacher-material-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <span>📤</span>
+          <span>Upload Work / Task to Slate</span>
+        </h3>
+        <button onclick="window.Teacher.closeUploadModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+      </div>
+
+      <form onsubmit="window.Teacher.handlePublishMaterial(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Target Course *</label>
+          <select id="t-mat-course-select" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            <option value="">Select Assigned Course</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Material / Task Type</label>
+            <select id="t-mat-type" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              <option value="assignment">Assignment</option>
+              <option value="quiz">Quiz</option>
+              <option value="lecture_notes">Lecture Notes</option>
+              <option value="syllabus">Syllabus / Guide</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Total Marks</label>
+            <input type="number" id="t-mat-marks" value="10" min="1" max="100"
+                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Title / Headline *</label>
+          <input type="text" id="t-mat-title" required placeholder="e.g. Assignment 1: Relational Algebra &amp; Normalization"
+                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Submission Deadline (Optional)</label>
+          <input type="datetime-local" id="t-mat-due"
+                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Detailed Instructions / Description</label>
+          <textarea id="t-mat-desc" rows="3" placeholder="Provide problem statement, guidelines, formatting instructions..."
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Task Attachment File (PDF, DOCX, ZIP, XLSX, PPTX)</label>
+          <input type="file" id="t-mat-file"
+                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#0D9488] file:text-white hover:file:bg-teal-600">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="window.Teacher.closeUploadModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-[#0D9488] hover:bg-teal-600 text-white shadow">Publish to Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: VIEW STUDENT SUBMISSIONS & GRADING                   -->
+  <!-- ============================================================ -->
+  <div id="teacher-submissions-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3 flex-shrink-0">
+        <h3 id="submissions-modal-title" class="text-base font-bold text-white flex items-center gap-2">
+          <span>📝</span>
+          <span>Student Submissions &amp; Grading</span>
+        </h3>
+        <button onclick="window.Teacher.closeSubmissionsModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+      </div>
+
+      <div id="submissions-list-container" class="flex-1 overflow-y-auto pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex justify-end pt-3 border-t border-slate-800 flex-shrink-0">
+        <button onclick="window.Teacher.closeSubmissionsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teacher Engine Script -->
+  <script src="/js/teacher.js?v=20261114"></script>
+</body>
+</html>

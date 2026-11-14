@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghani University Slate | Student &amp; Teacher Communication</title>
+  <link rel="icon" type="image/png" href="/images/logo.png" onerror="this.href='/favicon.ico'">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gu: {
+              navy: '#142B4A',
+              royal: '#2563EB',
+              teal: '#0D9488',
+              bg: '#F1F5F9',
+              white: '#FFFFFF'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="/css/slate.css?v=20261114">
+</head>
+<body class="bg-[#F1F5F9] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col h-screen overflow-hidden font-sans">
+
+  <!-- Top Slate Header Shell -->
+  <header class="h-14 bg-[#142B4A] text-white flex items-center justify-between px-4 sm:px-6 shadow-md z-30 flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="/images/logo.png" alt="GU" class="h-8 w-auto rounded object-contain bg-white/10 p-0.5" onerror="this.src='/favicon.png'" />
+        <div>
+          <h1 class="text-sm font-black tracking-wider leading-none">GHANI UNIVERSITY</h1>
+          <p class="text-[10px] text-teal-300 font-semibold tracking-wide">Communication Slate &amp; LMS</p>
+        </div>
+      </a>
+      <span class="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 border border-white/15 text-slate-200">
+        Sheikhupura Campus
+      </span>
+    </div>
+
+    <!-- Center Navigation Tabs for Quick Filter -->
+    <nav class="hidden md:flex items-center gap-1 bg-black/20 p-1 rounded-xl">
+      <button onclick="window.switchTab('chats')" data-tab="chats" class="slate-nav-item active px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+        <span>💬</span>
+        <span id="nav-label-chats">Chats</span>
+      </button>
+      <button onclick="window.switchTab('channels')" data-tab="channels" class="slate-nav-item px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 transition flex items-center gap-1.5">
+        <span>📚</span>
+        <span>Course Channels</span>
+      </button>
+      <button onclick="window.switchTab('materials')" data-tab="materials" class="slate-nav-item px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 transition flex items-center gap-1.5">
+        <span>📝</span>
+        <span>Assignments &amp; Work</span>
+      </button>
+      <button onclick="window.switchTab('announcements')" data-tab="announcements" class="slate-nav-item px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 transition flex items-center gap-1.5">
+        <span>📢</span>
+        <span>Announcements</span>
+      </button>
+      <button onclick="window.switchTab('meetings')" data-tab="meetings" class="slate-nav-item px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 transition flex items-center gap-1.5">
+        <span>📅</span>
+        <span>Meetings</span>
+      </button>
+    </nav>
+
+    <!-- Right Controls: Notification bell, User info, Back links -->
+    <div class="flex items-center gap-3">
+      <!-- Notification Icon -->
+      <button onclick="window.switchTab('notifications')" class="relative p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-slate-200 text-sm" title="Notifications">
+        <span>🔔</span>
+        <span id="slate-unread-badge" class="hidden absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-black bg-red-500 text-white shadow">0</span>
+      </button>
+
+      <!-- Active User Profile Pill -->
+      <div class="flex items-center gap-2 pl-2 border-l border-white/20">
+        <div id="slate-user-avatar" class="w-8 h-8 rounded-full bg-[#2563EB] text-white font-bold text-xs flex items-center justify-center shadow">
+          GU
+        </div>
+        <div class="hidden lg:block text-left">
+          <span id="slate-user-name" class="block text-xs font-bold leading-tight">Student / Faculty</span>
+          <span id="slate-user-role" class="block text-[10px] text-teal-300 leading-none">Verified Member</span>
+        </div>
+      </div>
+
+      <!-- Quick Back to Portal Links -->
+      <a href="/" class="hidden sm:flex items-center gap-1 text-xs text-slate-300 hover:text-white px-2.5 py-1 rounded bg-white/10 hover:bg-white/15 transition font-semibold">
+        <span>Student Portal</span>
+      </a>
+      <a href="/teacher" class="hidden sm:flex items-center gap-1 text-xs text-teal-300 hover:text-white px-2.5 py-1 rounded bg-teal-900/40 border border-teal-500/30 hover:bg-teal-800/40 transition font-semibold">
+        <span>Teacher Portal</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ======================================================================= -->
+  <!-- AUTHENTICATION GATE (If opened directly without student/teacher login)  -->
+  <!-- ======================================================================= -->
+  <div id="slate-auth-gate" class="hidden flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl text-center space-y-5">
+      <div class="w-16 h-16 rounded-2xl bg-[#142B4A] text-white flex items-center justify-center text-3xl mx-auto shadow-lg">
+        🏛️
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Ghani University Slate</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please sign in as a verified Student or Faculty Member to access academic communication.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <a href="/" class="py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-blue-600 text-white font-bold text-xs shadow-lg transition">
+          Student Portal Sign In
+        </a>
+        <a href="/teacher" class="py-3 px-4 rounded-xl bg-[#142B4A] hover:bg-slate-800 text-white font-bold text-xs shadow-lg transition border border-teal-500/30">
+          Faculty Portal Sign In
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MAIN SLATE WORKSPACE VIEW (3-Column Layout)                             -->
+  <!-- ======================================================================= -->
+  <main id="slate-main-view" class="flex-1 flex overflow-hidden">
+
+    <!-- COLUMN 1: LEFT SIDEBAR NAVIGATION & CONVERSATION LIST -->
+    <aside id="slate-list-panel" class="w-full sm:w-80 md:w-88 lg:w-96 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 z-20">
+      
+      <!-- Top Search & Quick Actions -->
+      <div class="p-3.5 border-b border-slate-200 dark:border-slate-800 space-y-2">
+        <div class="relative">
+          <input type="text" id="slate-search-input" placeholder="Search conversations, faculty, or courses..."
+                 class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 pl-9 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2563EB]" />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+
+        <!-- Filter Sub-Tabs for Mobile -->
+        <div class="flex items-center gap-1 md:hidden">
+          <button onclick="window.switchTab('chats')" class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white">Chats</button>
+          <button onclick="window.switchTab('channels')" class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-500">Courses</button>
+          <button onclick="window.switchTab('materials')" class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-500">Tasks</button>
+          <button onclick="window.switchTab('announcements')" class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-500">Notices</button>
+        </div>
+      </div>
+
+      <!-- Conversations / Channels Scrollable List -->
+      <div id="slate-conversations-list" class="flex-1 overflow-y-auto slate-scroll divide-y divide-slate-100 dark:divide-slate-800">
+        <!-- Injected dynamically by slate.js -->
+        <div class="p-8 text-center text-xs text-slate-400">Loading channels...</div>
+      </div>
+
+      <!-- Bottom User Fast Action Bar -->
+      <div class="p-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-xs">
+        <span class="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 status-live"></span>
+          <span>Slate Network Live</span>
+        </span>
+        <button onclick="window.location.reload()" class="p-1 rounded text-slate-400 hover:text-white" title="Refresh Slate">
+          ↻
+        </button>
+      </div>
+    </aside>
+
+    <!-- COLUMN 2: CENTER CHAT & MESSAGING WINDOW -->
+    <section id="slate-chat-panel" class="flex-1 flex flex-col bg-[#F8FAFC] dark:bg-slate-950 min-w-0">
+      
+      <!-- Chat Header -->
+      <div class="h-16 px-4 sm:px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-shrink-0 shadow-sm">
+        <div class="flex items-center gap-3 min-w-0">
+          <div>
+            <h3 id="chat-header-title" class="text-sm font-bold text-slate-900 dark:text-white truncate">Select a Conversation</h3>
+            <p id="chat-header-sub" class="text-[11px] text-[#0D9488] font-semibold truncate">Official End-to-End University Channel</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="window.switchTab('materials')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition flex items-center gap-1" title="View Course Tasks">
+            <span>📝</span>
+            <span class="hidden sm:inline">Course Tasks</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Scrollable Stream -->
+      <div id="slate-messages-container" class="flex-1 overflow-y-auto p-4 sm:p-6 slate-scroll space-y-2">
+        <!-- Messages rendered by slate.js -->
+        <div class="h-full flex items-center justify-center text-xs text-slate-400">Loading messages...</div>
+      </div>
+
+      <!-- Reply Banner -->
+      <div id="slate-reply-banner" class="hidden px-4 py-2 bg-blue-50 dark:bg-slate-800/80 border-t border-blue-200 dark:border-blue-900 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300">
+        <span id="slate-reply-text" class="truncate font-medium">Replying to...</span>
+        <button onclick="window.Slate.clearReply()" class="text-red-500 font-bold ml-2">✕</button>
+      </div>
+
+      <!-- Staged Attachment Preview -->
+      <div id="slate-attachment-preview" class="hidden px-4 py-2 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs">
+        <!-- Preview injected dynamically -->
+      </div>
+
+      <!-- Bottom Chat Bar Input Form -->
+      <form id="slate-chat-form" onsubmit="window.Slate.handleSendMessage(event)" class="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 flex-shrink-0">
+        
+        <!-- Attachment Button -->
+        <label class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer transition flex items-center justify-center" title="Attach Document, Image, or PDF">
+          <input type="file" id="slate-file-input" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.ppt,.pptx,.zip,.csv,.xlsx" onchange="window.Slate.handleFileSelect(this.files[0])" />
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+        </label>
+
+        <!-- Message Input -->
+        <input type="text" id="slate-message-input" autocomplete="off" placeholder="Type a message or question regarding lectures, assignments, or coursework..."
+               class="flex-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2563EB]" />
+
+        <!-- Send Button -->
+        <button type="submit" class="px-5 py-2.5 bg-[#2563EB] hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5 flex-shrink-0">
+          <span>Send</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- COLUMN 3: RIGHT PROFILE & COURSE DETAILS DRAWER (Hidden on small screens) -->
+    <aside id="slate-details-panel" class="hidden xl:flex w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex-col flex-shrink-0 p-5 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-3xl bg-[#142B4A] text-white flex items-center justify-center text-xl font-bold mx-auto shadow-md">
+          🏛️
+        </div>
+        <h4 id="details-title" class="text-sm font-bold text-slate-900 dark:text-white">Ghani University</h4>
+        <span id="details-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0D9488]/15 text-[#0D9488]">Academic Desk</span>
+      </div>
+
+      <div class="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs">
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Designation / Role</span>
+          <p id="details-email" class="font-semibold text-slate-700 dark:text-slate-200 mt-0.5">Faculty Member</p>
+        </div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Office Location</span>
+          <p id="details-room" class="font-semibold text-slate-700 dark:text-slate-200 mt-0.5">Sheikhupura Campus</p>
+        </div>
+      </div>
+
+      <div id="details-actions" class="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+        <!-- Injected dynamically -->
+      </div>
+    </aside>
+
+    <!-- FULL STREAM VIEW (When switching to Announcements, Materials, Meetings) -->
+    <section id="slate-stream-panel" class="hidden flex-1 overflow-y-auto p-4 sm:p-8 slate-scroll bg-[#F8FAFC] dark:bg-slate-950">
+      <div id="slate-stream-content"></div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: STUDENT SUBMIT WORK / ASSIGNMENT                                 -->
+  <!-- ======================================================================= -->
+  <div id="slate-submit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <h3 id="submit-modal-title" class="text-sm font-bold text-slate-900 dark:text-white">Submit Completed Work</h3>
+        <button onclick="window.Slate.closeSubmitModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="window.Slate.handleAssignmentSubmit(event)" class="space-y-4">
+        <input type="hidden" id="submit-material-id" />
+
+        <div class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Choose Completed Work File</label>
+          <input type="file" id="submit-file-input" required accept=".pdf,.docx,.doc,.xlsx,.zip,.pptx,.png,.jpg"
+                 class="w-full text-xs text-slate-700 dark:text-slate-200 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#2563EB] file:text-white hover:file:bg-blue-600 cursor-pointer" />
+          <p class="text-[10px] text-slate-400">Accepted: PDF, Word (.docx), Excel, PowerPoint, ZIP archive</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Student Note to Faculty (Optional)</label>
+          <textarea id="submit-comment" rows="3" placeholder="e.g. 'Sir, attached is my complete Assignment 2 with documentation and code files.'"
+                    class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2563EB]"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="window.Slate.closeSubmitModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+          <button type="submit" id="submit-work-btn" class="px-5 py-2 bg-[#2563EB] hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow">
+            Upload &amp; Submit Work
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: STUDENT REQUEST 1-ON-1 MEETING                                   -->
+  <!-- ======================================================================= -->
+  <div id="slate-meeting-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white">📅 Request Faculty Consultation</h3>
+        <button onclick="window.Slate.closeMeetingModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="window.Slate.handleSendMeetingRequest(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Faculty Instructor</label>
+          <select id="meeting-teacher-select" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Meeting Purpose</label>
+          <input type="text" id="meeting-purpose-input" required placeholder="e.g. 'Midterm project discussion and guidance'"
+                 class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Preferred Date &amp; Time</label>
+            <input type="datetime-local" id="meeting-datetime-input" required
+                   class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Meeting Mode</label>
+            <select id="meeting-mode-select" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]">
+              <option value="in_person">In-Person (Faculty Office)</option>
+              <option value="online">Online Video Consultation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="window.Slate.closeMeetingModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow">
+            Send Meeting Request
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: TEACHER UPLOAD WORK / ASSIGNMENT                                 -->
+  <!-- ======================================================================= -->
+  <div id="slate-upload-material-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white">📤 Upload Work, Assignment or Notes</h3>
+        <button onclick="window.Slate.closeUploadMaterialModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="window.Slate.handleCreateMaterial(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Target Course</label>
+          <select id="material-course-select" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0D9488]"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Material Type</label>
+            <select id="material-type-select" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0D9488]">
+              <option value="assignment">Assignment</option>
+              <option value="quiz">Quiz Task</option>
+              <option value="lecture_note">Lecture Notes</option>
+              <option value="syllabus">Syllabus</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Max Marks</label>
+            <input type="number" id="material-marks-input" value="10" min="1" max="100"
+                   class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0D9488]" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Title</label>
+          <input type="text" id="material-title-input" required placeholder="e.g. 'Assignment 1: Relational Schema Normalization'"
+                 class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0D9488]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Instructions / Description</label>
+          <textarea id="material-desc-input" rows="3" placeholder="Provide guidelines for students..."
+                    class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0D9488]"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date (Optional)</label>
+            <input type="date" id="material-due-input"
+                   class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0D9488]" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Task Attachment File</label>
+            <input type="file" id="material-file-input"
+                   class="w-full text-xs text-slate-700 dark:text-slate-200 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-[#0D9488] file:text-white cursor-pointer" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="window.Slate.closeUploadMaterialModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-[#0D9488] hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow">
+            Publish on Slate
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: POST CLASS ANNOUNCEMENT                                          -->
+  <!-- ======================================================================= -->
+  <div id="slate-announcement-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white">📢 Broadcast Announcement</h3>
+        <button onclick="window.Slate.closeAnnouncementModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="window.Slate.handleCreateAnnouncement(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Target Class</label>
+          <select id="announcement-course-select" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Title</label>
+          <input type="text" id="announcement-title-input" required placeholder="e.g. 'Lab 4 rescheduled to Thursday'"
+                 class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Announcement Body</label>
+          <textarea id="announcement-content-input" required rows="4" placeholder="Write full details..."
+                    class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#2563EB]"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="announcement-pinned-check" class="rounded text-[#2563EB] focus:ring-[#2563EB]" />
+          <label for="announcement-pinned-check" class="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">Pin to top of Slate feed</label>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="window.Slate.closeAnnouncementModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-[#2563EB] hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow">
+            Broadcast
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/slate.js?v=20261114"></script>
+</body>
+</html>

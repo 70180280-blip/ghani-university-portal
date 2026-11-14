@@ -1,0 +1,89 @@
+/**
+ * Ghani University Communication Slate Stylesheet
+ * Brand Colors:
+ * - Navy Blue: #142B4A
+ * - Royal Blue: #2563EB
+ * - Teal: #0D9488
+ * - Slate Background: #F1F5F9
+ * - White: #FFFFFF
+ */
+
+:root {
+  --gu-navy: #142B4A;
+  --gu-royal: #2563EB;
+  --gu-teal: #0D9488;
+  --gu-bg: #F1F5F9;
+  --gu-white: #FFFFFF;
+}
+
+/* Custom Scrollbars */
+.slate-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.slate-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.slate-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+.slate-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+/* Chat Bubble Accents */
+.bubble-student {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  color: #FFFFFF;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-teacher {
+  background: #FFFFFF;
+  color: #0F172A;
+  border-left: 4px solid #0D9488;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.dark .bubble-teacher {
+  background: #1E293B;
+  color: #F8FAFC;
+  border-left: 4px solid #0D9488;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Slate Active Item */
+.slate-nav-item.active {
+  background: #2563EB;
+  color: #FFFFFF;
+}
+
+.slate-conv-item.active {
+  background: #E2E8F0;
+  border-left: 4px solid #2563EB;
+}
+
+.dark .slate-conv-item.active {
+  background: #1E293B;
+  border-left: 4px solid #3B82F6;
+}
+
+/* Pinned Banner */
+.pinned-indicator {
+  background: rgba(13, 148, 136, 0.12);
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  color: #0D9488;
+}
+
+/* Status Indicator Dot Animation */
+@keyframes slate-pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.status-live {
+  animation: slate-pulse 2s infinite ease-in-out;
+}

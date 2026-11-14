@@ -202,3 +202,172 @@ CREATE TABLE IF NOT EXISTS ai_cache (
   INDEX idx_cache_lookup (cache_key, expires_at)
 );
 
+-- ============================================================================
+-- GHANI UNIVERSITY STUDENT & TEACHER COMMUNICATION SLATE TABLES
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS teachers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  teacher_id VARCHAR(32) NOT NULL UNIQUE,
+  name VARCHAR(128) NOT NULL,
+  email VARCHAR(128) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  department VARCHAR(128) NOT NULL DEFAULT 'Computer Science',
+  designation VARCHAR(64) NOT NULL DEFAULT 'Assistant Professor',
+  phone VARCHAR(32) NULL,
+  office_room VARCHAR(64) NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'Active',
+  avatar_url VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS teacher_course_assignments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  teacher_id INT NOT NULL,
+  course_code VARCHAR(16) NOT NULL,
+  section VARCHAR(16) NOT NULL DEFAULT 'A',
+  academic_year VARCHAR(32) NOT NULL DEFAULT '2026-2027',
+  term VARCHAR(16) NOT NULL DEFAULT 'Fall',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+  INDEX idx_tca_teacher (teacher_id),
+  INDEX idx_tca_course (course_code)
+);
+
+CREATE TABLE IF NOT EXISTS conversations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(32) NOT NULL DEFAULT 'direct', -- 'direct' or 'course_group'
+  course_code VARCHAR(16) NULL,
+  title VARCHAR(128) NULL,
+  last_message_text TEXT NULL,
+  last_message_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_conv_course (course_code)
+);
+
+CREATE TABLE IF NOT EXISTS conversation_participants (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  user_type VARCHAR(16) NOT NULL, -- 'student' or 'teacher'
+  user_id INT NOT NULL,
+  last_read_at TIMESTAMP NULL,
+  is_muted TINYINT(1) DEFAULT 0,
+  is_archived TINYINT(1) DEFAULT 0,
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  INDEX idx_cp_user (user_type, user_id),
+  INDEX idx_cp_conv (conversation_id)
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  sender_type VARCHAR(16) NOT NULL, -- 'student' or 'teacher'
+  sender_id INT NOT NULL,
+  sender_name VARCHAR(128) NOT NULL,
+  content TEXT NOT NULL,
+  message_type VARCHAR(32) NOT NULL DEFAULT 'text', -- 'text', 'file', 'image', 'announcement', 'assignment'
+  file_url VARCHAR(255) NULL,
+  file_name VARCHAR(255) NULL,
+  file_size VARCHAR(32) NULL,
+  reply_to_id INT NULL,
+  is_pinned TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  INDEX idx_msg_conv (conversation_id, created_at)
+);
+
+CREATE TABLE IF NOT EXISTS course_materials (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  course_code VARCHAR(16) NOT NULL,
+  teacher_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  material_type VARCHAR(32) NOT NULL DEFAULT 'assignment', -- 'assignment', 'quiz', 'lecture_note', 'syllabus'
+  file_url VARCHAR(255) NULL,
+  file_name VARCHAR(255) NULL,
+  due_date DATETIME NULL,
+  total_marks INT NOT NULL DEFAULT 10,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+  INDEX idx_cm_course (course_code),
+  INDEX idx_cm_teacher (teacher_id)
+);
+
+CREATE TABLE IF NOT EXISTS assignment_submissions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  material_id INT NOT NULL,
+  student_id INT NOT NULL,
+  file_url VARCHAR(255) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  student_comment TEXT NULL,
+  marks_obtained DECIMAL(5,2) NULL,
+  teacher_feedback TEXT NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'submitted', -- 'submitted', 'graded', 'returned'
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  graded_at TIMESTAMP NULL,
+  FOREIGN KEY (material_id) REFERENCES course_materials(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  INDEX idx_as_material (material_id),
+  INDEX idx_as_student (student_id)
+);
+
+CREATE TABLE IF NOT EXISTS announcements (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  teacher_id INT NOT NULL,
+  course_code VARCHAR(16) NULL,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  target_type VARCHAR(32) NOT NULL DEFAULT 'course', -- 'course', 'all', 'individual'
+  target_id INT NULL,
+  file_url VARCHAR(255) NULL,
+  file_name VARCHAR(255) NULL,
+  is_pinned TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+  INDEX idx_ann_course (course_code)
+);
+
+CREATE TABLE IF NOT EXISTS meeting_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  teacher_id INT NOT NULL,
+  course_code VARCHAR(16) NULL,
+  purpose VARCHAR(255) NOT NULL,
+  preferred_datetime DATETIME NOT NULL,
+  meeting_mode VARCHAR(32) NOT NULL DEFAULT 'in_person', -- 'in_person' or 'online'
+  status VARCHAR(32) NOT NULL DEFAULT 'pending', -- 'pending', 'approved', 'rejected', 'rescheduled'
+  teacher_notes TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+  INDEX idx_mr_student (student_id),
+  INDEX idx_mr_teacher (teacher_id)
+);
+
+CREATE TABLE IF NOT EXISTS slate_notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_type VARCHAR(16) NOT NULL, -- 'student', 'teacher', 'admin'
+  user_id INT NOT NULL,
+  title VARCHAR(128) NOT NULL,
+  message TEXT NOT NULL,
+  link VARCHAR(255) NULL,
+  is_read TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_notif_user (user_type, user_id, is_read)
+);
+
+CREATE TABLE IF NOT EXISTS message_reports (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  message_id INT NOT NULL,
+  reported_by_type VARCHAR(16) NOT NULL,
+  reported_by_id INT NOT NULL,
+  reason TEXT NOT NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'pending', -- 'pending', 'reviewed', 'dismissed'
+  action_taken VARCHAR(64) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
