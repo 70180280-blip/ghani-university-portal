@@ -179,63 +179,12 @@ async function initDatabase() {
 }
 
 /**
- * Seed core university metadata (Programs, Courses, Admin user) if missing.
- * NOTE: Students, Marks, Attendance are NEVER seeded here; the portal starts clean and empty.
+ * Seed core administrative credentials if missing.
+ * NOTE: Programs, Courses, Students, Marks, Attendance are NEVER auto-reseeded;
+ * the database respects user purge and starts 100% clean.
  */
 async function seedCoreMetadata(pool) {
-  // 1. Programs
-  const programs = [
-    ['BSCS', 'Bachelor of Science in Computer Science', 'Bachelor of Science in Computer Science', 130, 8, 'Department of Computer Science', 'Faculty of Computing & Information Technology'],
-    ['BSSE', 'Bachelor of Science in Software Engineering', 'Bachelor of Science in Software Engineering', 132, 8, 'Department of Software Engineering', 'Faculty of Computing & Information Technology'],
-    ['BSEE', 'Bachelor of Science in Electrical Engineering', 'Bachelor of Science in Electrical Engineering', 136, 8, 'Department of Electrical Engineering', 'Faculty of Engineering & Technology'],
-    ['BBA', 'Bachelor of Business Administration', 'Bachelor of Business Administration', 126, 8, 'Department of Business Administration', 'Faculty of Management Sciences']
-  ];
-
-  for (const p of programs) {
-    try {
-      const [existing] = await pool.query('SELECT code FROM programs WHERE code = ?', [p[0]]);
-      if (existing.length === 0) {
-        await pool.query(
-          'INSERT INTO programs (code, name, degree_title, total_credit_hours, total_semesters, department, faculty) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          p
-        );
-      }
-    } catch (e) {}
-  }
-
-  // 2. Courses
-  const courses = [
-    ['CS101', 'Introduction to Computing', 3, 2, 3, 'Department of Computer Science', null],
-    ['CS102', 'Programming Fundamentals', 4, 3, 3, 'Department of Computer Science', null],
-    ['MT101', 'Calculus and Analytical Geometry', 3, 3, 0, 'Department of Basic Sciences', null],
-    ['IS101', 'Islamic Studies & Ethics', 2, 2, 0, 'Department of Islamic Studies & Ethics', null],
-    ['CS201', 'Object Oriented Programming', 4, 3, 3, 'Department of Computer Science', 'CS102'],
-    ['CS202', 'Discrete Structures', 3, 3, 0, 'Department of Computer Science', null],
-    ['EE201', 'Digital Logic Design', 4, 3, 3, 'Department of Electrical Engineering', null],
-    ['PK101', 'Pakistan Studies & Ideology', 2, 2, 0, 'Department of Humanities', null],
-    ['CS301', 'Data Structures & Algorithms', 4, 3, 3, 'Department of Computer Science', 'CS201'],
-    ['CS302', 'Database Systems', 4, 3, 3, 'Department of Computer Science', null],
-    ['MT201', 'Linear Algebra & Differential Equations', 3, 3, 0, 'Department of Basic Sciences', 'MT101'],
-    ['SE301', 'Software Engineering Concepts', 3, 3, 0, 'Department of Software Engineering', null],
-    ['CS401', 'Operating Systems', 4, 3, 3, 'Department of Computer Science', 'CS301'],
-    ['CS402', 'Design and Analysis of Algorithms', 3, 3, 0, 'Department of Computer Science', 'CS301'],
-    ['CS403', 'Computer Communication & Networks', 4, 3, 3, 'Department of Computer Science', null],
-    ['AI401', 'Introduction to Artificial Intelligence', 3, 3, 0, 'Department of Computer Science', 'CS301']
-  ];
-
-  for (const c of courses) {
-    try {
-      const [existing] = await pool.query('SELECT code FROM courses WHERE code = ?', [c[0]]);
-      if (existing.length === 0) {
-        await pool.query(
-          'INSERT INTO courses (code, title, credit_hours, lecture_hours, lab_hours, department, prerequisite) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          c
-        );
-      }
-    } catch (e) {}
-  }
-
-  // 3. Admin Account
+  // Admin Account (ensures admin can always authenticate)
   const adminUsername = process.env.ADMIN_USERNAME || 'admin';
   const rawAdminPass = process.env.ADMIN_PASSWORD || 'admin123';
   const hashedAdminPass = rawAdminPass.startsWith('$2') ? rawAdminPass : bcrypt.hashSync(rawAdminPass, 10);

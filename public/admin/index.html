@@ -110,7 +110,7 @@
   <!-- ===================================================================== -->
   <main id="admin-dashboard-view" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     
-    <!-- Executive Command Toolbar (Replaces old Data Ingestion Center Banner) -->
+    <!-- Executive Command Toolbar -->
     <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#1E3A8A] via-slate-900 to-[#1E3A8A]/90 border border-[#3B82F6]/30 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-[#3B82F6]/20 border border-[#3B82F6]/40 flex items-center justify-center text-xl flex-shrink-0">
@@ -282,14 +282,14 @@
             <p class="text-xs text-slate-400">List of students in the system with student contact numbers and father contact numbers</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="window.switchAdminTab('upload')" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold transition">
+            <button type="button" onclick="window.switchAdminTab('upload')" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold transition">
               + Upload Student List
             </button>
-            <button onclick="window.handleDeleteAllStudents()" class="px-3.5 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-bold border border-red-500/40 transition flex items-center gap-1">
+            <button type="button" onclick="window.handleDeleteAllStudents()" class="px-3.5 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-bold border border-red-500/40 transition flex items-center gap-1">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               <span>Delete All Students</span>
             </button>
-            <button onclick="window.loadStudentManager()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
+            <button type="button" onclick="window.loadStudentManager()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
               Reload
             </button>
           </div>
@@ -307,10 +307,10 @@
             <p class="text-xs text-slate-400">Complete curriculum course offerings with credit hours, lecture hours, and lab hours</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="window.loadCoursesCatalog()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700 transition">
+            <button type="button" onclick="window.loadCoursesCatalog()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700 transition">
               ↻ Reload Courses
             </button>
-            <button onclick="window.handleDeleteAllCourses()" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/40 transition">
+            <button type="button" onclick="window.handleDeleteAllCourses()" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/40 transition">
               🗑️ Purge All Courses
             </button>
           </div>
@@ -461,7 +461,7 @@
                 Permanently deletes all student profiles, contacts, semester marks, and attendance logs.
               </p>
             </div>
-            <button onclick="window.handlePurgeCategory('students', 'all student records and grades')" class="w-full py-2.5 px-4 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-bold border border-red-500/40 transition">
+            <button type="button" onclick="window.handlePurgeCategory('students', 'all student records and grades')" class="w-full py-2.5 px-4 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-bold border border-red-500/40 transition">
               🗑️ Delete All Students &amp; Results
             </button>
           </div>
@@ -474,7 +474,7 @@
                 Clears uploaded file history records, parsed backups, and ingestion logs.
               </p>
             </div>
-            <button onclick="window.handlePurgeCategory('uploads', 'all uploaded file logs')" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold transition">
+            <button type="button" onclick="window.handlePurgeCategory('uploads', 'all uploaded file logs')" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold transition">
               🗑️ Clear Upload History
             </button>
           </div>
@@ -487,7 +487,7 @@
                 Removes weekly class timetable schedules and examination seat plans.
               </p>
             </div>
-            <button onclick="window.handlePurgeCategory('schedules', 'all timetables and exam schedules')" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold transition">
+            <button type="button" onclick="window.handlePurgeCategory('schedules', 'all timetables and exam schedules')" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold transition">
               🗑️ Clear Timetable &amp; Exam Schedules
             </button>
           </div>
@@ -500,7 +500,7 @@
                 Permanently wipes all active courses from curriculum catalog and clears associated subject mapping.
               </p>
             </div>
-            <button onclick="window.handlePurgeCategory('courses', 'all university courses catalog')" class="w-full py-2.5 px-4 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-bold border border-red-500/40 transition">
+            <button type="button" onclick="window.handlePurgeCategory('courses', 'all university courses catalog')" class="w-full py-2.5 px-4 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-bold border border-red-500/40 transition">
               🗑️ Delete All Courses
             </button>
           </div>
@@ -513,7 +513,7 @@
                 Wipes all dynamic portal data (students, grades, attendance, uploads, timetable, and course catalog) back to clean factory state. Keeps admin credentials intact.
               </p>
             </div>
-            <button onclick="window.handlePurgeCategory('all', 'ALL university portal data (including courses and students)')" class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black shadow-lg transition">
+            <button type="button" onclick="window.handlePurgeCategory('all', 'ALL university portal data (including courses and students)')" class="w-full py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black shadow-lg transition">
               ⚠️ Complete Factory Reset &amp; Wipe
             </button>
           </div>

@@ -100,8 +100,40 @@ window.switchAdminTab = function(tabName) {
   }
 };
 
+// Smooth Non-blocking Notification Toast
+window.showAdminToast = function(message, type = 'success') {
+  let toastContainer = document.getElementById('admin-toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'admin-toast-container';
+    toastContainer.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none';
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-2xl border text-xs font-bold flex items-center gap-2.5 transition-all duration-300 transform translate-y-2 opacity-0 ${
+    type === 'success'
+      ? 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200'
+      : 'bg-red-950/95 border-red-500/50 text-red-200'
+  }`;
+  toast.innerHTML = `
+    <span class="text-base">${type === 'success' ? '✓' : '⚠️'}</span>
+    <span>${escapeHtml(message)}</span>
+  `;
+  toastContainer.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-2', 'opacity-0');
+  });
+
+  setTimeout(() => {
+    toast.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+};
+
 window.handleDeleteStudent = async function(id, name, reg) {
-  if (!confirm(`Are you sure you want to permanently delete student "${name}" (${reg})?\nAll corresponding marks, attendance, and records will be deleted.`)) {
+  if (!confirm(`Are you sure you want to delete student "${name}" (${reg})?\nClick OK to confirm.`)) {
     return;
   }
 
@@ -109,21 +141,19 @@ window.handleDeleteStudent = async function(id, name, reg) {
     const res = await adminFetch(`/api/admin/students/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
-      alert(data.message);
+      window.showAdminToast(data.message || `Student ${name} deleted successfully.`);
       if (window.loadStudentManager) window.loadStudentManager();
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
     } else {
-      alert(`Error: ${data.error}`);
+      window.showAdminToast(`Error: ${data.error}`, 'error');
     }
   } catch (err) {
-    alert(`Delete error: ${err.message}`);
+    window.showAdminToast(`Delete error: ${err.message}`, 'error');
   }
 };
 
 window.handleDeleteAllStudents = async function() {
-  const confirmText = prompt('CRITICAL SECURITY WARNING:\nYou are about to permanently delete ALL student profiles, grades, and attendance records from the database.\n\nType exactly "DELETE UNIVERSITY DATA" to confirm:');
-  if (confirmText !== 'DELETE UNIVERSITY DATA') {
-    alert('Action cancelled. You must type "DELETE UNIVERSITY DATA" to confirm.');
+  if (!confirm('Are you sure you want to permanently delete ALL student profiles and academic records?\nClick OK to confirm.')) {
     return;
   }
 
@@ -131,19 +161,19 @@ window.handleDeleteAllStudents = async function() {
     const res = await adminFetch('/api/admin/students', { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
-      alert(data.message);
+      window.showAdminToast(data.message || 'All students deleted successfully.');
       if (window.loadStudentManager) window.loadStudentManager();
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
     } else {
-      alert(`Error: ${data.error}`);
+      window.showAdminToast(`Error: ${data.error}`, 'error');
     }
   } catch (err) {
-    alert(`Error: ${err.message}`);
+    window.showAdminToast(`Error: ${err.message}`, 'error');
   }
 };
 
 window.handleDeleteCourse = async function(code, title) {
-  if (!confirm(`Are you sure you want to permanently delete course "${code} - ${title}"?\nAll corresponding marks, attendance records, enrollments, and timetables for this course will also be removed.`)) {
+  if (!confirm(`Are you sure you want to delete course "${code} - ${title}"?\nClick OK to confirm.`)) {
     return;
   }
 
@@ -151,21 +181,19 @@ window.handleDeleteCourse = async function(code, title) {
     const res = await adminFetch(`/api/admin/courses/${encodeURIComponent(code)}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
-      alert(data.message);
+      window.showAdminToast(data.message || `Course ${code} deleted successfully.`);
       if (window.loadCoursesCatalog) window.loadCoursesCatalog();
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
     } else {
-      alert(`Error: ${data.error}`);
+      window.showAdminToast(`Error: ${data.error}`, 'error');
     }
   } catch (err) {
-    alert(`Delete error: ${err.message}`);
+    window.showAdminToast(`Delete error: ${err.message}`, 'error');
   }
 };
 
 window.handleDeleteAllCourses = async function() {
-  const confirmText = prompt('CRITICAL SECURITY WARNING:\nYou are about to permanently delete ALL courses from the curriculum catalog along with all linked results and timetables.\n\nType exactly "DELETE UNIVERSITY DATA" to confirm:');
-  if (confirmText !== 'DELETE UNIVERSITY DATA') {
-    alert('Action cancelled. You must type "DELETE UNIVERSITY DATA" to confirm.');
+  if (!confirm('Are you sure you want to permanently delete ALL courses from curriculum?\nClick OK to confirm.')) {
     return;
   }
 
@@ -173,22 +201,19 @@ window.handleDeleteAllCourses = async function() {
     const res = await adminFetch('/api/admin/courses', { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
-      alert(data.message);
+      window.showAdminToast(data.message || 'All courses deleted successfully.');
       if (window.loadCoursesCatalog) window.loadCoursesCatalog();
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
     } else {
-      alert(`Error: ${data.error}`);
+      window.showAdminToast(`Error: ${data.error}`, 'error');
     }
   } catch (err) {
-    alert(`Error: ${err.message}`);
+    window.showAdminToast(`Error: ${err.message}`, 'error');
   }
 };
 
 window.handlePurgeCategory = async function(category, label) {
-  const requiredPhrase = 'DELETE UNIVERSITY DATA';
-  const input = prompt(`CRITICAL PURGE CONFIRMATION:\nAre you sure you want to permanently delete ${label}?\n\nType exactly "${requiredPhrase}" to execute:`);
-  if (input !== requiredPhrase) {
-    alert(`Action cancelled. You must type "${requiredPhrase}" to confirm.`);
+  if (!confirm(`CRITICAL PURGE: Are you sure you want to permanently delete ${label}?\nClick OK to execute.`)) {
     return;
   }
 
@@ -200,7 +225,7 @@ window.handlePurgeCategory = async function(category, label) {
     });
     const data = await res.json();
     if (data.success) {
-      alert(data.message);
+      window.showAdminToast(data.message || `Successfully purged ${label}.`);
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
       if (category === 'students' || category === 'all') {
         if (window.loadStudentManager) window.loadStudentManager();
@@ -208,11 +233,14 @@ window.handlePurgeCategory = async function(category, label) {
       if (category === 'courses' || category === 'all') {
         if (window.loadCoursesCatalog) window.loadCoursesCatalog();
       }
+      if (category === 'uploads' || category === 'all') {
+        if (window.loadUploadHistory) window.loadUploadHistory();
+      }
     } else {
-      alert(`Purge Error: ${data.error}`);
+      window.showAdminToast(`Purge Error: ${data.error}`, 'error');
     }
   } catch (err) {
-    alert(`Purge Request Failed: ${err.message}`);
+    window.showAdminToast(`Purge Request Failed: ${err.message}`, 'error');
   }
 };
 
@@ -404,7 +432,7 @@ window.exportAiSearchResults = function() {
 };
 
 window.handleDeleteUpload = async function(id) {
-  if (!confirm(`Are you sure you want to delete Upload #${id}? All records created by this upload will be removed from the database.`)) {
+  if (!confirm(`Are you sure you want to delete Upload #${id} and associated records?\nClick OK to confirm.`)) {
     return;
   }
 
@@ -412,14 +440,15 @@ window.handleDeleteUpload = async function(id) {
     const res = await adminFetch(`/api/admin/upload/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
-      alert(data.message);
+      window.showAdminToast(data.message || `Upload #${id} deleted successfully.`);
       if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
       if (window.loadStudentManager) window.loadStudentManager();
+      if (window.loadUploadHistory) window.loadUploadHistory();
     } else {
-      alert(`Error: ${data.error}`);
+      window.showAdminToast(`Error: ${data.error}`, 'error');
     }
   } catch (err) {
-    alert(`Delete error: ${err.message}`);
+    window.showAdminToast(`Delete error: ${err.message}`, 'error');
   }
 };
 
@@ -718,10 +747,10 @@ window.loadStudentManager = async function() {
           <td class="py-2.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${escapeHtml(s.status || 'Active')}</span></td>
           <td class="py-2.5 px-3 text-right whitespace-nowrap">
             <div class="flex justify-end items-center gap-1.5">
-              <button onclick="window.promptEditStudent(${s.id})" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600 text-sky-300 hover:text-white rounded text-[11px] font-semibold border border-sky-500/30 transition">
+              <button type="button" onclick="window.promptEditStudent(${s.id})" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600 text-sky-300 hover:text-white rounded text-[11px] font-semibold border border-sky-500/30 transition">
                 Edit
               </button>
-              <button onclick="window.handleDeleteStudent(${s.id}, '${escapeHtml(s.name).replace(/'/g, "\\'")}', '${escapeHtml(s.registration_no)}')" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded text-[11px] font-semibold border border-red-500/30 transition" title="Delete this student">
+              <button type="button" onclick="window.handleDeleteStudent(${s.id}, '${escapeHtml(s.name).replace(/'/g, "\\'")}', '${escapeHtml(s.registration_no)}')" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded text-[11px] font-semibold border border-red-500/30 transition" title="Delete this student">
                 Delete
               </button>
             </div>
@@ -849,7 +878,7 @@ window.loadCoursesCatalog = async function() {
           <td class="py-2.5 px-3 text-slate-300">${escapeHtml(c.department || 'Department of Computer Science')}</td>
           <td class="py-2.5 px-3 text-slate-400 italic">${escapeHtml(c.prerequisite || 'None')}</td>
           <td class="py-2.5 px-3 text-right">
-            <button onclick="window.handleDeleteCourse('${escapeHtml(c.code)}', '${escapeHtml(c.title || '')}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/30 transition">
+            <button type="button" onclick="window.handleDeleteCourse('${escapeHtml(c.code)}', '${escapeHtml(c.title || '')}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/30 transition">
               🗑️ Delete
             </button>
           </td>

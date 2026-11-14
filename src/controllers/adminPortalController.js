@@ -881,6 +881,7 @@ async function clearDatabaseCategory(req, res) {
       await db.query('DELETE FROM timetable');
       await db.query('DELETE FROM exam_schedule');
       await db.query('DELETE FROM courses');
+      await db.query('DELETE FROM programs');
       await db.query('SET FOREIGN_KEY_CHECKS = 1');
     } else if (category === 'all') {
       await db.query('SET FOREIGN_KEY_CHECKS = 0');
@@ -894,6 +895,7 @@ async function clearDatabaseCategory(req, res) {
       await db.query('DELETE FROM timetable');
       await db.query('DELETE FROM exam_schedule');
       await db.query('DELETE FROM courses');
+      await db.query('DELETE FROM programs');
       await db.query('SET FOREIGN_KEY_CHECKS = 1');
     } else {
       return res.status(400).json({ success: false, error: 'Invalid category specified.' });
