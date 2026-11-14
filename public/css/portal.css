@@ -1,18 +1,19 @@
 /**
  * Ghani University Portal - SAP Fiori Style Styling & Theme Rules
- * Branding: Navy #0B2A7A, Sky Blue #1E88D6, Red #C4161C, Charcoal #4A4A4A
+ * Branding: Navy #1E3A8A, Blue #3B82F6, Soft Sky #93C5FD, Light #F8FAFC, White #FFFFFF
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
 
 :root {
-  --color-primary: #0B2A7A;
-  --color-accent: #1E88D6;
+  --color-primary: #1E3A8A;
+  --color-accent: #3B82F6;
+  --color-soft: #93C5FD;
   --color-danger: #C4161C;
   --color-text-secondary: #4A4A4A;
   --bg-main: #0B1120;
   --bg-card: #1E293B;
-  --bg-card-hover: #283548;
+  --bg-card-hover: #243044;
   --border-color: #334155;
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
@@ -20,9 +21,9 @@
 }
 
 html.light {
-  --bg-main: #F1F5F9;
+  --bg-main: #F8FAFC;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F8FAFC;
+  --bg-card-hover: #F1F5F9;
   --border-color: #E2E8F0;
   --text-main: #0F172A;
   --text-muted: #64748B;
@@ -42,7 +43,7 @@ body {
 /* ========================================================================== */
 
 html.light body {
-  background-color: #F1F5F9 !important;
+  background-color: #F8FAFC !important;
   color: #0F172A !important;
 }
 
@@ -63,8 +64,8 @@ html.light .fiori-tile {
 
 html.light .fiori-tile:hover {
   background-color: #F8FAFC !important;
-  border-color: #1E88D6 !important;
-  box-shadow: 0 10px 15px -3px rgba(30, 136, 214, 0.15) !important;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.18) !important;
 }
 
 html.light .fiori-tile h3 {
@@ -117,7 +118,7 @@ html.light #login-section input {
 }
 
 html.light #login-section input:focus {
-  border-color: #1E88D6 !important;
+  border-color: #3B82F6 !important;
   background-color: #FFFFFF !important;
 }
 
@@ -131,9 +132,9 @@ html.light #login-section .border-slate-800 {
 
 /* Student Banner in Light Mode */
 html.light #portal-section .rounded-2xl.bg-gradient-to-r {
-  background: linear-gradient(135deg, #0B2A7A 0%, #153E9B 50%, #1E88D6 100%) !important;
-  border-color: #38BDF8 !important;
-  box-shadow: 0 10px 25px -5px rgba(11, 42, 122, 0.25) !important;
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%) !important;
+  border-color: #93C5FD !important;
+  box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25) !important;
 }
 
 html.light #portal-section .rounded-2xl.bg-gradient-to-r h2,
@@ -268,8 +269,9 @@ html.light footer a:hover {
 
 /* Fiori Top Shell Navigation Bar */
 .fiori-shell {
-  background: linear-gradient(90deg, #0B2A7A 0%, #153E9B 60%, #1E88D6 100%);
-  border-bottom: 2px solid #1E88D6;
+  background: linear-gradient(90deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%);
+  border-bottom: 2px solid #93C5FD;
+  box-shadow: 0 4px 15px -2px rgba(30, 58, 138, 0.3);
 }
 
 /* Fiori Tiles */
@@ -285,8 +287,8 @@ html.light footer a:hover {
 .fiori-tile:hover {
   background-color: var(--bg-card-hover);
   transform: translateY(-3px);
-  border-color: #1E88D6;
-  box-shadow: 0 10px 15px -3px rgba(30, 136, 214, 0.2);
+  border-color: #3B82F6;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
 }
 
 .fiori-tile::before {
@@ -296,8 +298,8 @@ html.light footer a:hover {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #0B2A7A, #1E88D6);
-  opacity: 0.8;
+  background: linear-gradient(90deg, #1E3A8A, #3B82F6);
+  opacity: 0.9;
 }
 
 .fiori-tile.warning-tile::before {
@@ -341,7 +343,7 @@ html.light footer a:hover {
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1E88D6;
+  background: #3B82F6;
 }
 
 /* Table Overflow & Header Clipping Fix (Ghalti No. 10) */

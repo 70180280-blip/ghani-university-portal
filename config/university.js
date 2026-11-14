@@ -88,15 +88,17 @@ module.exports = {
     label: 'Date of Birth (YYYY-MM-DD)'
   },
 
-  // Official Branding Colors from Logo
+  // Official Branding Colors from Palette (#1E3A8A, #3B82F6, #93C5FD, #F8FAFC, #FFFFFF)
   colors: {
-    navy: '#0B2A7A',        // Primary
-    skyBlue: '#1E88D6',     // Accent
-    red: '#C4161C',         // Warnings and important buttons only
+    navy: '#1E3A8A',        // Primary Deep Navy
+    blue: '#3B82F6',        // Vibrant Royal Blue
+    skyBlue: '#3B82F6',     // Primary Accent
+    softSky: '#93C5FD',     // Highlight & Subtle Accent
+    white: '#FFFFFF',       // Crisp White
+    lightBg: '#F8FAFC',     // Clean Off-White Background
+    red: '#C4161C',         // Warnings and critical actions
     charcoal: '#4A4A4A',    // Secondary text
-    white: '#FFFFFF',
-    lightBg: '#F3F4F6',
-    darkBg: '#0F172A',
+    darkBg: '#0B1120',
     darkCard: '#1E293B'
   },
 

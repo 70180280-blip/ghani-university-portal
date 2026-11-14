@@ -706,7 +706,7 @@ async function loadResultsView(container) {
               datasets: [{
                 label: 'SGPA',
                 data: data.chart.data,
-                backgroundColor: '#1E88D6',
+                backgroundColor: '#3B82F6',
                 borderRadius: 6
               }]
             },
@@ -854,8 +854,8 @@ async function loadAttendanceView(container) {
               datasets: [{
                 label: 'Attendance %',
                 data: data.monthlyChart.data,
-                borderColor: '#1E88D6',
-                backgroundColor: 'rgba(30, 136, 214, 0.15)',
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
                 fill: true,
                 tension: 0.3
               }]
@@ -912,24 +912,24 @@ async function loadTranscriptView(container) {
 
         <div class="p-8 rounded-xl bg-white text-slate-900 shadow-xl border border-slate-300 font-sans printable-document">
           <div class="text-center border-b-2 border-slate-900 pb-4">
-            <h2 class="text-xl font-black text-[#0B2A7A] uppercase">${data.university.name}</h2>
-            <p class="text-xs font-bold text-[#1E88D6]">OFFICE OF THE CONTROLLER OF EXAMINATIONS</p>
+            <h2 class="text-xl font-black text-[#1E3A8A] uppercase">${data.university.name}</h2>
+            <p class="text-xs font-bold text-[#3B82F6]">OFFICE OF THE CONTROLLER OF EXAMINATIONS</p>
             <p class="text-[10px] text-slate-600">${data.university.city} | ${data.university.address}</p>
-            <div class="mt-2 py-1 bg-[#0B2A7A] text-white font-bold text-xs uppercase tracking-wide">
+            <div class="mt-2 py-1 bg-[#1E3A8A] text-white font-bold text-xs uppercase tracking-wide">
               Official Interim Academic Transcript
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4 my-4 p-3 bg-slate-100 rounded text-xs">
             <div>
-              <p><strong class="text-[#0B2A7A]">Student Name:</strong> ${data.student.name.toUpperCase()}</p>
-              <p><strong class="text-[#0B2A7A]">Father's Name:</strong> ${data.student.father_name.toUpperCase()}</p>
-              <p><strong class="text-[#0B2A7A]">Registration No:</strong> ${data.student.registration_no}</p>
+              <p><strong class="text-[#1E3A8A]">Student Name:</strong> ${data.student.name.toUpperCase()}</p>
+              <p><strong class="text-[#1E3A8A]">Father's Name:</strong> ${data.student.father_name.toUpperCase()}</p>
+              <p><strong class="text-[#1E3A8A]">Registration No:</strong> ${data.student.registration_no}</p>
             </div>
             <div>
-              <p><strong class="text-[#0B2A7A]">Program:</strong> ${data.student.program_name || data.student.program_code}</p>
-              <p><strong class="text-[#0B2A7A]">Batch:</strong> ${data.student.batch}</p>
-              <p><strong class="text-[#0B2A7A]">Status:</strong> ${data.student.status || 'Active / Regular'}</p>
+              <p><strong class="text-[#1E3A8A]">Program:</strong> ${data.student.program_name || data.student.program_code}</p>
+              <p><strong class="text-[#1E3A8A]">Batch:</strong> ${data.student.batch}</p>
+              <p><strong class="text-[#1E3A8A]">Status:</strong> ${data.student.status || 'Active / Regular'}</p>
             </div>
           </div>
 
@@ -966,7 +966,7 @@ async function loadTranscriptView(container) {
             <td class="py-1 px-1 text-center">${c.creditHours}</td>
             <td class="py-1 px-2 text-center">${c.marksObtained} / ${c.totalMarks}</td>
             <td class="py-1 px-1 text-center">${c.percentage}%</td>
-            <td class="py-1 px-1 text-center font-bold ${c.grade === 'F' ? 'text-red-600' : 'text-[#0B2A7A]'}">${c.grade}</td>
+            <td class="py-1 px-1 text-center font-bold ${c.grade === 'F' ? 'text-red-600' : 'text-[#1E3A8A]'}">${c.grade}</td>
             <td class="py-1 px-1 text-center">${c.gradePoint.toFixed(2)}</td>
           </tr>
         `;
@@ -978,7 +978,7 @@ async function loadTranscriptView(container) {
     html += `
           </div>
 
-          <div class="mt-6 p-3 bg-[#0B2A7A] text-white rounded text-xs flex justify-between items-center font-bold">
+          <div class="mt-6 p-3 bg-[#1E3A8A] text-white rounded text-xs flex justify-between items-center font-bold">
             <span>Required CH: ${data.student.total_ch_required || 130}</span>
             <span>Cumulative Earned CH: ${data.overallStats.earnedCH}</span>
             <span>Overall %: ${data.overallStats.overallPercentage}%</span>
@@ -1296,17 +1296,17 @@ async function loadAdmitCardView(container) {
 
         <div class="p-8 rounded-xl bg-white text-slate-900 shadow-xl border border-slate-300 font-sans printable-document">
           <div class="text-center border-b-2 border-slate-900 pb-3">
-            <h2 class="text-xl font-black text-[#0B2A7A] uppercase">Ghani Technical & Islamic University</h2>
-            <p class="text-xs font-bold text-[#1E88D6]">CONTROLLER OF EXAMINATIONS - ROLL NUMBER SLIP</p>
+            <h2 class="text-xl font-black text-[#1E3A8A] uppercase">Ghani Technical & Islamic University</h2>
+            <p class="text-xs font-bold text-[#3B82F6]">CONTROLLER OF EXAMINATIONS - ROLL NUMBER SLIP</p>
             <p class="text-[10px] text-slate-600">Sheikhupura Campus</p>
           </div>
 
           <div class="flex justify-between items-start my-4 p-4 bg-slate-50 border border-slate-200 rounded text-xs">
             <div class="space-y-1">
-              <p><strong class="text-[#0B2A7A]">Candidate:</strong> ${data.student.name.toUpperCase()}</p>
-              <p><strong class="text-[#0B2A7A]">Father's Name:</strong> ${data.student.father_name.toUpperCase()}</p>
-              <p><strong class="text-[#0B2A7A]">Registration No:</strong> ${data.student.registration_no}</p>
-              <p><strong class="text-[#0B2A7A]">Program:</strong> ${data.student.program_code} (${data.student.batch})</p>
+              <p><strong class="text-[#1E3A8A]">Candidate:</strong> ${data.student.name.toUpperCase()}</p>
+              <p><strong class="text-[#1E3A8A]">Father's Name:</strong> ${data.student.father_name.toUpperCase()}</p>
+              <p><strong class="text-[#1E3A8A]">Registration No:</strong> ${data.student.registration_no}</p>
+              <p><strong class="text-[#1E3A8A]">Program:</strong> ${data.student.program_code} (${data.student.batch})</p>
             </div>
             <div class="w-24 h-28 border-2 border-dashed border-slate-400 bg-slate-100 flex flex-col items-center justify-center text-[10px] text-slate-500 text-center p-1">
               <span>PHOTO</span>
@@ -1335,7 +1335,7 @@ async function loadAdmitCardView(container) {
             <td class="py-2 px-3">${item.course_title}</td>
             <td class="py-2 px-3">${item.exam_date}</td>
             <td class="py-2 px-3">${item.start_time.slice(0, 5)} - ${item.end_time.slice(0, 5)}</td>
-            <td class="py-2 px-3 font-semibold text-[#0B2A7A]">${item.room}</td>
+            <td class="py-2 px-3 font-semibold text-[#1E3A8A]">${item.room}</td>
           </tr>
         `;
       });
