@@ -28,7 +28,8 @@
     };
   </script>
   <link rel="stylesheet" href="/css/portal.css?v=20261114_brand">
-  <script src="/js/admin.js?v=20261114_brand"></script>
+  <script src="/js/orbital-type.js?v=20261114_v4" defer></script>
+  <script src="/js/admin.js?v=20261114_brand" defer></script>
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
 
@@ -72,36 +73,56 @@
   <!-- ===================================================================== -->
   <!-- 1. ADMIN LOGIN VIEW                                                   -->
   <!-- ===================================================================== -->
-  <main id="admin-login-view" class="flex-1 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
-      
-      <div class="text-center space-y-2">
-        <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-blue-950/80 border border-sky-500/40 text-sky-400 mb-1">
-          <img src="/images/logo.png" alt="Ghani University" class="w-12 h-12 object-contain" />
+  <main id="admin-login-view" class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-14">
+
+      <!-- ORBITAL TYPE 3D TURNING GLOBE -->
+      <div class="flex flex-col items-center text-center space-y-3 lg:max-w-md select-none">
+        <div class="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] flex items-center justify-center">
+          <canvas id="orbital-type-canvas-admin" class="w-full h-full cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
+          <div class="absolute -bottom-2 text-[11px] font-semibold text-slate-300 bg-slate-900/90 px-3.5 py-1 rounded-full border border-blue-500/40 shadow-lg backdrop-blur-md pointer-events-none flex items-center gap-1.5">
+            <span class="animate-pulse">🔄</span>
+            <span>Spin globe by hand</span>
+          </div>
         </div>
-        <h2 class="text-xl font-bold text-white">Administrator Portal Sign In</h2>
-        <p class="text-xs text-slate-400">Ghani University • Sheikhupura</p>
+        <div class="space-y-1 pt-2">
+          <h2 class="text-2xl font-black text-white tracking-wider uppercase">Ghani University</h2>
+          <p class="text-xs text-[#93C5FD] font-semibold tracking-wide">Sheikhupura • Administrator Command ERP</p>
+        </div>
       </div>
 
-      <div id="admin-login-error" class="hidden p-3 rounded-lg bg-red-950/50 border border-red-500/50 text-red-300 text-xs text-center font-medium"></div>
-
-      <form id="admin-login-form" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Username</label>
-          <input type="text" id="admin-username" required placeholder="Enter authorized username" autocomplete="username"
-                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 font-medium" />
+      <!-- ADMIN LOGIN CARD -->
+      <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+        
+        <div class="text-center space-y-2">
+          <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-blue-950/80 border border-sky-500/40 text-sky-400 mb-1">
+            <img src="/images/logo.png" alt="Ghani University" class="w-12 h-12 object-contain" />
+          </div>
+          <h2 class="text-xl font-bold text-white">Administrator Portal Sign In</h2>
+          <p class="text-xs text-slate-400">Ghani University • Sheikhupura</p>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Password</label>
-          <input type="password" id="admin-password" required placeholder="••••••••" autocomplete="current-password"
-                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 font-medium" />
-        </div>
+        <div id="admin-login-error" class="hidden p-3 rounded-lg bg-red-950/50 border border-red-500/50 text-red-300 text-xs text-center font-medium"></div>
 
-        <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-600 hover:to-sky-500 text-white rounded-xl text-xs font-bold shadow-lg transition">
-          Sign In as Administrator
-        </button>
-      </form>
+        <form id="admin-login-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Username</label>
+            <input type="text" id="admin-username" required placeholder="Enter authorized username" autocomplete="username"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 font-medium" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Password</label>
+            <input type="password" id="admin-password" required placeholder="••••••••" autocomplete="current-password"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 font-medium" />
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-600 hover:to-sky-500 text-white rounded-xl text-xs font-bold shadow-lg transition">
+            Sign In as Administrator
+          </button>
+        </form>
+      </div>
+
     </div>
   </main>
 

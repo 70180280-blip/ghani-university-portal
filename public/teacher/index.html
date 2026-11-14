@@ -40,47 +40,67 @@
   <!-- ============================================================ -->
   <!-- TEACHER LOGIN VIEW (Strictly Isolated, No Cross-Links)       -->
   <!-- ============================================================ -->
-  <div id="teacher-login-view" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0B132B] via-[#142B4A] to-[#0A192F]">
-    <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
-      <div class="text-center space-y-2">
-        <div class="w-20 h-20 mx-auto bg-white/10 p-2 rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
-          <img src="/images/logo.png" alt="Ghani University Logo" class="h-16 w-auto object-contain" onerror="this.src='/favicon.png'">
-        </div>
-        <h1 class="text-2xl font-black text-white tracking-wider">GHANI UNIVERSITY</h1>
-        <p class="text-xs uppercase tracking-widest text-[#0D9488] font-bold">Faculty &amp; Teacher Portal</p>
-        <p class="text-xs text-slate-400">Sheikhupura Campus • Academic Management &amp; Slate LMS</p>
-      </div>
+  <div id="teacher-login-view" class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-[#0B132B] via-[#142B4A] to-[#0A192F]">
+    <div class="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-14">
 
-      <div id="teacher-login-error" class="hidden p-3 rounded-xl bg-red-900/50 border border-red-500/50 text-red-200 text-xs font-semibold text-center"></div>
-
-      <form onsubmit="window.handleTeacherLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Faculty Email / Teacher ID</label>
-          <input type="text" id="teacher-login-ident" required placeholder="dr.kamran@gu.edu.pk or GU-FAC-01"
-                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] transition">
-        </div>
-
-        <div>
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Password</label>
-            <span class="text-[11px] text-slate-400">Default: teacher123</span>
+      <!-- ORBITAL TYPE 3D TURNING GLOBE -->
+      <div class="flex flex-col items-center text-center space-y-3 lg:max-w-md select-none">
+        <div class="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] flex items-center justify-center">
+          <canvas id="orbital-type-canvas-teacher" class="w-full h-full cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
+          <div class="absolute -bottom-2 text-[11px] font-semibold text-slate-300 bg-slate-900/90 px-3.5 py-1 rounded-full border border-teal-500/40 shadow-lg backdrop-blur-md pointer-events-none flex items-center gap-1.5">
+            <span class="animate-pulse">🔄</span>
+            <span>Spin globe by hand</span>
           </div>
-          <input type="password" id="teacher-login-pass" required placeholder="••••••••"
-                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] transition">
+        </div>
+        <div class="space-y-1 pt-2">
+          <h2 class="text-2xl font-black text-white tracking-wider uppercase">Ghani University</h2>
+          <p class="text-xs text-[#0D9488] font-bold tracking-wide">Sheikhupura • Faculty &amp; Teacher Portal</p>
+        </div>
+      </div>
+
+      <!-- TEACHER LOGIN CARD -->
+      <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+        <div class="text-center space-y-2">
+          <div class="w-20 h-20 mx-auto bg-white/10 p-2 rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
+            <img src="/images/logo.png" alt="Ghani University Logo" class="h-16 w-auto object-contain" onerror="this.src='/favicon.png'">
+          </div>
+          <h1 class="text-2xl font-black text-white tracking-wider">GHANI UNIVERSITY</h1>
+          <p class="text-xs uppercase tracking-widest text-[#0D9488] font-bold">Faculty &amp; Teacher Portal</p>
+          <p class="text-xs text-slate-400">Sheikhupura Campus • Academic Management &amp; Slate LMS</p>
         </div>
 
-        <button type="submit"
-                class="w-full py-3.5 px-4 bg-gradient-to-r from-[#2563EB] to-[#0D9488] hover:from-blue-600 hover:to-teal-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-teal-900/40 transition transform active:scale-[0.99] flex items-center justify-center gap-2">
-          <span>Sign In to Faculty Portal</span>
-          <span>→</span>
-        </button>
-      </form>
+        <div id="teacher-login-error" class="hidden p-3 rounded-xl bg-red-900/50 border border-red-500/50 text-red-200 text-xs font-semibold text-center"></div>
 
-      <!-- Clean footer note with ZERO cross-portal links -->
-      <div class="pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
-        <p class="text-[11px] font-semibold text-slate-400">Authorized Ghani University Academic Faculty Only.</p>
-        <p class="text-[10px] text-slate-500 mt-1">For credentials assistance, contact Registrar Academic Office.</p>
+        <form onsubmit="window.handleTeacherLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Faculty Email / Teacher ID</label>
+            <input type="text" id="teacher-login-ident" required placeholder="dr.kamran@gu.edu.pk or GU-FAC-01"
+                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] transition">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Password</label>
+              <span class="text-[11px] text-slate-400">Default: teacher123</span>
+            </div>
+            <input type="password" id="teacher-login-pass" required placeholder="••••••••"
+                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] transition">
+          </div>
+
+          <button type="submit"
+                  class="w-full py-3.5 px-4 bg-gradient-to-r from-[#2563EB] to-[#0D9488] hover:from-blue-600 hover:to-teal-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-teal-900/40 transition transform active:scale-[0.99] flex items-center justify-center gap-2">
+            <span>Sign In to Faculty Portal</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <!-- Clean footer note with ZERO cross-portal links -->
+        <div class="pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
+          <p class="text-[11px] font-semibold text-slate-400">Authorized Ghani University Academic Faculty Only.</p>
+          <p class="text-[10px] text-slate-500 mt-1">For credentials assistance, contact Registrar Academic Office.</p>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -479,7 +499,8 @@
     </div>
   </div>
 
-  <!-- Teacher Engine Script -->
-  <script src="/js/teacher.js?v=20261114_v2"></script>
+  <!-- 3D Orbital Type Globe & Teacher Engine Script -->
+  <script src="/js/orbital-type.js?v=20261114_v4"></script>
+  <script src="/js/teacher.js?v=20261114_v3"></script>
 </body>
 </html>
