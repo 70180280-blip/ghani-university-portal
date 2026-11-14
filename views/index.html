@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghani University Portal | Ghani Technical & Islamic University</title>
-  <meta name="description" content="Ghani University Portal - Official Academic Information & Student Management Portal of Ghani Technical & Islamic University (GTIU), Sheikhupura. Check results, attendance, exam schedules and course records.">
-  <meta name="keywords" content="Ghani University, Ghani University Portal, GTIU, Ghani Technical & Islamic University, GTIU Sheikhupura, Student Portal, Academic Portal">
-  <meta name="author" content="Ghani Technical & Islamic University">
+  <title>Ghani University Portal | Official Student Portal</title>
+  <meta name="description" content="Ghani University Portal - Official Academic Information & Student Management Portal of Ghani University, Sheikhupura. Check results, attendance, exam schedules and course records.">
+  <meta name="keywords" content="Ghani University, Ghani University Portal, GU, Ghani University Sheikhupura, Student Portal, Academic Portal">
+  <meta name="author" content="Ghani University">
   <meta name="robots" content="index, follow">
   <!-- Open Graph / Social Sharing -->
   <meta property="og:title" content="Ghani University Portal | Official Student Portal">
-  <meta property="og:description" content="Official Student Academic Portal - Ghani Technical & Islamic University (GTIU), Sheikhupura.">
+  <meta property="og:description" content="Official Student Academic Portal - Ghani University, Sheikhupura.">
   <meta property="og:type" content="website">
-  <link rel="icon" type="image/png" href="/images/logo.png" onerror="this.href='/images/logo.svg'">
+  <link rel="icon" type="image/png" href="/images/logo.png" onerror="this.href='/favicon.ico'">
+  <link rel="shortcut icon" href="/favicon.ico">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -69,15 +70,15 @@
       <!-- Logo & University Title -->
       <div class="flex items-center gap-3">
         <div class="relative flex items-center justify-center">
-          <img src="/images/logo.png" alt="GTIU Emblem" class="h-10 w-10 object-contain rounded-lg"
+          <img src="/images/logo.png" alt="Ghani University Emblem" class="h-11 w-auto object-contain rounded-lg shadow-sm"
                onerror="this.classList.add('hidden'); document.getElementById('logo-fallback-nav').classList.remove('hidden');" />
-          <div id="logo-fallback-nav" class="hidden h-10 w-10 rounded-lg bg-blue-950 border border-sky-400 flex items-center justify-center font-black text-sky-300 text-sm">
-            GTIU
+          <div id="logo-fallback-nav" class="hidden h-10 w-10 rounded-lg bg-[#1E3A8A] border border-[#3B82F6] flex items-center justify-center font-black text-white text-sm">
+            GU
           </div>
         </div>
         <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight leading-tight">Ghani University Portal</h1>
-          <p class="text-[11px] text-sky-200 hidden sm:block">Ghani Technical & Islamic University, Sheikhupura</p>
+          <h1 class="text-base sm:text-lg font-black tracking-tight leading-tight uppercase">Ghani University</h1>
+          <p class="text-[11px] text-[#93C5FD] hidden sm:block font-medium">Sheikhupura Campus • Student Academic Portal</p>
         </div>
       </div>
 
@@ -93,7 +94,7 @@
         <div id="user-profile-menu" class="hidden flex items-center gap-3 pl-2 border-l border-white/20">
           <div class="text-right hidden md:block">
             <span id="nav-student-name" class="block text-xs font-bold text-white">Student Name</span>
-            <span id="nav-student-reg" class="block text-[10px] text-sky-200">GTIU-2022-CS-101</span>
+            <span id="nav-student-reg" class="block text-[10px] text-sky-200">GU-2022-CS-101</span>
           </div>
           <button id="logout-btn" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1">
             <span>Logout</span>
@@ -107,27 +108,44 @@
   <!-- ===================================================================== -->
   <!-- 2. STUDENT LOGIN VIEW (Default when unauthenticated)                   -->
   <!-- ===================================================================== -->
-  <main id="login-section" class="flex-1 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+  <main id="login-section" class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-14">
       
-      <!-- Login Header -->
-      <div class="text-center space-y-2">
-        <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-blue-950/80 border border-sky-500/40 text-sky-400 mb-1">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
+      <!-- ORBITAL TYPE 3D TURNING GLOBE (React Bits Pro Inspired) -->
+      <div class="flex flex-col items-center text-center space-y-3 lg:max-w-md select-none">
+        <div class="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] flex items-center justify-center">
+          <canvas id="orbital-type-canvas" class="w-full h-full cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
+          <div class="absolute -bottom-2 text-[11px] font-semibold text-slate-300 bg-slate-900/90 px-3.5 py-1 rounded-full border border-blue-500/40 shadow-lg backdrop-blur-md pointer-events-none flex items-center gap-1.5">
+            <span class="animate-pulse">🔄</span>
+            <span>Spin globe by hand</span>
+          </div>
         </div>
-        <h2 class="text-xl font-bold text-white">Student Portal Sign In</h2>
-        <p class="text-xs text-slate-400">Ghani Technical &amp; Islamic University, Sheikhupura</p>
+        <div class="space-y-1 pt-2">
+          <h2 class="text-2xl font-black text-white tracking-wider uppercase">Ghani University</h2>
+          <p class="text-xs text-[#93C5FD] font-semibold tracking-wide">Sheikhupura • Academic Information Portal</p>
+        </div>
       </div>
 
+      <!-- STUDENT LOGIN CARD -->
+      <div class="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 backdrop-blur-md">
+        
+        <!-- Login Header with Official Logo -->
+        <div class="text-center space-y-2">
+          <div class="inline-flex items-center justify-center p-2 rounded-2xl bg-white/5 border border-white/10 shadow-inner mb-1">
+            <img src="/images/logo.png" alt="Ghani University Logo" class="h-16 w-auto object-contain mx-auto" />
+          </div>
+          <h3 class="text-lg font-bold text-white">Student Portal Sign In</h3>
+          <p class="text-xs text-slate-400">Ghani University, Sheikhupura</p>
+        </div>
 
-      <!-- Error Alert -->
-      <div id="login-error-msg" class="hidden p-3 rounded-lg bg-red-950/50 border border-red-500/50 text-red-300 text-xs text-center font-medium"></div>
+        <!-- Error Alert -->
+        <div id="login-error-msg" class="hidden p-3 rounded-lg bg-red-950/50 border border-red-500/50 text-red-300 text-xs text-center font-medium"></div>
 
-      <!-- Login Form -->
-      <form id="student-login-form" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Registration Number</label>
-          <input type="text" id="login-reg-no" required placeholder="e.g. GTIU-2022-CS-101"
+        <!-- Login Form -->
+        <form id="student-login-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Registration Number</label>
+            <input type="text" id="login-reg-no" required placeholder="e.g. GU-2022-CS-101"
                  class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono" />
         </div>
 
@@ -163,7 +181,8 @@
       </div>
 
     </div>
-  </main>
+  </div>
+</main>
 
   <!-- ===================================================================== -->
   <!-- 3. STUDENT PORTAL DASHBOARD (SAP Fiori Style Launchpad)                -->
@@ -180,7 +199,7 @@
           </div>
           <p class="text-xs text-slate-300">
             s/o <span id="banner-father-name" class="font-semibold text-white">Father Name</span> | 
-            Reg No: <span id="banner-reg-no" class="font-mono text-[#93C5FD] font-bold">GTIU-2022-CS-101</span>
+            Reg No: <span id="banner-reg-no" class="font-mono text-[#93C5FD] font-bold">GU-2022-CS-101</span>
           </p>
           <p class="text-xs text-[#93C5FD]">
             Current Class: <strong id="banner-class">BSCS - Semester 4</strong> | Sheikhupura Campus
@@ -338,32 +357,32 @@
       </div>
     </section>
 
-    <!-- SECTION 4: AI ASSISTANT TILES -->
+    <!-- SECTION 4: ACADEMIC ADVISORY & SIMULATOR SUITE -->
     <section class="space-y-3">
       <div class="fiori-section-header">
-        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span>AI Academic Suite (Powered by Gemini)</span>
+        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Student Advisory &amp; Academic Analytics</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         
-        <!-- AI Study Assistant Chat Tile -->
+        <!-- Academic Advisor Chat Tile -->
         <div onclick="openView('ai-assistant')" class="fiori-tile rounded-xl p-5 cursor-pointer flex flex-col justify-between border-sky-500/40">
           <div>
             <div class="flex justify-between items-center mb-2">
-              <span class="text-xs font-semibold text-sky-400">Natural Language Advisor</span>
+              <span class="text-xs font-semibold text-sky-400">Academic Helpdesk</span>
               <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300">English / Roman Urdu</span>
             </div>
-            <h3 class="text-sm font-bold text-white mb-1">AI Study Assistant</h3>
-            <p class="text-xl font-bold text-sky-400">Ask Anything</p>
+            <h3 class="text-sm font-bold text-white mb-1">Academic Advisor Desk</h3>
+            <p class="text-xl font-bold text-sky-400">Consult Advisor</p>
           </div>
-          <p class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Grades, attendance, weakest areas</p>
+          <p class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Grades, attendance &amp; study targets</p>
         </div>
 
         <!-- What-If Simulator Tile -->
         <div onclick="openView('what-if')" class="fiori-tile rounded-xl p-5 cursor-pointer flex flex-col justify-between border-indigo-500/40 hover:border-indigo-400 transition">
           <div>
             <div class="flex justify-between items-center mb-2">
-              <span class="text-xs font-semibold text-slate-400">Code Calculations</span>
+              <span class="text-xs font-semibold text-slate-400">Performance Forecast</span>
               <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg></div>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">What-If Simulator</h3>
@@ -401,11 +420,12 @@
 
   <!-- Footer -->
   <footer class="mt-auto py-6 text-center text-xs text-slate-500 border-t border-slate-800/80 no-print">
-    <p>Ghani University Portal &copy; 2026 Ghani Technical &amp; Islamic University, Sheikhupura, Pakistan.</p>
+    <p>Ghani University &copy; 2026 Ghani University, Sheikhupura, Pakistan.</p>
     <p class="mt-1 text-[11px] text-slate-600">Official Student Academic Information Portal</p>
   </footer>
 
-  <!-- Frontend Logic -->
+  <!-- Frontend Logic & 3D Orbital Type -->
+  <script src="/js/orbital-type.js"></script>
   <script src="/js/portal.js"></script>
 </body>
 </html>

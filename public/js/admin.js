@@ -396,7 +396,7 @@ window.exportAiSearchResults = function() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `gtiu_ai_search_${Date.now()}.csv`;
+  a.download = `gu_database_search_${Date.now()}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -436,7 +436,7 @@ window.confirmPreviewData = async function() {
   }
 
   if (!currentPreviewUploadId) {
-    alert('Notice: No active upload batch found. Please choose an Excel/PDF file and click "Process File & Generate AI Preview" first.');
+    alert('Notice: No active upload batch found. Please choose an Excel/PDF file and click "Process File & Generate Preview" first.');
     return;
   }
 
@@ -1078,7 +1078,7 @@ async function handleFileUpload(e) {
   statusBox.innerHTML = `
     <div class="flex items-center gap-3 text-sky-400 text-xs">
       <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-sky-400"></div>
-      <span>Extracting student names, father names & contact numbers with AI Ingestion Engine...</span>
+      <span>Extracting student names, father names & contact numbers with Institutional Ingestion Engine...</span>
     </div>
   `;
   if (previewArea) previewArea.classList.add('hidden');

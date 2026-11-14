@@ -67,11 +67,11 @@ window.openView = function(viewName) {
       loadAdmitCardView(body);
       break;
     case 'ai-assistant':
-      title.innerText = 'AI Study Assistant (Academic Advisor)';
+      title.innerText = 'Academic Advisory Desk';
       loadAiAssistantView(body);
       break;
     case 'ai-insights':
-      title.innerText = 'AI Academic Performance Insights';
+      title.innerText = 'Academic Performance Insights';
       loadAiInsightsView(body);
       break;
     case 'what-if':
@@ -208,7 +208,7 @@ window.handleSendAiMessage = async function(e) {
     messagesBox.scrollTop = messagesBox.scrollHeight;
   } catch (err) {
     document.getElementById(typingId)?.remove();
-    messagesBox.innerHTML += `<div class="text-xs text-red-400 p-2">Error connecting to AI advisor.</div>`;
+    messagesBox.innerHTML += `<div class="text-xs text-red-400 p-2">Error connecting to academic advisory service.</div>`;
   }
 };
 
@@ -1296,7 +1296,7 @@ async function loadAdmitCardView(container) {
 
         <div class="p-8 rounded-xl bg-white text-slate-900 shadow-xl border border-slate-300 font-sans printable-document">
           <div class="text-center border-b-2 border-slate-900 pb-3">
-            <h2 class="text-xl font-black text-[#1E3A8A] uppercase">Ghani Technical & Islamic University</h2>
+            <h2 class="text-xl font-black text-[#1E3A8A] uppercase">Ghani University</h2>
             <p class="text-xs font-bold text-[#3B82F6]">CONTROLLER OF EXAMINATIONS - ROLL NUMBER SLIP</p>
             <p class="text-[10px] text-slate-600">Sheikhupura Campus</p>
           </div>
@@ -1359,9 +1359,9 @@ function loadAiAssistantView(container) {
 
       <div id="ai-chat-messages" class="flex-1 overflow-y-auto space-y-3 p-2 text-xs">
         <div class="flex items-start gap-2">
-          <div class="w-7 h-7 rounded-full bg-sky-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">AI</div>
+          <div class="w-7 h-7 rounded-full bg-[#1E3A8A] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">GU</div>
           <div class="bg-slate-800 p-3 rounded-xl rounded-tl-none border border-slate-700 text-slate-200 max-w-[85%] leading-relaxed">
-            Assalam-o-Alaikum ${currentStudent ? currentStudent.name : ''}! I am your official GTIU Academic Advisor. I have access to your verified academic records, results, and attendance. How can I assist you with your studies today?
+            Assalam-o-Alaikum ${currentStudent ? currentStudent.name : ''}! I am your official Ghani University Academic Advisor. I have access to your verified academic records, results, and attendance. How can I assist you with your studies today?
           </div>
         </div>
       </div>
@@ -1421,7 +1421,7 @@ function loadWhatIfView(container) {
     <div class="space-y-6">
       <p class="text-xs text-slate-400">
         Choose hypothetical courses and your target letter grades to simulate your future SGPA and projected CGPA.
-        <strong>All GPAs and quality points are calculated in deterministic code</strong>, with AI advisory guidance.
+        <strong>All GPAs and quality points are calculated in deterministic code</strong>, with institutional advisory guidance.
       </p>
 
       <div class="space-y-3 bg-slate-800/40 p-4 rounded-xl border border-slate-700">
@@ -1499,7 +1499,7 @@ function loadWhatIfView(container) {
         </div>
 
         <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-          <h4 class="text-xs font-bold text-sky-300 mb-1">AI Academic Advice</h4>
+          <h4 class="text-xs font-bold text-sky-300 mb-1">Academic Advice</h4>
           <p id="sim-ai-advice" class="text-xs text-slate-300 leading-relaxed"></p>
         </div>
       </div>

@@ -1,20 +1,20 @@
 /**
- * University Configuration - Ghani Technical & Islamic University
+ * University Configuration - Ghani University
  * 
  * Centralized source of truth for institute information, branding, grading scales,
  * and academic rules. Read by every page, the transcript, and the admit card.
  */
 
 module.exports = {
-  name: 'Ghani Technical & Islamic University',
-  shortName: 'GTIU',
+  name: 'Ghani University',
+  shortName: 'GU',
   portalTitle: 'Ghani University Portal',
   city: 'Sheikhupura, Pakistan',
-  address: 'GT Road, Sheikhupura Bypass Campus, Sheikhupura, Punjab, Pakistan',
+  address: 'Sheikhupura Campus, Punjab, Pakistan',
   phone: '+92 56 3781200 / +92 56 3781201',
-  email: 'registrar@gtiu.edu.pk | info@gtiu.edu.pk',
-  website: 'https://gtiu.edu.pk',
-  tagline: 'Excellence in Modern Technology & Islamic Values',
+  email: 'registrar@gu.edu.pk | info@gu.edu.pk',
+  website: 'https://ghani-university-portal.vercel.app',
+  tagline: 'Excellence in Knowledge & Character',
   
   // Institute structure
   faculties: [
