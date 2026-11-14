@@ -170,10 +170,10 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('[Server Error]:', err.stack);
+  console.error('[Server Error]:', err.stack || err);
   res.status(500).json({
     success: false,
-    error: 'Internal server error occurred. Please contact the GTIU IT support desk.'
+    error: err.message || 'Internal server error occurred. Please contact the GTIU IT support desk.'
   });
 });
 

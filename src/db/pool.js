@@ -151,29 +151,36 @@ async function query(sql, params = []) {
 async function initDatabase() {
   if (isInitialized) return;
 
-  const pool = await getPool();
-  const schemaPath = path.resolve(__dirname, 'schema.sql');
-  const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+  try {
+    const pool = await getPool();
+    const schemaPath = path.resolve(__dirname, 'schema.sql');
+    if (fs.existsSync(schemaPath)) {
+      const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+      const statements = schemaSql
+        .split(';')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
-  const statements = schemaSql
-    .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
-
-  console.log('[Database] Verifying MySQL schema tables...');
-  for (const statement of statements) {
-    try {
-      await pool.query(statement);
-    } catch (e) {
-      if (!e.message.includes('already exists')) {
-        console.error('[Database] Schema execution notice:', e.message);
+      console.log('[Database] Verifying MySQL schema tables...');
+      for (const statement of statements) {
+        try {
+          await pool.query(statement);
+        } catch (e) {
+          if (!e.message.includes('already exists')) {
+            console.error('[Database] Schema execution notice:', e.message);
+          }
+        }
       }
+      console.log('[Database] MySQL tables verified/created successfully.');
+    } else {
+      console.log('[Database] schema.sql not found on filesystem, using live MySQL tables.');
     }
-  }
-  console.log('[Database] MySQL tables verified/created successfully.');
 
-  // Ensure essential metadata (programs, courses, default admin) exists
-  await seedCoreMetadata(pool);
+    // Ensure essential admin credentials exist
+    await seedCoreMetadata(pool);
+  } catch (err) {
+    console.warn('[Database] Schema initialization notice:', err.message);
+  }
 
   isInitialized = true;
 }
