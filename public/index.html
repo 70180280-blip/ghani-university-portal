@@ -79,12 +79,6 @@
 
       <!-- Right Controls: Theme Toggle, Profile Info, Logout -->
       <div class="flex items-center gap-3">
-        <!-- Admin ERP Portal Link -->
-        <a href="/admin" class="px-2.5 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 transition flex items-center gap-1.5 text-xs font-semibold shadow-sm" title="Go to Admin ERP Portal">
-          <span>🛡️</span>
-          <span class="hidden sm:inline">Admin ERP</span>
-        </a>
-
         <!-- Theme Toggle -->
         <button id="theme-toggle-btn" class="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-sky-200 flex items-center gap-1.5 cursor-pointer shadow-sm" title="Toggle Dark/Light Mode">
           <span id="theme-icon"></span>
@@ -162,14 +156,6 @@
         <p class="text-[11px] text-slate-500 leading-relaxed">
           Please enter your credentials exactly as enrolled in university records. In case of access difficulty, contact the Registrar's Office.
         </p>
-      </div>
-
-      <!-- Direct Switch to Admin ERP -->
-      <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-        <span class="text-slate-400">Admin or Faculty Staff?</span>
-        <a href="/admin" class="text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1 transition">
-          <span>🛡️ Admin ERP Portal</span> &rarr;
-        </a>
       </div>
 
     </div>
@@ -412,11 +398,7 @@
   <!-- Footer -->
   <footer class="mt-auto py-6 text-center text-xs text-slate-500 border-t border-slate-800/80 no-print">
     <p>Ghani University Portal &copy; 2026 Ghani Technical &amp; Islamic University, Sheikhupura, Pakistan.</p>
-    <p class="mt-1 text-[11px] text-slate-600 flex items-center justify-center gap-2">
-      <span>Official Student Academic Information Portal</span>
-      <span>•</span>
-      <a href="/admin" class="text-slate-600 hover:text-slate-400 transition" title="Authorized Personnel Only">Staff Access</a>
-    </p>
+    <p class="mt-1 text-[11px] text-slate-600">Official Student Academic Information Portal</p>
   </footer>
 
   <!-- Frontend Logic -->
