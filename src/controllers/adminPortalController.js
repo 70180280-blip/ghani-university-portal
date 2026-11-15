@@ -269,8 +269,8 @@ async function confirmUpload(req, res) {
       return res.status(404).json({ success: false, error: 'Upload batch not found.' });
     }
 
-    const type = detectedType || uploads[0].detected_type || 'marks';
-    const course = courseCode || 'CS401';
+    const type = String(detectedType || uploads[0].detected_type || 'marks').toLowerCase().trim();
+    const course = (courseCode || 'CS401').trim();
     const semNum = Number(semesterNumber) || 4;
 
     let savedCount = 0;
@@ -286,9 +286,21 @@ async function confirmUpload(req, res) {
         const fName = (r.father_name || '').trim();
         const phone = (r.phone || r.student_phone || '').trim();
         const fatherPhone = (r.father_phone || r.guardian_phone || '').trim();
-        const prog = r.program_code || 'BSCS';
+        const prog = (r.program_code || 'BSCS').trim();
         const batch = r.batch || 'Fall 2024';
         const sem = Number(r.current_semester) || 1;
+
+        if (prog) {
+          try {
+            await db.query(`
+              INSERT INTO programs (code, name, degree_title, total_credit_hours, total_semesters, department, faculty)
+              VALUES (?, ?, ?, 130, 8, 'Computer Science', 'Faculty of Information Technology')
+              ON DUPLICATE KEY UPDATE code = code
+            `, [prog, `Degree Program in ${prog}`, prog]);
+          } catch (e) {
+            // Ignore if program exists
+          }
+        }
 
         if (!regNo) {
           const normS = normalizeName(sName);
@@ -356,6 +368,20 @@ async function confirmUpload(req, res) {
         }
       }
 
+      // Auto-ensure course exists for marks/attendance
+      const targetCourse = (r.course_code || course).trim();
+      if (targetCourse) {
+        try {
+          await db.query(`
+            INSERT INTO courses (code, title, credit_hours, lecture_hours, lab_hours, department)
+            VALUES (?, ?, 3, 3, 0, 'General')
+            ON DUPLICATE KEY UPDATE code = code
+          `, [targetCourse, targetCourse]);
+        } catch (e) {
+          // Ignore
+        }
+      }
+
       // 3. Save according to detected type
       if (type === 'attendance') {
         const held = Number(r.attendance_held) || 28;
@@ -368,7 +394,7 @@ async function confirmUpload(req, res) {
           VALUES (?, ?, CURDATE(), ?, ?, ?)
         `, [
           studentId,
-          r.course_code || course,
+          targetCourse,
           present >= held * 0.75 ? 'present' : 'absent',
           `Imported batch: ${present}/${held} sessions attended`,
           uploadId
@@ -401,7 +427,7 @@ async function confirmUpload(req, res) {
             upload_id = VALUES(upload_id)
         `.replace('ON DUPLICATE KEY UPDATE', '--'), [
           studentId,
-          r.course_code || course,
+          targetCourse,
           semNum,
           Number(r.assignment_marks) || 0,
           Number(r.quiz_marks) || 0,
@@ -431,7 +457,7 @@ async function confirmUpload(req, res) {
     });
   } catch (err) {
     console.error('[Admin Portal] Error confirming upload:', err);
-    return res.status(500).json({ success: false, error: 'Failed to confirm and commit data.' });
+    return res.status(500).json({ success: false, error: err.message || 'Failed to confirm and commit data.' });
   }
 }
 
