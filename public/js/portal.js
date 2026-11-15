@@ -66,16 +66,12 @@ window.openView = function(viewName) {
       title.innerText = 'Examination Admit Card';
       loadAdmitCardView(body);
       break;
-    case 'ai-assistant':
-      title.innerText = 'Academic Advisory Desk';
-      loadAiAssistantView(body);
-      break;
-    case 'ai-insights':
-      title.innerText = 'Academic Performance Insights';
-      loadAiInsightsView(body);
+    case 'academic-calendar':
+      title.innerText = 'Ghani University - Official Academic Calendar 2026-2027';
+      loadAcademicCalendarView(body);
       break;
     case 'what-if':
-      title.innerText = 'What-If Academic Simulator';
+      title.innerText = 'CGPA Goal Calculator & Simulator';
       loadWhatIfView(body);
       break;
     default:
@@ -128,30 +124,39 @@ window.runWhatIfSimulation = async function() {
     simulatedGrade: s.value
   }));
 
-  try {
-    const res = await fetch('/api/student/ai/what-if', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ simulatedCourses })
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error);
+  // Compute locally using standard HEC Quality Points & Credit Hours Formula
+  let semQualityPoints = 0;
+  let semCH = 0;
+  const gradePoints = { 'A': 4.00, 'A-': 3.67, 'B+': 3.33, 'B': 3.00, 'C': 2.00, 'F': 0.00 };
 
-    const p = data.projection;
-    const resArea = document.getElementById('whatif-result-area');
-    if (resArea) resArea.classList.remove('hidden');
+  simulatedCourses.forEach(c => {
+    const gp = gradePoints[c.grade] !== undefined ? gradePoints[c.grade] : 3.00;
+    semQualityPoints += gp * c.credit_hours;
+    semCH += c.credit_hours;
+  });
 
-    const sgpaEl = document.getElementById('sim-sgpa-val');
-    const prevEl = document.getElementById('sim-prev-cgpa');
-    const newEl = document.getElementById('sim-new-cgpa');
-    const advEl = document.getElementById('sim-ai-advice');
+  const semSGPA = semCH > 0 ? (semQualityPoints / semCH) : 0;
+  const prevCGPA = (currentStudent && currentStudent.cgpa) ? parseFloat(currentStudent.cgpa) : 3.25;
+  const prevCH = (currentStudent && currentStudent.earned_credit_hours) ? parseFloat(currentStudent.earned_credit_hours) : 54;
 
-    if (sgpaEl) sgpaEl.innerText = Number(p.simulatedSGPA).toFixed(2);
-    if (prevEl) prevEl.innerText = Number(p.previousCGPA).toFixed(2);
-    if (newEl) newEl.innerText = `${Number(p.projectedCGPA).toFixed(2)} (${p.cgpaDifference >= 0 ? '+' : ''}${Number(p.cgpaDifference).toFixed(2)})`;
-    if (advEl) advEl.innerText = data.aiExplanation;
-  } catch (err) {
-    console.error('What-If simulation failed:', err);
+  const totalCH = prevCH + semCH;
+  const totalPoints = (prevCGPA * prevCH) + semQualityPoints;
+  const projectedCGPA = totalCH > 0 ? (totalPoints / totalCH) : semSGPA;
+  const diff = projectedCGPA - prevCGPA;
+
+  const resArea = document.getElementById('whatif-result-area');
+  if (resArea) resArea.classList.remove('hidden');
+
+  const sgpaEl = document.getElementById('sim-sgpa-val');
+  const prevEl = document.getElementById('sim-prev-cgpa');
+  const newEl = document.getElementById('sim-new-cgpa');
+  const advEl = document.getElementById('sim-ai-advice');
+
+  if (sgpaEl) sgpaEl.innerText = semSGPA.toFixed(2);
+  if (prevEl) prevEl.innerText = prevCGPA.toFixed(2);
+  if (newEl) newEl.innerText = `${projectedCGPA.toFixed(2)} (${diff >= 0 ? '+' : ''}${diff.toFixed(2)})`;
+  if (advEl) {
+    advEl.innerText = `Projected semester Quality Points: ${semQualityPoints.toFixed(1)} / Total Attempted CH: ${totalCH}. ${projectedCGPA >= 3.0 ? 'Your projected cumulative performance remains on track for Academic Honors.' : 'Ensure consistent focus on core high-credit courses to enhance your cumulative standing.'}`;
   }
 };
 
@@ -1347,32 +1352,125 @@ async function loadAdmitCardView(container) {
   }
 }
 
-function loadAiAssistantView(container) {
+function loadAcademicCalendarView(container) {
   container.innerHTML = `
-    <div class="flex flex-col h-[520px]">
-      <div class="flex flex-wrap gap-2 pb-3 border-b border-slate-700/60 mb-3 text-xs">
-        <button onclick="window.sendQuickPrompt('What is my current CGPA and how many credit hours have I earned?')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded-full border border-slate-700">What is my CGPA?</button>
-        <button onclick="window.sendQuickPrompt('Which subject am I weakest in and what is my grade?')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded-full border border-slate-700">Which subject am I weakest in?</button>
-        <button onclick="window.sendQuickPrompt('How many classes can I still miss before dropping below 75%?')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded-full border border-slate-700">How many classes can I miss?</button>
-        <button onclick="window.sendQuickPrompt('Meri attendance aur grades kaisay chal rahay hain? (Roman Urdu)')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-full border border-slate-700">Roman Urdu Advice</button>
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-950/70 to-slate-900 border border-blue-500/30">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>📅</span>
+            <span>Ghani University Academic Calendar &amp; Key Deadlines</span>
+          </h3>
+          <p class="text-xs text-sky-300 mt-0.5">Academic Session 2026 – 2027 • Approved by University Academic Council</p>
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+          Fall 2026 &amp; Spring 2027
+        </span>
       </div>
 
-      <div id="ai-chat-messages" class="flex-1 overflow-y-auto space-y-3 p-2 text-xs">
-        <div class="flex items-start gap-2">
-          <div class="w-7 h-7 rounded-full bg-[#1E3A8A] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">GU</div>
-          <div class="bg-slate-800 p-3 rounded-xl rounded-tl-none border border-slate-700 text-slate-200 max-w-[85%] leading-relaxed">
-            Assalam-o-Alaikum ${currentStudent ? currentStudent.name : ''}! I am your official Ghani University Academic Advisor. I have access to your verified academic records, results, and attendance. How can I assist you with your studies today?
-          </div>
+      <!-- Schedule Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-800 text-slate-300 border-b border-slate-700">
+            <tr>
+              <th class="p-3">Academic Activity / Milestone</th>
+              <th class="p-3">Semester</th>
+              <th class="p-3">Scheduled Dates</th>
+              <th class="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 bg-slate-900/60">
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Orientation &amp; Commencement of Classes</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-sky-400">Monday, Aug 17, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Completed</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Course Add / Drop &amp; Section Changes</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-slate-300">Aug 17 – Aug 28, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Closed</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">1st Mandatory Attendance Review (75% Check)</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-slate-300">Friday, Sep 25, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Completed</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40 bg-blue-950/20">
+              <td class="p-3 font-bold text-sky-200">Mid-Term Examination Week</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-amber-300 font-bold">Oct 12 – Oct 19, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400">Active Cycle</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Mid-Term Result Notification &amp; Script Inspection</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-slate-300">Monday, Oct 26, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400">Upcoming</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Last Date for Course Withdrawal (Grade W)</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-slate-300">Friday, Nov 13, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">Scheduled</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Final Project / Assignment Submissions on Slate</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-teal-400">Friday, Dec 04, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300">Scheduled</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Issuance of Examination Admit Cards</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-slate-300">Monday, Dec 07, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">Scheduled</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40 bg-blue-950/20">
+              <td class="p-3 font-bold text-sky-200">Terminal / Final Examinations</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-sky-400 font-bold">Dec 14 – Dec 30, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300">Scheduled</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Official Gazette Result Notification</td>
+              <td class="p-3 text-slate-300">Fall 2026</td>
+              <td class="p-3 font-mono text-emerald-400 font-bold">Friday, Jan 08, 2027</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Scheduled</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Semester Break / Winter Vacation</td>
+              <td class="p-3 text-slate-300">Recess</td>
+              <td class="p-3 font-mono text-slate-300">Jan 01 – Jan 15, 2027</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">Recess</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/40">
+              <td class="p-3 font-semibold text-white">Spring 2027 Semester Commencement</td>
+              <td class="p-3 text-slate-300">Spring 2027</td>
+              <td class="p-3 font-mono text-sky-300">Monday, Jan 18, 2027</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">Next Term</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- University Academic Regulations Box -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 space-y-2">
+          <h4 class="font-bold text-sky-400">Attendance Regulations</h4>
+          <p class="text-slate-300 leading-relaxed">
+            Minimum 75% class attendance is mandatory in each registered course to be eligible for Terminal Examinations. Students falling below 75% will be debarred as per university policy.
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 space-y-2">
+          <h4 class="font-bold text-emerald-400">Grading Policy (4.00 Scale)</h4>
+          <p class="text-slate-300 leading-relaxed">
+            A (85%+ = 4.00), A- (80-84% = 3.67), B+ (75-79% = 3.33), B (70-74% = 3.00), C (58-64% = 2.00), D (50-54% = 1.00), F (&lt;50% = 0.00). Minimum CGPA for degree award is 2.00.
+          </p>
         </div>
       </div>
-
-      <form id="ai-chat-form" onsubmit="window.handleSendAiMessage(event)" class="mt-3 flex gap-2">
-        <input type="text" id="ai-chat-input" placeholder="Ask about your grades, attendance, exam prep (English or Roman Urdu)..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500" />
-        <button type="submit" id="ai-send-btn" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
-          <span>Send</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-        </button>
-      </form>
     </div>
   `;
 }
@@ -1464,9 +1562,9 @@ function loadWhatIfView(container) {
             </select>
           </div>
           <div class="grid grid-cols-12 gap-2 text-xs">
-            <input type="text" value="AI401 - Artificial Intelligence" readonly class="col-span-6 bg-slate-800 text-slate-300 border border-slate-700 rounded px-2 py-1.5" />
+            <input type="text" value="CS404 - Mobile Application Development" readonly class="col-span-6 bg-slate-800 text-slate-300 border border-slate-700 rounded px-2 py-1.5" />
             <input type="number" value="3" readonly class="col-span-2 bg-slate-800 text-slate-300 border border-slate-700 rounded px-2 py-1.5 text-center" />
-            <select class="sim-grade col-span-4 bg-slate-800 text-white border border-slate-700 rounded px-2 py-1.5" data-ch="3" data-code="AI401">
+            <select class="sim-grade col-span-4 bg-slate-800 text-white border border-slate-700 rounded px-2 py-1.5" data-ch="3" data-code="CS404">
               <option value="A" selected>Grade A (4.00)</option>
               <option value="A-">Grade A- (3.67)</option>
               <option value="B+">Grade B+ (3.33)</option>
@@ -1478,7 +1576,7 @@ function loadWhatIfView(container) {
         </div>
 
         <button onclick="window.runWhatIfSimulation()" class="w-full mt-3 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold transition">
-          Run What-If Calculation
+          Calculate Target CGPA
         </button>
       </div>
 
@@ -1499,7 +1597,7 @@ function loadWhatIfView(container) {
         </div>
 
         <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-          <h4 class="text-xs font-bold text-sky-300 mb-1">Academic Advice</h4>
+          <h4 class="text-xs font-bold text-sky-300 mb-1">Official Academic Standing Notes</h4>
           <p id="sim-ai-advice" class="text-xs text-slate-300 leading-relaxed"></p>
         </div>
       </div>
