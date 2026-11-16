@@ -1,19 +1,25 @@
 /**
- * Ghani University Communication Slate Stylesheet
- * Brand Colors:
- * - Navy Blue: #142B4A
- * - Royal Blue: #2563EB
- * - Teal: #0D9488
- * - Slate Background: #F1F5F9
- * - White: #FFFFFF
+ * Ghani University / UOL Style Slate LMS Stylesheet
+ * Primary Theme: Crisp Light & Dark Moodle-inspired LMS with Orange/Crimson Accent (#e0533c)
  */
 
 :root {
-  --gu-navy: #142B4A;
-  --gu-royal: #2563EB;
-  --gu-teal: #0D9488;
-  --gu-bg: #F1F5F9;
-  --gu-white: #FFFFFF;
+  --uol-primary: #e0533c;
+  --uol-primary-hover: #c9432d;
+  --uol-primary-soft: rgba(224, 83, 60, 0.1);
+  --uol-bg: #f8fafc;
+  --uol-surface: #ffffff;
+  --uol-border: #e2e8f0;
+  --uol-text: #1e293b;
+  --uol-text-muted: #64748b;
+}
+
+.dark {
+  --uol-bg: #0b1120;
+  --uol-surface: #131c31;
+  --uol-border: #1e293b;
+  --uol-text: #f8fafc;
+  --uol-text-muted: #94a3b8;
 }
 
 /* Custom Scrollbars */
@@ -25,65 +31,134 @@
   background: transparent;
 }
 .slate-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.35);
   border-radius: 9999px;
 }
 .slate-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.6);
 }
 
-/* Chat Bubble Accents */
-.bubble-student {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-  color: #FFFFFF;
-  border-bottom-right-radius: 4px;
+/* Navigation active bar */
+.uol-nav-link {
+  position: relative;
+  transition: all 0.2s ease;
+}
+.uol-nav-link.active {
+  color: var(--uol-primary);
+  font-weight: 700;
+}
+.uol-nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--uol-primary);
+  border-radius: 3px 3px 0 0;
 }
 
-.bubble-teacher {
-  background: #FFFFFF;
-  color: #0F172A;
-  border-left: 4px solid #0D9488;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+/* Filter pills active state */
+.uol-filter-pill {
+  position: relative;
+  transition: all 0.2s ease;
+}
+.uol-filter-pill.active {
+  color: var(--uol-primary);
+  font-weight: 700;
+}
+.uol-filter-pill.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--uol-primary);
 }
 
-.dark .bubble-teacher {
-  background: #1E293B;
-  color: #F8FAFC;
-  border-left: 4px solid #0D9488;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+/* Course Card Covers - Geometric Patterns matching UOL Slate */
+.card-cover-blue {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.2) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%);
 }
 
-/* Slate Active Item */
-.slate-nav-item.active {
-  background: #2563EB;
-  color: #FFFFFF;
+.card-cover-cyan {
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #5eead4 100%);
+  background-image: radial-gradient(circle, rgba(255,255,255,0.25) 10%, transparent 11%),
+                    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 25%, transparent 26%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 15%, transparent 16%);
+  background-size: 80px 80px, 120px 120px, 90px 90px;
 }
 
-.slate-conv-item.active {
-  background: #E2E8F0;
-  border-left: 4px solid #2563EB;
+.card-cover-azure {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%),
+                    linear-gradient(-45deg, rgba(255,255,255,0.15) 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.15) 75%),
+                    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.15) 75%);
+  background-size: 40px 40px;
 }
 
-.dark .slate-conv-item.active {
-  background: #1E293B;
-  border-left: 4px solid #3B82F6;
+.card-cover-purple {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  background-image: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 50%),
+                    repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.08) 15px, rgba(255,255,255,0.08) 30px);
 }
 
-/* Pinned Banner */
-.pinned-indicator {
-  background: rgba(13, 148, 136, 0.12);
-  border: 1px solid rgba(13, 148, 136, 0.3);
-  color: #0D9488;
+.card-cover-green {
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+  background-image: linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
+                    linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px);
+  background-size: 32px 32px;
 }
 
-/* Status Indicator Dot Animation */
-@keyframes slate-pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+.card-cover-teal {
+  background: linear-gradient(135deg, #0f766e 0%, #06b6d4 100%);
+  background-image: repeating-radial-gradient(circle at 0 0, transparent 0, rgba(255,255,255,0.12) 20px, transparent 40px);
 }
 
-.status-live {
-  animation: slate-pulse 2s infinite ease-in-out;
+.card-cover-pink {
+  background: linear-gradient(135deg, #db2777 0%, #ec4899 50%, #f472b6 100%);
+  background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, transparent 35%),
+                    radial-gradient(circle at 70% 70%, rgba(255,255,255,0.18) 0%, transparent 35%);
+}
+
+.card-cover-pakistan {
+  background: linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%);
+  background-image: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.2) 0%, transparent 60%);
+  position: relative;
+}
+
+/* Calendar Grid Customizations */
+.calendar-grid-cell {
+  min-height: 105px;
+  transition: background-color 0.15s ease;
+}
+.calendar-grid-cell:hover {
+  background-color: rgba(224, 83, 60, 0.04);
+}
+
+.dark .calendar-grid-cell:hover {
+  background-color: rgba(224, 83, 60, 0.1);
+}
+
+/* Subtle transitions */
+.smooth-fade {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Course Menu active item */
+.course-menu-item.active {
+  background-color: #fff1ee;
+  color: var(--uol-primary);
+  border-left: 3px solid var(--uol-primary);
+  font-weight: 700;
+}
+.dark .course-menu-item.active {
+  background-color: rgba(224, 83, 60, 0.18);
+  color: #ff8a75;
+  border-left: 3px solid #ff6347;
 }

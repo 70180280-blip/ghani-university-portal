@@ -1,33 +1,222 @@
 /**
- * Ghani University Communication Slate Frontend Engine
- * Real-time student & teacher messaging, course groups, assignments, and meeting requests
+ * Ghani University / UOL Slate LMS Frontend Engine
+ * Faithful recreation of The University of Lahore Moodle LMS
+ * Features: Dashboard, My courses, Course Details, Calendar, Timeline, & Grading
  */
 
 (function () {
   'use strict';
 
-  // Global Slate State
+  // Global State
   window.Slate = {
-    currentUser: null,
-    activeTab: 'chats', // 'chats', 'channels', 'announcements', 'materials', 'meetings', 'notifications'
-    activeConversationId: null,
-    activeCourseCode: null,
-    conversations: [],
-    courseChannels: [],
-    messages: [],
-    materials: [],
-    announcements: [],
-    meetings: [],
-    notifications: [],
-    pollTimer: null,
-    replyToMessage: null,
+    currentTab: 'courses', // 'dashboard', 'courses', 'course-detail'
+    currentCourseSubTab: 'course', // 'course', 'participants', 'grades', 'competencies'
+    currentFilter: 'all',
+    currentSort: 'name',
+    currentViewMode: 'cards',
     searchQuery: '',
-    isMobileDrawerOpen: false
+    selectedCourseId: 'AI-301',
+    calendarDate: new Date(2026, 10, 16), // Nov 16, 2026 matching screenshots
+    calendarEvents: [
+      {
+        id: 1,
+        title: 'Mid Term Exams',
+        date: '2026-11-09',
+        type: 'exam',
+        badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+        course: 'All Courses',
+        description: 'Mid Term Examination Week begins across all undergraduate departments.'
+      },
+      {
+        id: 2,
+        title: 'Assignment-2 Due',
+        date: '2026-11-20',
+        type: 'assignment',
+        badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+        course: 'Computer Architecture-BSES Section D',
+        description: 'Submission deadline for Pipelining Hazard Analysis & Cache Design.'
+      },
+      {
+        id: 3,
+        title: 'SOC Assignment',
+        date: '2026-11-30',
+        type: 'assignment',
+        badgeClass: 'bg-orange-100 text-[#e0533c] dark:bg-orange-950/60 dark:text-orange-300',
+        course: 'Introduction to Artificial Intelligence-5th BSES Section D',
+        description: 'Training Machine Learning Models on Three Data Modalities submission deadline.'
+      }
+    ],
+    timelineItems: [
+      {
+        id: 1,
+        title: 'Training Machine Learning Models on Three Data Modalities',
+        course: 'Introduction to Artificial Intelligence-5th BSES Section D',
+        dueDate: 'Monday, 30 November 2026, 12:00 AM',
+        icon: '📝',
+        status: 'due',
+        badge: 'Due 30 Nov'
+      },
+      {
+        id: 2,
+        title: 'Assignment 2: Cache Memory & Pipelining Simulator',
+        course: 'Computer Architecture-BSES Section D',
+        dueDate: 'Friday, 20 November 2026, 11:59 PM',
+        icon: '💻',
+        status: 'due',
+        badge: 'Due 20 Nov'
+      },
+      {
+        id: 3,
+        title: 'Lab Report 04: ARM Cortex-M Assembly Syntax',
+        course: 'Embedded Software System Lab-BSES Section D',
+        dueDate: 'Wednesday, 25 November 2026, 5:00 PM',
+        icon: '🔬',
+        status: 'due',
+        badge: 'Due 25 Nov'
+      }
+    ],
+    courses: [
+      {
+        id: 'CA-301',
+        title: 'Computer Architecture-BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Muhammad Wisal',
+        avatarText: 'MW',
+        coverClass: 'card-cover-blue',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'CNS-302',
+        title: 'Cyber Networks and Security-5th BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Engr. Haris Khan',
+        avatarText: 'HK',
+        coverClass: 'card-cover-cyan',
+        status: 'inprogress',
+        starred: true
+      },
+      {
+        id: 'DSA-201',
+        title: 'Data Structures and Algorithms-BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Atique Ur Rahman',
+        avatarText: 'A',
+        coverClass: 'card-cover-azure',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'DSD-202',
+        title: 'Digital System Design-BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Abdul Hannan',
+        avatarText: 'A',
+        coverClass: 'card-cover-purple',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'EDA-203',
+        title: 'Electronic Devices and Applications-BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Muhammad Wisal',
+        avatarText: 'MW',
+        coverClass: 'card-cover-green',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'ESA-303',
+        title: 'Embedded System Architecture-5th BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Dr. Zeeshan Haider',
+        avatarText: 'ZH',
+        coverClass: 'card-cover-blue',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'ESSL-304',
+        title: 'Embedded Software System Lab-BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Abdul Hannan',
+        avatarText: 'A',
+        coverClass: 'card-cover-azure',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'ESD-305',
+        title: 'Embedded Systems Development-5th BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Layaeq Layaeq Ali',
+        avatarText: 'L',
+        coverClass: 'card-cover-teal',
+        status: 'inprogress',
+        starred: false
+      },
+      {
+        id: 'ICP-101',
+        title: 'Ideology and Constitution of Pakistan',
+        department: 'Digital Courses - Summer 2026',
+        instructor: 'Prof. Sajjad Ahmed',
+        avatarText: 'SA',
+        coverClass: 'card-cover-pakistan',
+        status: 'past',
+        starred: false
+      },
+      {
+        id: 'AI-301',
+        title: 'Introduction to Artificial Intelligence-5th BSES Section D',
+        department: 'Department of Intelligent Systems',
+        instructor: 'Dr. Tariq Mahmood',
+        avatarText: 'TM',
+        coverClass: 'card-cover-pink',
+        status: 'inprogress',
+        starred: true
+      },
+      {
+        id: 'CS-201',
+        title: 'Discrete Structures',
+        department: 'Department of Computer Science',
+        instructor: 'Dr. Amjad Farooq',
+        avatarText: 'AF',
+        coverClass: 'card-cover-cyan',
+        status: 'past',
+        starred: false
+      },
+      {
+        id: 'CS-301',
+        title: 'Database Systems',
+        department: 'Department of Computer Science',
+        instructor: 'Engr. Noman Ali',
+        avatarText: 'NA',
+        coverClass: 'card-cover-purple',
+        status: 'inprogress',
+        starred: false
+      }
+    ],
+    participants: [
+      { reg: '418414', name: 'Muhammad Ahmed', role: 'Student', status: 'Active (2 mins ago)' },
+      { reg: '418415', name: 'Ali Hassan', role: 'Student', status: 'Active (1 hour ago)' },
+      { reg: '418416', name: 'Usman Tariq', role: 'Student', status: 'Active (Today)' },
+      { reg: '418417', name: 'Hamza Khalid', role: 'Student', status: 'Active (Yesterday)' },
+      { reg: '418418', name: 'Bilal Ahmad', role: 'Student', status: 'Active (Today)' },
+      { reg: '418419', name: 'Muhammad Ahmed', role: 'Student', status: 'Active (3 days ago)' },
+      { reg: '418420', name: 'Mmuneed', role: 'Student', status: 'Active (Today)' },
+      { reg: '418421', name: 'Usman Tariq', role: 'Student', status: 'Active (5 days ago)' },
+      { reg: '418422', name: 'Salman khan', role: 'Student', status: 'Active (Yesterday)' },
+      { reg: '418423', name: 'Zeeshan Khan', role: 'Student', status: 'Active (Today)' },
+      { reg: '418424', name: 'Wajid Ali', role: 'Student', status: 'Active (4 hours ago)' },
+      { reg: '418425', name: 'Hassan Khan', role: 'Student', status: 'Active (Today)' },
+      { reg: 'T-1002', name: 'Dr. Tariq Mahmood', role: 'Teacher / Instructor', status: 'Active (Now)' }
+    ]
   };
 
   const S = window.Slate;
 
-  // Escape HTML helper
+  // Helper: Escape HTML
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -38,21 +227,8 @@
       .replace(/'/g, '&#039;');
   }
 
-  // Format timestamp helper
-  function formatTime(isoString) {
-    if (!isoString) return '';
-    const d = new Date(isoString);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function formatDate(isoString) {
-    if (!isoString) return '';
-    const d = new Date(isoString);
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-
-  // Toast notification
-  function showToast(message, type = 'success') {
+  // Toast Notification
+  window.showToast = function (message, type = 'success') {
     let box = document.getElementById('slate-toast');
     if (!box) {
       box = document.createElement('div');
@@ -62,7 +238,7 @@
     }
     const item = document.createElement('div');
     item.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-2xl border text-xs font-bold flex items-center gap-2 transition-all transform duration-300 translate-y-2 opacity-0 ${
-      type === 'success' ? 'bg-[#0D9488] text-white border-teal-400' : 'bg-red-600 text-white border-red-400'
+      type === 'success' ? 'bg-[#e0533c] text-white border-orange-400' : 'bg-red-600 text-white border-red-400'
     }`;
     item.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span><span>${escapeHtml(message)}</span>`;
     box.appendChild(item);
@@ -72,1235 +248,608 @@
       item.classList.add('translate-y-2', 'opacity-0');
       setTimeout(() => item.remove(), 300);
     }, 3500);
-  }
-
-  // API Fetch Helper
-  async function slateFetch(url, options = {}) {
-    options.headers = options.headers || {};
-    options.headers['Accept'] = 'application/json';
-    const res = await fetch(url, options);
-    if (res.status === 401) {
-      // Prompt login or redirect
-      console.warn('[Slate] Unauthorized session.');
-      return res;
-    }
-    return res;
-  }
-
-  // Initialize Slate
-  async function initSlate() {
-    try {
-      const res = await slateFetch('/api/slate/me');
-      if (res.status === 401) {
-        showAuthPrompt();
-        return;
-      }
-      const data = await res.json();
-      if (!data.success) {
-        showAuthPrompt();
-        return;
-      }
-
-      S.currentUser = data.user;
-      renderHeaderUser();
-
-      // Read URL query params (e.g. ?tab=materials&course=CS302)
-      const urlParams = new URLSearchParams(window.location.search);
-      const targetTab = urlParams.get('tab');
-      const targetConv = urlParams.get('conversationId');
-      const targetCourse = urlParams.get('course');
-
-      if (targetTab) S.activeTab = targetTab;
-      if (targetConv) S.activeConversationId = parseInt(targetConv, 10);
-      if (targetCourse) S.activeCourseCode = targetCourse;
-
-      switchTab(S.activeTab);
-      loadNotifications();
-
-      // Start smart polling (every 3 seconds)
-      if (S.pollTimer) clearInterval(S.pollTimer);
-      S.pollTimer = setInterval(pollActiveFeed, 3000);
-    } catch (err) {
-      console.error('[Slate] Init error:', err);
-    }
-  }
-
-  function showAuthPrompt() {
-    const mainView = document.getElementById('slate-main-view');
-    const authView = document.getElementById('slate-auth-gate');
-    if (mainView) mainView.classList.add('hidden');
-    if (authView) authView.classList.remove('hidden');
-  }
-
-  function renderHeaderUser() {
-    const u = S.currentUser;
-    if (!u) return;
-
-    const nameEl = document.getElementById('slate-user-name');
-    const roleEl = document.getElementById('slate-user-role');
-    const avatarEl = document.getElementById('slate-user-avatar');
-
-    if (nameEl) nameEl.innerText = u.name;
-    if (roleEl) roleEl.innerText = u.role === 'Student' ? `Student • ${u.program_code || ''}` : `${u.designation || 'Faculty'} • ${u.department || ''}`;
-    if (avatarEl) {
-      const initials = u.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-      avatarEl.innerText = initials || 'GU';
-    }
-
-    // Role-dependent tab labels
-    const directTabLabel = document.getElementById('nav-label-chats');
-    if (directTabLabel) {
-      directTabLabel.innerText = u.type === 'student' ? 'My Teachers' : 'My Students';
-    }
-  }
-
-  // Switch Navigation Tabs
-  window.switchTab = async function (tabName) {
-    S.activeTab = tabName;
-
-    // Update active style on nav buttons
-    document.querySelectorAll('.slate-nav-item').forEach(btn => {
-      if (btn.getAttribute('data-tab') === tabName) {
-        btn.classList.add('bg-[#2563EB]', 'text-white', 'shadow-md');
-        btn.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-200', 'dark:hover:bg-slate-800');
-      } else {
-        btn.classList.remove('bg-[#2563EB]', 'text-white', 'shadow-md');
-        btn.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-200', 'dark:hover:bg-slate-800');
-      }
-    });
-
-    // Update view panels
-    const listPanel = document.getElementById('slate-list-panel');
-    const chatPanel = document.getElementById('slate-chat-panel');
-    const streamPanel = document.getElementById('slate-stream-panel');
-
-    if (tabName === 'chats' || tabName === 'channels') {
-      if (listPanel) listPanel.classList.remove('hidden');
-      if (chatPanel) chatPanel.classList.remove('hidden');
-      if (streamPanel) streamPanel.classList.add('hidden');
-      if (tabName === 'chats') loadConversations();
-      if (tabName === 'channels') loadCourseChannels();
-    } else {
-      // Content tabs: announcements, materials, meetings
-      if (listPanel) listPanel.classList.add('hidden');
-      if (chatPanel) chatPanel.classList.add('hidden');
-      if (streamPanel) streamPanel.classList.remove('hidden');
-
-      if (tabName === 'announcements') renderAnnouncementsFeed();
-      if (tabName === 'materials') renderMaterialsFeed();
-      if (tabName === 'meetings') renderMeetingsFeed();
-      if (tabName === 'notifications') renderNotificationsFeed();
-    }
   };
 
-  // 1. Load Conversations (Direct)
-  async function loadConversations() {
-    const container = document.getElementById('slate-conversations-list');
-    if (!container) return;
+  // Switch Main Slate Tabs (Dashboard, My courses, Course Detail)
+  window.switchSlateTab = function (tab) {
+    S.currentTab = tab;
 
-    try {
-      const res = await slateFetch('/api/slate/conversations');
-      const data = await res.json();
-      if (!data.success) return;
+    const viewCourses = document.getElementById('slate-view-courses');
+    const viewDashboard = document.getElementById('slate-view-dashboard');
+    const viewDetail = document.getElementById('slate-view-course-detail');
+    const navCourses = document.getElementById('nav-btn-courses');
+    const navDashboard = document.getElementById('nav-btn-dashboard');
 
-      S.conversations = (data.conversations || []).filter(c => c.type === 'direct');
-      renderConversationList();
+    if (viewCourses) viewCourses.classList.add('hidden');
+    if (viewDashboard) viewDashboard.classList.add('hidden');
+    if (viewDetail) viewDetail.classList.add('hidden');
 
-      // If active conversation set, load it, otherwise load first
-      if (S.conversations.length > 0) {
-        if (!S.activeConversationId || !S.conversations.some(c => c.id === S.activeConversationId)) {
-          openConversation(S.conversations[0].id);
-        } else {
-          openConversation(S.activeConversationId);
-        }
-      } else {
-        renderEmptyChatWelcome();
-      }
-    } catch (err) {
-      console.error('[Slate] Error loading conversations:', err);
+    if (navCourses) navCourses.classList.remove('active');
+    if (navDashboard) navDashboard.classList.remove('active');
+
+    if (tab === 'courses') {
+      if (viewCourses) viewCourses.classList.remove('hidden');
+      if (navCourses) navCourses.classList.add('active');
+      window.renderCourseCards();
+    } else if (tab === 'dashboard') {
+      if (viewDashboard) viewDashboard.classList.remove('hidden');
+      if (navDashboard) navDashboard.classList.add('active');
+      window.renderTimeline();
+      window.renderCalendar();
+    } else if (tab === 'course-detail') {
+      if (viewDetail) viewDetail.classList.remove('hidden');
+      if (navCourses) navCourses.classList.add('active');
     }
-  }
 
-  // 2. Load Course Channels
-  async function loadCourseChannels() {
-    const container = document.getElementById('slate-conversations-list');
-    if (!container) return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-    try {
-      const res = await slateFetch('/api/slate/course-channels');
-      const data = await res.json();
-      if (!data.success) return;
-
-      S.courseChannels = data.courses || [];
-      renderCourseChannelList();
-
-      if (S.courseChannels.length > 0) {
-        const first = S.courseChannels[0];
-        if (first.conversation_id) openConversation(first.conversation_id);
+  // Filter Courses by sub-pill
+  window.filterCourses = function (filter) {
+    S.currentFilter = filter;
+    document.querySelectorAll('.uol-filter-pill').forEach(pill => {
+      if (pill.getAttribute('data-filter') === filter) {
+        pill.classList.add('active');
       } else {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No enrolled course channels found.</div>`;
+        pill.classList.remove('active');
       }
-    } catch (err) {
-      console.error('[Slate] Error loading course channels:', err);
-    }
-  }
+    });
+    window.renderCourseCards();
+  };
 
-  function renderConversationList() {
-    const container = document.getElementById('slate-conversations-list');
+  // Search Courses live text input
+  window.searchCourses = function (query) {
+    S.searchQuery = (query || '').toLowerCase().trim();
+    window.renderCourseCards();
+  };
+
+  // Sort Courses
+  window.sortCourses = function (sortBy) {
+    S.currentSort = sortBy;
+    window.renderCourseCards();
+  };
+
+  // Set View Mode (cards, list, summary)
+  window.setViewMode = function (mode) {
+    S.currentViewMode = mode;
+    ['cards', 'list', 'summary'].forEach(m => {
+      const btn = document.getElementById(`btn-view-${m}`);
+      if (!btn) return;
+      if (m === mode) {
+        btn.className = 'p-1.5 rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-sm';
+      } else {
+        btn.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition';
+      }
+    });
+    window.renderCourseCards();
+  };
+
+  // Render Course Cards
+  window.renderCourseCards = function () {
+    const container = document.getElementById('courses-grid-container');
     if (!container) return;
 
-    if (S.conversations.length === 0) {
+    let list = [...S.courses];
+
+    // Apply Filter
+    if (S.currentFilter === 'inprogress') {
+      list = list.filter(c => c.status === 'inprogress');
+    } else if (S.currentFilter === 'past') {
+      list = list.filter(c => c.status === 'past');
+    } else if (S.currentFilter === 'future') {
+      list = list.filter(c => c.status === 'future');
+    } else if (S.currentFilter === 'starred') {
+      list = list.filter(c => c.starred);
+    } else if (S.currentFilter === 'removed') {
+      list = [];
+    }
+
+    // Apply Search
+    if (S.searchQuery) {
+      list = list.filter(c =>
+        c.title.toLowerCase().includes(S.searchQuery) ||
+        c.department.toLowerCase().includes(S.searchQuery) ||
+        c.instructor.toLowerCase().includes(S.searchQuery)
+      );
+    }
+
+    // Apply Sort
+    if (S.currentSort === 'name') {
+      list.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    if (list.length === 0) {
+      container.className = 'col-span-full py-16 text-center bg-white dark:bg-[#131c31] rounded-3xl border border-slate-200 dark:border-slate-800';
       container.innerHTML = `
-        <div class="p-6 text-center text-xs text-slate-400 space-y-3">
-          <p>No direct conversations yet.</p>
-          ${S.currentUser.type === 'student' ? `
-            <button onclick="window.Slate.openNewChatModal()" class="px-3.5 py-1.5 bg-[#2563EB] text-white rounded-lg text-xs font-bold shadow hover:bg-blue-600 transition">
-              + Message a Teacher
-            </button>
-          ` : `
-            <button onclick="window.Slate.openNewChatModal()" class="px-3.5 py-1.5 bg-[#2563EB] text-white rounded-lg text-xs font-bold shadow hover:bg-blue-600 transition">
-              + Message a Student
-            </button>
-          `}
+        <div class="w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-950/40 text-[#e0533c] flex items-center justify-center text-2xl mx-auto mb-3">
+          🔍
         </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">No courses match your criteria</h3>
+        <p class="text-xs text-slate-400 mt-1">Try clearing your search query or switching filters.</p>
+        <button onclick="window.filterCourses('all')" class="mt-4 px-4 py-2 bg-[#e0533c] text-white rounded-xl text-xs font-bold hover:bg-[#c9432d] transition">
+          View All Courses
+        </button>
       `;
       return;
     }
 
-    let html = '';
-    S.conversations.forEach(c => {
-      const isActive = c.id === S.activeConversationId;
-      const unreadBadge = c.unread_count > 0 ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#2563EB] text-white">${c.unread_count}</span>` : '';
-      const initials = (c.title || 'GU').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-
-      html += `
-        <div onclick="window.Slate.openConversation(${c.id})"
-             class="slate-conv-item p-3.5 flex items-center justify-between gap-3 cursor-pointer border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition ${isActive ? 'active bg-slate-200 dark:bg-slate-800 font-semibold' : ''}">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="relative w-10 h-10 rounded-full bg-[#142B4A] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span>${initials}</span>
-              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 status-live"></span>
-            </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5">
-                <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeHtml(c.title)}</h4>
-              </div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">${escapeHtml(c.last_message_text || 'Start chatting...')}</p>
-            </div>
+    // Render Cards Mode
+    if (S.currentViewMode === 'cards') {
+      container.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-2';
+      container.innerHTML = list.map(c => `
+        <div class="bg-white dark:bg-[#131c31] border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+          <!-- Geometric Top Cover Banner -->
+          <div class="h-32 ${c.coverClass} relative p-3 flex justify-end items-start">
+            <button onclick="window.toggleCourseMenu(event, '${c.id}')" class="w-7 h-7 rounded-lg bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 hover:bg-white flex items-center justify-center text-xs font-black shadow transition" title="Course options">
+              &bull;&bull;&bull;
+            </button>
           </div>
-          <div class="flex flex-col items-end gap-1 flex-shrink-0">
-            <span class="text-[10px] text-slate-400">${formatTime(c.last_message_at)}</span>
-            ${unreadBadge}
-          </div>
-        </div>
-      `;
-    });
 
-    container.innerHTML = html;
-  }
-
-  function renderCourseChannelList() {
-    const container = document.getElementById('slate-conversations-list');
-    if (!container) return;
-
-    let html = '';
-    S.courseChannels.forEach(c => {
-      const isActive = c.conversation_id === S.activeConversationId;
-      html += `
-        <div onclick="window.Slate.openConversation(${c.conversation_id}, '${escapeHtml(c.course_code)}')"
-             class="slate-conv-item p-3.5 flex items-center justify-between gap-3 cursor-pointer border-b border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition ${isActive ? 'active bg-slate-200 dark:bg-slate-800 font-semibold' : ''}">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl bg-[#0D9488]/15 border border-[#0D9488]/40 text-[#0D9488] font-bold text-xs flex items-center justify-center flex-shrink-0">
-              📚
+          <!-- Card Body -->
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-orange-50 dark:bg-orange-950/40 text-[#e0533c] dark:text-orange-300">
+                ${escapeHtml(c.department)}
+              </span>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-[#e0533c] transition cursor-pointer" onclick="window.viewCourseDetail('${c.id}')">
+                ${escapeHtml(c.title)}
+              </h3>
             </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#2563EB]/15 text-[#2563EB]">${c.course_code}</span>
-                <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeHtml(c.course_title)}</h4>
-              </div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                ${c.teacher_name ? `Instructor: ${escapeHtml(c.teacher_name)}` : `${c.credit_hours || 3} Credit Hours`}
-              </p>
-            </div>
-          </div>
-          <span class="text-xs text-slate-400">›</span>
-        </div>
-      `;
-    });
 
-    container.innerHTML = html;
-  }
-
-  // 3. Open Conversation & Load Messages
-  window.Slate.openConversation = async function (convId, courseCode = null) {
-    S.activeConversationId = convId;
-    if (courseCode) S.activeCourseCode = courseCode;
-
-    // Highlight in list
-    document.querySelectorAll('.slate-conv-item').forEach(el => el.classList.remove('active'));
-
-    const headerTitle = document.getElementById('chat-header-title');
-    const headerSub = document.getElementById('chat-header-sub');
-    const messagesBox = document.getElementById('slate-messages-container');
-
-    if (messagesBox) {
-      messagesBox.innerHTML = '<div class="p-8 text-center text-xs text-slate-400"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-[#2563EB] mb-2"></div><br/>Loading conversation stream...</div>';
-    }
-
-    try {
-      const res = await slateFetch(`/api/slate/conversations/${convId}/messages`);
-      const data = await res.json();
-      if (!data.success) return;
-
-      S.messages = data.messages || [];
-      const conv = data.conversation;
-
-      if (headerTitle) headerTitle.innerText = conv.title || 'Course Channel';
-      if (headerSub) headerSub.innerText = conv.type === 'course_group' ? `Course Channel • ${conv.course_code || ''}` : 'Direct End-to-End University Channel';
-
-      renderMessages();
-      renderDetailsDrawer(conv);
-    } catch (err) {
-      console.error('[Slate] Error opening conversation:', err);
-    }
-  };
-
-  function renderMessages() {
-    const container = document.getElementById('slate-messages-container');
-    if (!container) return;
-
-    if (S.messages.length === 0) {
-      container.innerHTML = `
-        <div class="h-full flex flex-col items-center justify-center text-center p-8 space-y-3 select-none">
-          <div class="w-14 h-14 rounded-2xl bg-[#2563EB]/15 text-[#2563EB] flex items-center justify-center text-2xl shadow-inner">
-            💬
-          </div>
-          <h3 class="text-sm font-bold text-slate-800 dark:text-white">Start the Discussion</h3>
-          <p class="text-xs text-slate-400 max-w-sm">Ask academic questions, share lecture notes, or discuss coursework. Messages are verified by Ghani University.</p>
-        </div>
-      `;
-      return;
-    }
-
-    let html = '';
-    let lastDate = '';
-
-    S.messages.forEach(m => {
-      const msgDate = formatDate(m.created_at);
-      if (msgDate !== lastDate) {
-        html += `
-          <div class="flex items-center justify-center my-4">
-            <span class="px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700 shadow-sm">
-              ${msgDate}
-            </span>
-          </div>
-        `;
-        lastDate = msgDate;
-      }
-
-      const isMe = m.sender_type === S.currentUser.type && m.sender_id === S.currentUser.id;
-      const isTeacher = m.sender_type === 'teacher';
-
-      // Attachments preview
-      let attachmentHtml = '';
-      if (m.file_url) {
-        const isImage = /\.(png|jpe?g|gif|webp)$/i.test(m.file_url);
-        if (isImage) {
-          attachmentHtml = `
-            <div class="mt-2 rounded-xl overflow-hidden border border-white/20 max-w-xs shadow">
-              <a href="${m.file_url}" target="_blank">
-                <img src="${m.file_url}" alt="Image" class="w-full object-cover max-h-56 hover:opacity-95 transition" />
-              </a>
-            </div>
-          `;
-        } else {
-          attachmentHtml = `
-            <a href="${m.file_url}" download target="_blank" class="mt-2 flex items-center gap-2.5 p-2.5 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 transition border border-white/15 text-xs font-semibold">
-              <span class="text-lg">📄</span>
-              <div class="min-w-0 flex-1">
-                <p class="truncate font-bold text-xs">${escapeHtml(m.file_name || 'Document File')}</p>
-                <span class="text-[10px] opacity-75">${m.file_size || 'Download File'}</span>
-              </div>
-              <span class="text-xs">⬇️</span>
-            </a>
-          `;
-        }
-      }
-
-      html += `
-        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-3 group">
-          <div class="flex items-end gap-2 max-w-[85%] sm:max-w-[70%]">
-            
-            ${!isMe ? `
-              <div class="w-7 h-7 rounded-full ${isTeacher ? 'bg-[#0D9488]' : 'bg-[#142B4A]'} text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 shadow-sm" title="${escapeHtml(m.sender_name)}">
-                ${m.sender_name ? m.sender_name[0].toUpperCase() : 'U'}
-              </div>
-            ` : ''}
-
-            <div class="rounded-2xl p-3.5 shadow-sm text-xs leading-relaxed ${isMe ? 'bubble-student' : 'bubble-teacher'} relative">
-              ${!isMe ? `
-                <div class="flex items-center gap-1.5 mb-1">
-                  <span class="font-bold text-[11px] text-[#0D9488] dark:text-teal-400">${escapeHtml(m.sender_name)}</span>
-                  ${isTeacher ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-[#0D9488]/20 text-[#0D9488] dark:text-teal-300">FACULTY</span>` : ''}
+            <!-- Instructor & View Button -->
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-black flex items-center justify-center shrink-0">
+                  ${escapeHtml(c.avatarText)}
                 </div>
-              ` : ''}
-
-              <div class="break-words select-text font-normal">${escapeHtml(m.content)}</div>
-              ${attachmentHtml}
-
-              <div class="flex items-center justify-end gap-1.5 mt-1.5 text-[9px] opacity-70">
-                <span>${formatTime(m.created_at)}</span>
-                ${isMe ? `<span>✓✓</span>` : ''}
+                <span class="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">
+                  ${escapeHtml(c.instructor)}
+                </span>
               </div>
+              <button onclick="window.viewCourseDetail('${c.id}')" class="px-3.5 py-1.5 rounded-xl border border-[#e0533c] text-[#e0533c] hover:bg-[#fff1ee] dark:hover:bg-orange-950/20 text-xs font-bold transition shrink-0">
+                View Course
+              </button>
             </div>
-
-            <!-- Message Action Pill (Reply / Report / Pin) -->
-            <div class="opacity-0 group-hover:opacity-100 transition flex items-center gap-1 px-1 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-[10px]">
-              <button onclick="window.Slate.setReply(${m.id}, '${escapeHtml(m.sender_name)}', '${escapeHtml(m.content)}')" title="Reply" class="hover:text-blue-500 p-0.5">↩️</button>
-              <button onclick="window.Slate.reportMessageModal(${m.id})" title="Report Message" class="hover:text-red-500 p-0.5">🚩</button>
-            </div>
-
           </div>
         </div>
-      `;
+      `).join('');
+    } else if (S.currentViewMode === 'list') {
+      container.className = 'space-y-3 pt-2';
+      container.innerHTML = list.map(c => `
+        <div class="bg-white dark:bg-[#131c31] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-4 hover:shadow-md transition">
+          <div class="flex items-center gap-4 min-w-0">
+            <div class="w-12 h-12 rounded-xl ${c.coverClass} shrink-0"></div>
+            <div class="min-w-0">
+              <span class="text-[10px] font-bold text-[#e0533c] uppercase">${escapeHtml(c.department)}</span>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate cursor-pointer hover:text-[#e0533c]" onclick="window.viewCourseDetail('${c.id}')">
+                ${escapeHtml(c.title)}
+              </h3>
+              <p class="text-xs text-slate-500">${escapeHtml(c.instructor)}</p>
+            </div>
+          </div>
+          <button onclick="window.viewCourseDetail('${c.id}')" class="px-4 py-2 rounded-xl border border-[#e0533c] text-[#e0533c] hover:bg-[#fff1ee] text-xs font-bold shrink-0">
+            View Course
+          </button>
+        </div>
+      `).join('');
+    } else {
+      // Summary Mode
+      container.className = 'space-y-4 pt-2';
+      container.innerHTML = list.map(c => `
+        <div class="bg-white dark:bg-[#131c31] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white cursor-pointer hover:text-[#e0533c]" onclick="window.viewCourseDetail('${c.id}')">
+              ${escapeHtml(c.title)}
+            </h3>
+            <span class="text-xs text-[#e0533c] font-bold">${escapeHtml(c.department)}</span>
+          </div>
+          <p class="text-xs text-slate-500">Instructor: <strong>${escapeHtml(c.instructor)}</strong> &bull; Code: <strong>${escapeHtml(c.id)}</strong></p>
+          <div class="flex justify-end pt-1">
+            <button onclick="window.viewCourseDetail('${c.id}')" class="px-4 py-1.5 rounded-xl bg-[#e0533c] text-white text-xs font-bold hover:bg-[#c9432d]">
+              Open Course
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+  };
+
+  // View Specific Course Detail
+  window.viewCourseDetail = function (courseId) {
+    S.selectedCourseId = courseId;
+    const course = S.courses.find(c => c.id === courseId) || S.courses[9]; // Defaults to AI course
+
+    const titleEl = document.getElementById('detail-course-title');
+    const instructorEl = document.getElementById('detail-instructor-name');
+    if (titleEl) titleEl.textContent = course.title;
+    if (instructorEl) instructorEl.textContent = course.instructor;
+
+    window.switchSlateTab('course-detail');
+    window.switchCourseSubTab('course');
+  };
+
+  // Course Sub-tab Switching (Course, Participants, Grades, Competencies)
+  window.switchCourseSubTab = function (subtab) {
+    S.currentCourseSubTab = subtab;
+
+    ['course', 'participants', 'grades', 'competencies'].forEach(st => {
+      const btn = document.getElementById(`subtab-${st}`);
+      const view = document.getElementById(`course-subview-${st === 'course' ? 'content' : st}`);
+      if (btn) {
+        if (st === subtab) {
+          btn.className = 'uol-nav-link active pb-2 font-bold text-[#e0533c]';
+        } else {
+          btn.className = 'uol-nav-link text-slate-500 dark:text-slate-400 pb-2';
+        }
+      }
+      if (view) {
+        if (st === subtab) {
+          view.classList.remove('hidden');
+        } else {
+          view.classList.add('hidden');
+        }
+      }
     });
 
-    container.innerHTML = html;
-    container.scrollTop = container.scrollHeight;
-  }
-
-  function renderDetailsDrawer(conv) {
-    const titleEl = document.getElementById('details-title');
-    const badgeEl = document.getElementById('details-badge');
-    const emailEl = document.getElementById('details-email');
-    const roomEl = document.getElementById('details-room');
-    const actionsEl = document.getElementById('details-actions');
-
-    if (titleEl) titleEl.innerText = conv.title || 'Course Details';
-    if (badgeEl) badgeEl.innerText = conv.type === 'course_group' ? (conv.course_code || 'Course') : 'Faculty Member';
-    if (emailEl) emailEl.innerText = conv.participant_badge || 'Sheikhupura Campus';
-    if (roomEl) roomEl.innerText = conv.type === 'course_group' ? 'General Academic Slate' : 'Official Office Desk';
-
-    if (actionsEl) {
-      if (S.currentUser.type === 'student' && conv.type === 'direct') {
-        actionsEl.innerHTML = `
-          <button onclick="window.Slate.openMeetingRequestModal(${conv.participant_id || 0})" class="w-full py-2 bg-[#0D9488] hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center justify-center gap-1.5">
-            <span>📅 Request 1-on-1 Meeting</span>
-          </button>
-        `;
-      } else {
-        actionsEl.innerHTML = '';
-      }
+    if (subtab === 'participants') {
+      window.renderCourseParticipants();
     }
-  }
+  };
 
-  function renderEmptyChatWelcome() {
-    const container = document.getElementById('slate-messages-container');
-    if (container) {
+  // Render Course Participants Table
+  window.renderCourseParticipants = function () {
+    const list = document.getElementById('course-participants-list');
+    if (!list) return;
+
+    list.innerHTML = S.participants.map(p => `
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+        <td class="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white">${escapeHtml(p.reg)}</td>
+        <td class="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(p.name)}</td>
+        <td class="py-3 px-4">
+          <span class="inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
+            p.role.includes('Teacher') ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
+          }">
+            ${escapeHtml(p.role)}
+          </span>
+        </td>
+        <td class="py-3 px-4 text-slate-500 text-xs">${escapeHtml(p.status)}</td>
+      </tr>
+    `).join('');
+  };
+
+  // Timeline Filtering
+  window.filterTimeline = function () {
+    window.renderTimeline();
+  };
+
+  // Render Timeline
+  window.renderTimeline = function () {
+    const container = document.getElementById('timeline-content-container');
+    if (!container) return;
+
+    const range = document.getElementById('timeline-range-select')?.value || '7';
+    const search = (document.getElementById('timeline-search-input')?.value || '').toLowerCase().trim();
+
+    let items = [...S.timelineItems];
+
+    if (search) {
+      items = items.filter(i =>
+        i.title.toLowerCase().includes(search) ||
+        i.course.toLowerCase().includes(search)
+      );
+    }
+
+    if (items.length === 0) {
+      container.className = 'bg-white dark:bg-[#131c31] border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center shadow-sm';
       container.innerHTML = `
-        <div class="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
-          <div class="w-16 h-16 rounded-3xl bg-[#2563EB]/15 text-[#2563EB] flex items-center justify-center text-3xl">
-            🏛️
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl mx-auto mb-3 text-slate-400">
+          ⌛
+        </div>
+        <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">No upcoming activities due</p>
+      `;
+      return;
+    }
+
+    container.className = 'bg-white dark:bg-[#131c31] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm divide-y divide-slate-100 dark:divide-slate-800';
+    container.innerHTML = items.map(item => `
+      <div class="py-4 first:pt-1 last:pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#e0533c] flex items-center justify-center text-lg shrink-0">
+            ${item.icon}
           </div>
-          <h2 class="text-base font-bold text-slate-800 dark:text-white">Ghani University Communication Slate</h2>
-          <p class="text-xs text-slate-400 max-w-md">Select a conversation or course channel from the left sidebar to start collaborating.</p>
+          <div>
+            <h4 class="text-sm font-bold text-slate-900 dark:text-white hover:text-[#e0533c] cursor-pointer" onclick="window.viewCourseDetail('AI-301')">
+              ${escapeHtml(item.title)}
+            </h4>
+            <p class="text-xs font-semibold text-[#e0533c] mt-0.5">${escapeHtml(item.course)}</p>
+            <p class="text-[11px] text-slate-400 mt-1">${escapeHtml(item.dueDate)}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+            ${escapeHtml(item.badge)}
+          </span>
+          <button onclick="window.openSubmissionModal()" class="px-3.5 py-1.5 bg-[#e0533c] hover:bg-[#c9432d] text-white rounded-xl text-xs font-bold transition">
+            Add submission
+          </button>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  // Calendar Rendering
+  window.changeCalendarMonth = function (delta) {
+    const d = S.calendarDate;
+    d.setMonth(d.getMonth() + delta);
+    window.renderCalendar();
+  };
+
+  window.renderCalendar = function () {
+    const grid = document.getElementById('calendar-days-grid');
+    const label = document.getElementById('calendar-month-label');
+    if (!grid || !label) return;
+
+    const d = S.calendarDate;
+    const year = d.getFullYear();
+    const month = d.getMonth();
+
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    label.textContent = `${monthNames[month]} ${year}`;
+
+    // First day of month (0 = Sunday, 1 = Monday)
+    const firstDay = new Date(year, month, 1);
+    let startDayOfWeek = firstDay.getDay(); // 0 is Sunday
+    // Adjust to Monday start: 0->6, 1->0, 2->1, etc.
+    let shift = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+
+    let cellsHtml = '';
+
+    // Previous month filler days
+    for (let i = shift - 1; i >= 0; i--) {
+      const dayNum = prevMonthDays - i;
+      cellsHtml += `
+        <div class="calendar-grid-cell p-2 text-slate-300 dark:text-slate-600 bg-slate-50/50 dark:bg-slate-900/40 select-none">
+          <span class="font-bold text-[11px]">${dayNum}</span>
         </div>
       `;
     }
-  }
 
-  // 4. Send Message Handler
-  window.Slate.handleSendMessage = async function (e) {
-    if (e) e.preventDefault();
-    if (!S.activeConversationId) {
-      showToast('Please select a conversation first.', 'error');
-      return;
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const events = S.calendarEvents.filter(e => e.date === dateStr);
+      const isToday = (year === 2026 && month === 10 && day === 16);
+
+      let eventsHtml = '';
+      events.forEach(evt => {
+        eventsHtml += `
+          <div onclick="window.showEventDetails(${evt.id})" class="mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${evt.badgeClass} truncate cursor-pointer hover:opacity-80 transition shadow-xs" title="${escapeHtml(evt.title)}">
+            ${escapeHtml(evt.title)}
+          </div>
+        `;
+      });
+
+      cellsHtml += `
+        <div class="calendar-grid-cell p-2 bg-white dark:bg-[#131c31] hover:bg-orange-50/20 dark:hover:bg-orange-950/10 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center justify-center font-bold text-xs ${
+              isToday
+                ? 'w-6 h-6 rounded-full bg-[#e0533c] text-white shadow-sm'
+                : 'text-slate-700 dark:text-slate-200'
+            }">
+              ${day}
+            </span>
+            ${events.length > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-[#e0533c]"></span>' : ''}
+          </div>
+          <div class="space-y-1">
+            ${eventsHtml}
+          </div>
+        </div>
+      `;
     }
 
-    const input = document.getElementById('slate-message-input');
-    const content = input ? input.value.trim() : '';
-
-    if (!content && !window.Slate.stagedAttachment) {
-      return;
+    // Trailing filler days to complete 7-day row
+    const totalFilled = shift + daysInMonth;
+    const remaining = (7 - (totalFilled % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) {
+      cellsHtml += `
+        <div class="calendar-grid-cell p-2 text-slate-300 dark:text-slate-600 bg-slate-50/50 dark:bg-slate-900/40 select-none">
+          <span class="font-bold text-[11px]">${i}</span>
+        </div>
+      `;
     }
 
-    const payload = {
-      content,
-      message_type: window.Slate.stagedAttachment ? 'file' : 'text',
-      file_url: window.Slate.stagedAttachment?.file_url || null,
-      file_name: window.Slate.stagedAttachment?.file_name || null,
-      file_size: window.Slate.stagedAttachment?.file_size || null,
-      reply_to_id: S.replyToMessage?.id || null
+    grid.innerHTML = cellsHtml;
+  };
+
+  // Show Event Details Modal
+  window.showEventDetails = function (eventId) {
+    const evt = S.calendarEvents.find(e => e.id === eventId);
+    if (!evt) return;
+
+    const modal = document.getElementById('modal-event');
+    const titleEl = document.getElementById('modal-event-title');
+    const bodyEl = document.getElementById('modal-event-body');
+
+    if (titleEl) titleEl.textContent = evt.title;
+    if (bodyEl) {
+      bodyEl.innerHTML = `
+        <p><strong>Course:</strong> ${escapeHtml(evt.course)}</p>
+        <p><strong>Date:</strong> ${escapeHtml(evt.date)}</p>
+        <p><strong>Event Type:</strong> <span class="capitalize font-bold text-[#e0533c]">${escapeHtml(evt.type)}</span></p>
+        <div class="mt-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300">
+          ${escapeHtml(evt.description)}
+        </div>
+      `;
+    }
+
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  window.closeEventModal = function () {
+    const modal = document.getElementById('modal-event');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  // Open New Event Modal
+  window.openNewEventModal = function () {
+    const title = prompt('Enter Event Title:');
+    if (!title) return;
+    const dateStr = prompt('Enter Date (YYYY-MM-DD):', '2026-11-28');
+    if (!dateStr) return;
+
+    const newEvt = {
+      id: Date.now(),
+      title: title.trim(),
+      date: dateStr.trim(),
+      type: 'user',
+      badgeClass: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300',
+      course: 'General Academic Event',
+      description: 'Custom student calendar event created in UOL Slate.'
     };
 
-    try {
-      const res = await slateFetch(`/api/slate/conversations/${S.activeConversationId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error, 'error');
-        return;
+    S.calendarEvents.push(newEvt);
+    window.renderCalendar();
+    window.showToast('New event added to calendar!');
+  };
+
+  // Submission Modal handlers
+  window.openSubmissionModal = function () {
+    const modal = document.getElementById('modal-submission');
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  window.closeSubmissionModal = function () {
+    const modal = document.getElementById('modal-submission');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.handleFileSelect = function (input) {
+    if (input.files && input.files[0]) {
+      const label = document.getElementById('selected-file-label');
+      if (label) {
+        label.textContent = `Selected: ${input.files[0].name} (${(input.files[0].size / 1024 / 1024).toFixed(2)} MB)`;
+        label.className = 'text-[11px] text-[#e0533c] font-bold';
       }
-
-      if (input) input.value = '';
-      window.Slate.clearAttachment();
-      window.Slate.clearReply();
-
-      S.messages.push(data.message);
-      renderMessages();
-    } catch (err) {
-      console.error('[Slate] Error sending message:', err);
-      showToast('Failed to send message.', 'error');
     }
   };
 
-  // Reply management
-  window.Slate.setReply = function (id, name, content) {
-    S.replyToMessage = { id, name, content };
-    const banner = document.getElementById('slate-reply-banner');
-    const text = document.getElementById('slate-reply-text');
-    if (banner && text) {
-      banner.classList.remove('hidden');
-      text.innerText = `Replying to ${name}: "${content.slice(0, 40)}..."`;
-    }
+  window.submitAssignmentFile = function () {
+    window.closeSubmissionModal();
+    window.showToast('Assignment submitted successfully! Status updated.');
   };
 
-  window.Slate.clearReply = function () {
-    S.replyToMessage = null;
-    const banner = document.getElementById('slate-reply-banner');
-    if (banner) banner.classList.add('hidden');
+  // Announcements Modal
+  window.openAnnouncementsModal = function () {
+    alert('Course Announcements:\n1. Mid Term Exam Schedule posted for Section D.\n2. Lab practical makeup sessions scheduled on Saturdays.\n3. Research paper reading list updated.');
   };
 
-  // Staged File Attachment management
-  window.Slate.stagedAttachment = null;
-  window.Slate.handleFileSelect = async function (file) {
-    if (!file) return;
+  // Toggle All Course Topics Accordion
+  let allTopicsCollapsed = false;
+  window.toggleAllCourseTopics = function () {
+    allTopicsCollapsed = !allTopicsCollapsed;
+    const btn = document.getElementById('btn-collapse-all');
+    const topics = document.querySelectorAll('#course-subview-content .p-4, #course-subview-content .p-5');
 
-    const statusEl = document.getElementById('slate-attachment-preview');
-    if (statusEl) {
-      statusEl.classList.remove('hidden');
-      statusEl.innerHTML = `<span class="animate-pulse">Uploading ${escapeHtml(file.name)}...</span>`;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await fetch('/api/slate/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error || 'Upload failed.', 'error');
-        window.Slate.clearAttachment();
-        return;
-      }
-
-      window.Slate.stagedAttachment = data;
-      if (statusEl) {
-        statusEl.innerHTML = `
-          <div class="flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-950/60 p-2 rounded-xl border border-teal-500/30">
-            <span>📎 Attached: ${escapeHtml(data.file_name)} (${data.file_size})</span>
-            <button onclick="window.Slate.clearAttachment()" class="text-red-400 hover:text-red-300 ml-auto font-bold">×</button>
-          </div>
-        `;
-      }
-    } catch (err) {
-      showToast('File upload failed: ' + err.message, 'error');
-      window.Slate.clearAttachment();
-    }
-  };
-
-  window.Slate.clearAttachment = function () {
-    window.Slate.stagedAttachment = null;
-    const statusEl = document.getElementById('slate-attachment-preview');
-    const fileInput = document.getElementById('slate-file-input');
-    if (statusEl) {
-      statusEl.classList.add('hidden');
-      statusEl.innerHTML = '';
-    }
-    if (fileInput) fileInput.value = '';
-  };
-
-  // 5. Polling for Live Stream
-  async function pollActiveFeed() {
-    if (S.activeTab === 'chats' || S.activeTab === 'channels') {
-      if (S.activeConversationId) {
-        try {
-          const res = await slateFetch(`/api/slate/conversations/${S.activeConversationId}/messages`);
-          const data = await res.json();
-          if (data.success && data.messages) {
-            if (data.messages.length !== S.messages.length) {
-              S.messages = data.messages;
-              renderMessages();
-            }
-          }
-        } catch (e) {}
-      }
-    }
-    loadNotifications();
-  }
-
-  // 6. Announcements Feed
-  async function renderAnnouncementsFeed() {
-    const container = document.getElementById('slate-stream-content');
-    if (!container) return;
-
-    container.innerHTML = '<div class="p-8 text-center text-xs text-slate-400"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-[#2563EB] mb-2"></div><br/>Loading announcements...</div>';
-
-    try {
-      const res = await slateFetch('/api/slate/announcements');
-      const data = await res.json();
-      if (!data.success) return;
-
-      S.announcements = data.announcements || [];
-
-      let html = `
-        <div class="max-w-4xl mx-auto space-y-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
-            <div>
-              <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <span>📢 University &amp; Class Announcements</span>
-              </h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Official circulars, class updates, and schedule notices.</p>
-            </div>
-            ${S.currentUser.type !== 'student' ? `
-              <button onclick="window.Slate.openCreateAnnouncementModal()" class="px-4 py-2 bg-[#2563EB] hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition">
-                <span>+ Post Announcement</span>
-              </button>
-            ` : ''}
-          </div>
-      `;
-
-      if (S.announcements.length === 0) {
-        html += `<div class="p-12 text-center text-xs text-slate-400">No active announcements posted yet.</div>`;
-      } else {
-        S.announcements.forEach(a => {
-          html += `
-            <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-              <div class="flex justify-between items-start gap-3">
-                <div class="space-y-1">
-                  <div class="flex items-center gap-2">
-                    ${a.is_pinned ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-500 border border-amber-500/30">PINNED</span>` : ''}
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#2563EB]/15 text-[#2563EB]">${a.course_code || 'UNIVERSITY-WIDE'}</span>
-                    <span class="text-xs text-slate-400">• ${formatDate(a.created_at)}</span>
-                  </div>
-                  <h3 class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(a.title)}</h3>
-                  <p class="text-xs text-[#0D9488] font-semibold">Instructor: ${escapeHtml(a.teacher_name || 'Academic Administration')}</p>
-                </div>
-              </div>
-              <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(a.content)}</div>
-              ${a.file_url ? `
-                <a href="${a.file_url}" target="_blank" download class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                  <span>📎 Download Attached File</span>
-                </a>
-              ` : ''}
-            </div>
-          `;
-        });
-      }
-
-      html += `</div>`;
-      container.innerHTML = html;
-    } catch (err) {
-      console.error('[Slate] Error rendering announcements:', err);
-    }
-  }
-
-  // 7. Course Materials & Assignments Feed
-  async function renderMaterialsFeed() {
-    const container = document.getElementById('slate-stream-content');
-    if (!container) return;
-
-    container.innerHTML = '<div class="p-8 text-center text-xs text-slate-400"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-[#2563EB] mb-2"></div><br/>Loading course works & assignments...</div>';
-
-    try {
-      const res = await slateFetch('/api/slate/materials');
-      const data = await res.json();
-      if (!data.success) return;
-
-      S.materials = data.materials || [];
-
-      let html = `
-        <div class="max-w-4xl mx-auto space-y-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
-            <div>
-              <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <span>📝 Course Assignments, Quizzes &amp; Lecture Notes</span>
-              </h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">View tasks uploaded by your course instructors and submit your completed files.</p>
-            </div>
-            ${S.currentUser.type !== 'student' ? `
-              <button onclick="window.Slate.openUploadMaterialModal()" class="px-4 py-2 bg-[#0D9488] hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition">
-                <span>+ Upload Work / Assignment</span>
-              </button>
-            ` : ''}
-          </div>
-      `;
-
-      if (S.materials.length === 0) {
-        html += `<div class="p-12 text-center text-xs text-slate-400">No course materials or assignments posted yet.</div>`;
-      } else {
-        S.materials.forEach(m => {
-          const isAssignment = m.material_type === 'assignment' || m.material_type === 'quiz';
-          const sub = m.submission;
-
-          html += `
-            <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div class="space-y-1">
-                  <div class="flex items-center gap-2">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#2563EB]/15 text-[#2563EB]">${m.course_code}</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${m.material_type === 'quiz' ? 'bg-amber-500/20 text-amber-500' : (m.material_type === 'assignment' ? 'bg-[#0D9488]/20 text-[#0D9488]' : 'bg-slate-500/20 text-slate-400')}">
-                      ${m.material_type}
-                    </span>
-                    <span class="text-xs text-slate-400">• Posted ${formatDate(m.created_at)}</span>
-                  </div>
-                  <h3 class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(m.title)}</h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Instructor: <strong class="text-slate-800 dark:text-slate-200">${escapeHtml(m.teacher_name || 'Faculty Member')}</strong> | Max Marks: <strong>${m.total_marks || 10}</strong></p>
-                </div>
-
-                <div class="text-right sm:text-right">
-                  ${m.due_date ? `
-                    <div class="px-3 py-1.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-bold">
-                      ⏰ Due: ${formatDate(m.due_date)}
-                    </div>
-                  ` : ''}
-                </div>
-              </div>
-
-              <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(m.description || '')}</div>
-
-              <!-- Attachments download -->
-              ${m.file_url ? `
-                <div class="pt-2">
-                  <a href="${m.file_url}" target="_blank" download class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                    <span>📥 Download Work Task: ${escapeHtml(m.file_name || 'Task Document')}</span>
-                  </a>
-                </div>
-              ` : ''}
-
-              <!-- Submission Status / Action for Students -->
-              ${S.currentUser.type === 'student' && isAssignment ? `
-                <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div>
-                    ${sub ? `
-                      <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${sub.status === 'graded' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}">
-                          ${sub.status === 'graded' ? `✓ Graded: ${sub.marks_obtained}/${m.total_marks}` : '✓ Submitted (Pending Evaluation)'}
-                        </span>
-                        <span class="text-xs text-slate-400">${formatDate(sub.submitted_at)}</span>
-                      </div>
-                      ${sub.teacher_feedback ? `
-                        <p class="text-xs text-slate-300 mt-1.5"><strong class="text-teal-400">Faculty Feedback:</strong> "${escapeHtml(sub.teacher_feedback)}"</p>
-                      ` : ''}
-                    ` : `
-                      <span class="text-xs font-semibold text-amber-500">Pending Submission</span>
-                    `}
-                  </div>
-
-                  <button onclick="window.Slate.openSubmitWorkModal(${m.id}, '${escapeHtml(m.title)}', '${escapeHtml(m.course_code)}')"
-                          class="px-4 py-2 ${sub ? 'bg-slate-700 hover:bg-slate-600' : 'bg-[#2563EB] hover:bg-blue-600'} text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
-                    <span>${sub ? '📤 Re-upload Solution File' : '📤 Upload Done Solution'}</span>
-                  </button>
-                </div>
-              ` : ''}
-
-              <!-- Teacher grading review -->
-              ${S.currentUser.type !== 'student' && isAssignment ? `
-                <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                  <span class="text-xs text-slate-400">Total Submissions Received</span>
-                  <a href="/teacher?tab=submissions&materialId=${m.id}" class="px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow transition">
-                    Evaluate &amp; Grade Submissions →
-                  </a>
-                </div>
-              ` : ''}
-
-            </div>
-          `;
-        });
-      }
-
-      html += `</div>`;
-      container.innerHTML = html;
-    } catch (err) {
-      console.error('[Slate] Error rendering materials:', err);
-    }
-  }
-
-  // 8. Meeting Requests Feed
-  async function renderMeetingsFeed() {
-    const container = document.getElementById('slate-stream-content');
-    if (!container) return;
-
-    container.innerHTML = '<div class="p-8 text-center text-xs text-slate-400"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-[#2563EB] mb-2"></div><br/>Loading meeting requests...</div>';
-
-    try {
-      const res = await slateFetch('/api/slate/meetings');
-      const data = await res.json();
-      if (!data.success) return;
-
-      S.meetings = data.meetings || [];
-
-      let html = `
-        <div class="max-w-4xl mx-auto space-y-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
-            <div>
-              <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <span>📅 Student–Faculty Consultation &amp; Meeting Requests</span>
-              </h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Book academic counseling or discuss coursework face-to-face or online.</p>
-            </div>
-            ${S.currentUser.type === 'student' ? `
-              <button onclick="window.Slate.openMeetingRequestModal()" class="px-4 py-2 bg-[#2563EB] hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition">
-                <span>+ Request Meeting</span>
-              </button>
-            ` : ''}
-          </div>
-      `;
-
-      if (S.meetings.length === 0) {
-        html += `<div class="p-12 text-center text-xs text-slate-400">No meeting requests found.</div>`;
-      } else {
-        S.meetings.forEach(m => {
-          const isPending = m.status === 'pending';
-          const isApproved = m.status === 'approved';
-          const isRejected = m.status === 'rejected';
-
-          html += `
-            <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      isApproved ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : (
-                        isRejected ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      )
-                    }">
-                      ${m.status}
-                    </span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#142B4A]/10 dark:bg-white/10 text-slate-800 dark:text-white uppercase">${m.meeting_mode.replace('_', ' ')}</span>
-                  </div>
-                  <h3 class="text-sm font-bold text-slate-900 dark:text-white mt-1">${escapeHtml(m.purpose)}</h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">
-                    ${S.currentUser.type === 'student' ? `With Instructor: <strong>${escapeHtml(m.teacher_name)}</strong>` : `Student: <strong>${escapeHtml(m.student_name)}</strong> (${escapeHtml(m.registration_no || '')})`}
-                  </p>
-                </div>
-
-                <div class="text-xs text-slate-400 font-mono">
-                  ⏰ Preferred: ${new Date(m.preferred_datetime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                </div>
-              </div>
-
-              ${m.teacher_notes ? `
-                <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300">
-                  <strong>Notes:</strong> ${escapeHtml(m.teacher_notes)}
-                </div>
-              ` : ''}
-
-              ${S.currentUser.type !== 'student' && isPending ? `
-                <div class="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-                  <button onclick="window.Slate.updateMeetingStatus(${m.id}, 'approved')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">
-                    ✓ Approve Meeting
-                  </button>
-                  <button onclick="window.Slate.updateMeetingStatus(${m.id}, 'rejected')" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-bold transition">
-                    ✕ Decline
-                  </button>
-                </div>
-              ` : ''}
-            </div>
-          `;
-        });
-      }
-
-      html += `</div>`;
-      container.innerHTML = html;
-    } catch (err) {
-      console.error('[Slate] Error rendering meetings:', err);
-    }
-  }
-
-  // 9. Notifications
-  async function loadNotifications() {
-    try {
-      const res = await slateFetch('/api/slate/notifications');
-      const data = await res.json();
-      if (!data.success) return;
-
-      S.notifications = data.notifications || [];
-      const unreadCount = S.notifications.filter(n => !n.is_read).length;
-
-      const badge = document.getElementById('slate-unread-badge');
-      if (badge) {
-        if (unreadCount > 0) {
-          badge.innerText = unreadCount;
-          badge.classList.remove('hidden');
+    topics.forEach(t => {
+      const content = t.querySelector('div, ul, p');
+      if (content && t.id !== 'btn-collapse-all') {
+        if (allTopicsCollapsed) {
+          t.style.opacity = '0.6';
         } else {
-          badge.classList.add('hidden');
+          t.style.opacity = '1';
         }
       }
-    } catch (e) {}
-  }
+    });
 
-  function renderNotificationsFeed() {
-    const container = document.getElementById('slate-stream-content');
-    if (!container) return;
-
-    let html = `
-      <div class="max-w-2xl mx-auto space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-800">
-          <h2 class="text-base font-bold text-slate-900 dark:text-white">🔔 Notification Center</h2>
-          <button onclick="window.Slate.markAllNotificationsRead()" class="text-xs text-[#2563EB] hover:underline font-semibold">Mark All Read</button>
-        </div>
-    `;
-
-    if (S.notifications.length === 0) {
-      html += `<div class="p-8 text-center text-xs text-slate-400">No notifications.</div>`;
-    } else {
-      S.notifications.forEach(n => {
-        html += `
-          <div class="p-4 rounded-xl ${n.is_read ? 'bg-slate-100 dark:bg-slate-900/50' : 'bg-blue-50/60 dark:bg-slate-800 border-l-4 border-[#2563EB]'} flex justify-between items-start gap-3">
-            <div>
-              <h4 class="text-xs font-bold text-slate-900 dark:text-white">${escapeHtml(n.title)}</h4>
-              <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">${escapeHtml(n.message)}</p>
-              <span class="text-[10px] text-slate-400 mt-1 block">${formatDate(n.created_at)} ${formatTime(n.created_at)}</span>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    html += `</div>`;
-    container.innerHTML = html;
-  }
-
-  window.Slate.markAllNotificationsRead = async function () {
-    await slateFetch('/api/slate/notifications/read', { method: 'POST' });
-    loadNotifications();
-    renderNotificationsFeed();
-  };
-
-  // 10. Student Submit Work Modal
-  window.Slate.openSubmitWorkModal = function (materialId, title, courseCode) {
-    const modal = document.getElementById('slate-submit-modal');
-    const titleEl = document.getElementById('submit-modal-title');
-    const inputId = document.getElementById('submit-material-id');
-
-    if (titleEl) titleEl.innerText = `Submit: ${title} (${courseCode})`;
-    if (inputId) inputId.value = materialId;
-    if (modal) modal.classList.remove('hidden');
-  };
-
-  window.Slate.closeSubmitModal = function () {
-    const modal = document.getElementById('slate-submit-modal');
-    if (modal) modal.classList.add('hidden');
-  };
-
-  window.Slate.handleAssignmentSubmit = async function (e) {
-    if (e) e.preventDefault();
-    const materialId = document.getElementById('submit-material-id')?.value;
-    const fileInput = document.getElementById('submit-file-input');
-    const comment = document.getElementById('submit-comment')?.value || '';
-
-    if (!fileInput || !fileInput.files[0]) {
-      showToast('Please select your completed solution file.', 'error');
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const btn = document.getElementById('submit-work-btn');
     if (btn) {
-      btn.disabled = true;
-      btn.innerText = 'Uploading work...';
-    }
-
-    try {
-      // 1. Upload file
-      const upRes = await fetch('/api/slate/upload', { method: 'POST', body: formData });
-      const upData = await upRes.json();
-      if (!upData.success) {
-        showToast(upData.error || 'Upload failed.', 'error');
-        if (btn) { btn.disabled = false; btn.innerText = 'Submit Solution'; }
-        return;
-      }
-
-      // 2. Submit assignment record
-      const subRes = await slateFetch('/api/slate/materials/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          material_id: materialId,
-          file_url: upData.file_url,
-          file_name: upData.file_name,
-          student_comment: comment
-        })
-      });
-      const subData = await subRes.json();
-      if (!subData.success) {
-        showToast(subData.error, 'error');
-        if (btn) { btn.disabled = false; btn.innerText = 'Submit Solution'; }
-        return;
-      }
-
-      showToast('Assignment uploaded successfully to teacher!', 'success');
-      window.Slate.closeSubmitModal();
-      renderMaterialsFeed();
-    } catch (err) {
-      showToast('Submission error: ' + err.message, 'error');
-    } finally {
-      if (btn) { btn.disabled = false; btn.innerText = 'Submit Solution'; }
+      btn.innerHTML = allTopicsCollapsed ? '<span>&or;</span><span>Expand all</span>' : '<span>&and;</span><span>Collapse all</span>';
     }
   };
 
-  // 11. Meeting Request Modal
-  window.Slate.openMeetingRequestModal = async function (teacherId = null) {
-    const modal = document.getElementById('slate-meeting-modal');
-    const select = document.getElementById('meeting-teacher-select');
-
-    if (select) {
-      select.innerHTML = '<option value="">Loading faculty roster...</option>';
-      try {
-        const res = await slateFetch('/api/slate/course-channels');
-        const data = await res.json();
-        const courses = data.courses || [];
-
-        let optHtml = '<option value="">Select Instructor / Faculty Member</option>';
-        const seen = new Set();
-        courses.forEach(c => {
-          if (c.teacher_id && !seen.has(c.teacher_id)) {
-            seen.add(c.teacher_id);
-            const isSelected = teacherId && teacherId == c.teacher_id;
-            optHtml += `<option value="${c.teacher_id}" data-course="${escapeHtml(c.course_code)}" ${isSelected ? 'selected' : ''}>${escapeHtml(c.teacher_name)} (${c.course_code})</option>`;
-          }
-        });
-        select.innerHTML = optHtml;
-      } catch (e) {}
-    }
-
-    if (modal) modal.classList.remove('hidden');
-  };
-
-  window.Slate.closeMeetingModal = function () {
-    const modal = document.getElementById('slate-meeting-modal');
-    if (modal) modal.classList.add('hidden');
-  };
-
-  window.Slate.handleSendMeetingRequest = async function (e) {
-    if (e) e.preventDefault();
-    const select = document.getElementById('meeting-teacher-select');
-    const teacherId = select?.value;
-    const courseCode = select?.options[select.selectedIndex]?.getAttribute('data-course') || '';
-    const purpose = document.getElementById('meeting-purpose-input')?.value;
-    const datetime = document.getElementById('meeting-datetime-input')?.value;
-    const mode = document.getElementById('meeting-mode-select')?.value;
-
-    if (!teacherId || !purpose || !datetime) {
-      showToast('Please fill all meeting details.', 'error');
-      return;
-    }
-
-    try {
-      const res = await slateFetch('/api/slate/meetings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          teacher_id: teacherId,
-          course_code: courseCode,
-          purpose,
-          preferred_datetime: datetime,
-          meeting_mode: mode
-        })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error, 'error');
-        return;
-      }
-
-      showToast('Meeting request submitted to faculty!', 'success');
-      window.Slate.closeMeetingModal();
-      if (S.activeTab === 'meetings') renderMeetingsFeed();
-    } catch (err) {
-      showToast('Error requesting meeting: ' + err.message, 'error');
-    }
-  };
-
-  // 12. Create Work Material Modal (Teacher)
-  window.Slate.openUploadMaterialModal = async function () {
-    const modal = document.getElementById('slate-upload-material-modal');
-    const select = document.getElementById('material-course-select');
-
-    if (select) {
-      select.innerHTML = '<option value="">Loading courses...</option>';
-      try {
-        const res = await slateFetch('/api/slate/course-channels');
-        const data = await res.json();
-        let optHtml = '<option value="">Select Target Course</option>';
-        (data.courses || []).forEach(c => {
-          optHtml += `<option value="${escapeHtml(c.course_code)}">${c.course_code} - ${escapeHtml(c.course_title)}</option>`;
-        });
-        select.innerHTML = optHtml;
-      } catch (e) {}
-    }
-
-    if (modal) modal.classList.remove('hidden');
-  };
-
-  window.Slate.closeUploadMaterialModal = function () {
-    const modal = document.getElementById('slate-upload-material-modal');
-    if (modal) modal.classList.add('hidden');
-  };
-
-  window.Slate.handleCreateMaterial = async function (e) {
-    if (e) e.preventDefault();
-    const courseCode = document.getElementById('material-course-select')?.value;
-    const title = document.getElementById('material-title-input')?.value;
-    const desc = document.getElementById('material-desc-input')?.value;
-    const type = document.getElementById('material-type-select')?.value;
-    const marks = document.getElementById('material-marks-input')?.value || 10;
-    const dueDate = document.getElementById('material-due-input')?.value;
-    const fileInput = document.getElementById('material-file-input');
-
-    if (!courseCode || !title) {
-      showToast('Please provide Course and Title.', 'error');
-      return;
-    }
-
-    let fileUrl = null;
-    let fileName = null;
-
-    if (fileInput && fileInput.files[0]) {
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
-      const upRes = await fetch('/api/slate/upload', { method: 'POST', body: formData });
-      const upData = await upRes.json();
-      if (upData.success) {
-        fileUrl = upData.file_url;
-        fileName = upData.file_name;
+  // Course card 3-dots menu
+  window.toggleCourseMenu = function (e, courseId) {
+    e.stopPropagation();
+    const action = confirm('Select an action:\n\nClick OK to Star this course, or Cancel to leave it unchanged.');
+    if (action) {
+      const c = S.courses.find(x => x.id === courseId);
+      if (c) {
+        c.starred = !c.starred;
+        window.showToast(c.starred ? 'Course starred!' : 'Course removed from starred.');
+        window.renderCourseCards();
       }
     }
+  };
 
-    try {
-      const res = await slateFetch('/api/slate/materials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          course_code: courseCode,
-          title,
-          description: desc,
-          material_type: type,
-          total_marks: marks,
-          due_date: dueDate || null,
-          file_url: fileUrl,
-          file_name: fileName
-        })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error, 'error');
-        return;
+  // Theme Toggle
+  window.toggleTheme = function () {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      localStorage.setItem('uol_theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('uol_theme', 'dark');
+    }
+  };
+
+  // User Profile Menu Dropdown
+  window.toggleUserMenu = function () {
+    const menu = document.getElementById('user-dropdown-menu');
+    if (menu) menu.classList.toggle('hidden');
+  };
+
+  window.toggleNotificationsDropdown = function () {
+    alert('28 Notifications:\n- Mid Term date sheet has been published.\n- Assignment 2 submitted by 18 students.\n- Library clearance notification for Batch 2022.\n- Registration portal open for Spring 2027.');
+  };
+
+  window.toggleMessagesDrawer = function () {
+    alert('Messages:\nYou have 3 unread messages from faculty advisor and department office.');
+  };
+
+  window.openFullCalendarModal = function () {
+    window.switchSlateTab('dashboard');
+    document.querySelector('#slate-view-dashboard')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.openImportExportModal = function () {
+    alert('iCalendar (.ics) Export:\nAcademic semester timetable and examination calendar ready to sync with Google Calendar or Apple iCal.');
+  };
+
+  // Initial Boot
+  document.addEventListener('DOMContentLoaded', () => {
+    // Restore Saved Theme
+    const savedTheme = localStorage.getItem('uol_theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Close user menu on outside click
+    document.addEventListener('click', (e) => {
+      const userMenu = document.getElementById('user-dropdown-menu');
+      if (userMenu && !userMenu.contains(e.target) && !e.target.closest('button[onclick="window.toggleUserMenu()"]')) {
+        userMenu.classList.add('hidden');
       }
+    });
 
-      showToast('Work material published successfully on Slate!', 'success');
-      window.Slate.closeUploadMaterialModal();
-      renderMaterialsFeed();
-    } catch (err) {
-      showToast('Error publishing material: ' + err.message, 'error');
-    }
-  };
+    // Populate Course Count in Dashboard
+    const countEl = document.getElementById('dash-courses-count');
+    if (countEl) countEl.textContent = S.courses.length;
 
-  // 13. Create Announcement Modal
-  window.Slate.openCreateAnnouncementModal = async function () {
-    const modal = document.getElementById('slate-announcement-modal');
-    const select = document.getElementById('announcement-course-select');
-
-    if (select) {
-      try {
-        const res = await slateFetch('/api/slate/course-channels');
-        const data = await res.json();
-        let optHtml = '<option value="">All My Classes (Broadcast)</option>';
-        (data.courses || []).forEach(c => {
-          optHtml += `<option value="${escapeHtml(c.course_code)}">${c.course_code} - ${escapeHtml(c.course_title)}</option>`;
-        });
-        select.innerHTML = optHtml;
-      } catch (e) {}
-    }
-
-    if (modal) modal.classList.remove('hidden');
-  };
-
-  window.Slate.closeAnnouncementModal = function () {
-    const modal = document.getElementById('slate-announcement-modal');
-    if (modal) modal.classList.add('hidden');
-  };
-
-  window.Slate.handleCreateAnnouncement = async function (e) {
-    if (e) e.preventDefault();
-    const courseCode = document.getElementById('announcement-course-select')?.value;
-    const title = document.getElementById('announcement-title-input')?.value;
-    const content = document.getElementById('announcement-content-input')?.value;
-    const isPinned = document.getElementById('announcement-pinned-check')?.checked;
-
-    if (!title || !content) {
-      showToast('Please enter Title and Announcement content.', 'error');
-      return;
-    }
-
-    try {
-      const res = await slateFetch('/api/slate/announcements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          course_code: courseCode || null,
-          title,
-          content,
-          is_pinned: isPinned
-        })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error, 'error');
-        return;
-      }
-
-      showToast('Announcement broadcasted to students!', 'success');
-      window.Slate.closeAnnouncementModal();
-      renderAnnouncementsFeed();
-    } catch (err) {
-      showToast('Error: ' + err.message, 'error');
-    }
-  };
-
-  // 14. Report Inappropriate Message Modal
-  window.Slate.reportMessageModal = async function (msgId) {
-    const reason = prompt('Please specify the reason for reporting this message to University Administration:');
-    if (!reason) return;
-
-    try {
-      const res = await slateFetch(`/api/slate/messages/${msgId}/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast('Message report submitted to Administration.', 'success');
-      } else {
-        showToast(data.error, 'error');
-      }
-    } catch (err) {
-      showToast('Report failed: ' + err.message, 'error');
-    }
-  };
-
-  // Auto-init when DOM ready
-  document.addEventListener('DOMContentLoaded', initSlate);
+    // Render Initial View (My Courses)
+    window.switchSlateTab('courses');
+  });
 
 })();
