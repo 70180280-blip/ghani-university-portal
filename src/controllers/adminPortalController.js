@@ -1,4 +1,4 @@
-ya ko/**
+/**
  * Admin Portal Controller
  * 
  * Implements:

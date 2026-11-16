@@ -269,7 +269,8 @@ window.retryDbConnection = async function() {
     if (data.success && data.isMySQL) {
       console.log('MySQL connection verified successfully.');
     } else {
-      alert(`Database Notice: ${data.error || 'Connection check failed'}\n\nPlease verify MySQL connection credentials.`);
+      const noticeMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : (data.error || 'Connection check failed');
+      alert(`Database Notice: ${noticeMsg}\n\nPlease verify MySQL connection credentials.`);
     }
   } catch (err) {
     await window.loadDbStatus();
@@ -1322,7 +1323,8 @@ function setupAdminEventListeners() {
           if (window.loadAdminDashboardStats) window.loadAdminDashboardStats();
         } else {
           if (errBox) {
-            errBox.innerText = data.error || 'Authentication failed.';
+            const msg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : (data.error || 'Authentication failed.');
+            errBox.innerText = msg;
             errBox.classList.remove('hidden');
           }
         }
