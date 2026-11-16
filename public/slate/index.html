@@ -23,7 +23,7 @@
             sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif']
           },
           colors: {
-            uol: {
+            gtiu: {
               primary: '#e0533c',
               hover: '#c9432d',
               light: '#fff1ee',
@@ -40,7 +40,7 @@
 <body class="bg-[#f8fafc] dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 flex flex-col min-h-screen font-sans transition-colors duration-200">
 
   <!-- ======================================================================= -->
-  <!-- TOP SLATE NAVBAR (UOL MOODLE LMS HEADER)                                -->
+  <!-- TOP SLATE NAVBAR (GHANI UNIVERSITY SLATE LMS HEADER)                                -->
   <!-- ======================================================================= -->
   <header class="h-16 bg-white dark:bg-[#131c31] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40 shadow-sm">
     
@@ -60,11 +60,11 @@
       <!-- Primary Navigation Links (Dashboard | My courses) -->
       <nav class="flex items-center gap-2 sm:gap-6 h-16 pt-0.5">
         <button onclick="window.switchSlateTab('dashboard')" id="nav-btn-dashboard"
-                class="uol-nav-link text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2 py-5 flex items-center gap-1.5">
+                class="slate-nav-link text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2 py-5 flex items-center gap-1.5">
           <span>Dashboard</span>
         </button>
         <button onclick="window.switchSlateTab('courses')" id="nav-btn-courses"
-                class="uol-nav-link active text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2 py-5 flex items-center gap-1.5">
+                class="slate-nav-link active text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2 py-5 flex items-center gap-1.5">
           <span>My courses</span>
         </button>
       </nav>
@@ -142,12 +142,12 @@
 
         <!-- Filter Sub-Tabs / Pills (All, In progress, Future, Past, Starred, Removed from view) -->
         <div class="border-b border-slate-200 dark:border-slate-800 flex items-center gap-6 overflow-x-auto slate-scroll text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
-          <button onclick="window.filterCourses('all')" data-filter="all" class="uol-filter-pill active pb-2.5 whitespace-nowrap">All</button>
-          <button onclick="window.filterCourses('inprogress')" data-filter="inprogress" class="uol-filter-pill pb-2.5 whitespace-nowrap">In progress</button>
-          <button onclick="window.filterCourses('future')" data-filter="future" class="uol-filter-pill pb-2.5 whitespace-nowrap">Future</button>
-          <button onclick="window.filterCourses('past')" data-filter="past" class="uol-filter-pill pb-2.5 whitespace-nowrap">Past</button>
-          <button onclick="window.filterCourses('starred')" data-filter="starred" class="uol-filter-pill pb-2.5 whitespace-nowrap">Starred</button>
-          <button onclick="window.filterCourses('removed')" data-filter="removed" class="uol-filter-pill pb-2.5 whitespace-nowrap">Removed from view</button>
+          <button onclick="window.filterCourses('all')" data-filter="all" class="slate-filter-pill active pb-2.5 whitespace-nowrap">All</button>
+          <button onclick="window.filterCourses('inprogress')" data-filter="inprogress" class="slate-filter-pill pb-2.5 whitespace-nowrap">In progress</button>
+          <button onclick="window.filterCourses('future')" data-filter="future" class="slate-filter-pill pb-2.5 whitespace-nowrap">Future</button>
+          <button onclick="window.filterCourses('past')" data-filter="past" class="slate-filter-pill pb-2.5 whitespace-nowrap">Past</button>
+          <button onclick="window.filterCourses('starred')" data-filter="starred" class="slate-filter-pill pb-2.5 whitespace-nowrap">Starred</button>
+          <button onclick="window.filterCourses('removed')" data-filter="removed" class="slate-filter-pill pb-2.5 whitespace-nowrap">Removed from view</button>
         </div>
 
         <!-- Controls Toolbar: Sort Dropdown + Search + View Modes -->
@@ -370,10 +370,10 @@
 
         <!-- Horizontal Sub-Tabs: Course | Participants | Grades | Competencies -->
         <div class="flex items-center gap-6 pt-3 text-xs sm:text-sm font-medium">
-          <button onclick="window.switchCourseSubTab('course')" id="subtab-course" class="uol-nav-link active pb-2">Course</button>
-          <button onclick="window.switchCourseSubTab('participants')" id="subtab-participants" class="uol-nav-link text-slate-500 dark:text-slate-400 pb-2">Participants</button>
-          <button onclick="window.switchCourseSubTab('grades')" id="subtab-grades" class="uol-nav-link text-slate-500 dark:text-slate-400 pb-2">Grades</button>
-          <button onclick="window.switchCourseSubTab('competencies')" id="subtab-competencies" class="uol-nav-link text-slate-500 dark:text-slate-400 pb-2">Competencies</button>
+          <button onclick="window.switchCourseSubTab('course')" id="subtab-course" class="slate-nav-link active pb-2">Course</button>
+          <button onclick="window.switchCourseSubTab('participants')" id="subtab-participants" class="slate-nav-link text-slate-500 dark:text-slate-400 pb-2">Participants</button>
+          <button onclick="window.switchCourseSubTab('grades')" id="subtab-grades" class="slate-nav-link text-slate-500 dark:text-slate-400 pb-2">Grades</button>
+          <button onclick="window.switchCourseSubTab('competencies')" id="subtab-competencies" class="slate-nav-link text-slate-500 dark:text-slate-400 pb-2">Competencies</button>
         </div>
       </div>
 

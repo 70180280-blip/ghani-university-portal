@@ -1,6 +1,6 @@
 /**
- * Ghani University / UOL Slate LMS Frontend Engine
- * Faithful recreation of The University of Lahore Moodle LMS
+ * Ghani University Slate LMS Frontend Engine
+ * Official Ghani University Slate Learning Management System
  * Features: Dashboard, My courses, Course Details, Calendar, Timeline, & Grading
  */
 
@@ -247,7 +247,7 @@
   // Filter Courses by sub-pill
   window.filterCourses = function (filter) {
     S.currentFilter = filter;
-    document.querySelectorAll('.uol-filter-pill').forEach(pill => {
+    document.querySelectorAll('.slate-filter-pill').forEach(pill => {
       if (pill.getAttribute('data-filter') === filter) {
         pill.classList.add('active');
       } else {
@@ -584,9 +584,9 @@
       const view = document.getElementById(`course-subview-${st === 'course' ? 'content' : st}`);
       if (btn) {
         if (st === subtab) {
-          btn.className = 'uol-nav-link active pb-2 font-bold text-[#e0533c]';
+          btn.className = 'slate-nav-link active pb-2 font-bold text-[#e0533c]';
         } else {
-          btn.className = 'uol-nav-link text-slate-500 dark:text-slate-400 pb-2';
+          btn.className = 'slate-nav-link text-slate-500 dark:text-slate-400 pb-2';
         }
       }
       if (view) {
@@ -818,7 +818,7 @@
       type: 'user',
       badgeClass: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300',
       course: 'General Academic Event',
-      description: 'Custom student calendar event created in UOL Slate.'
+      description: 'Custom student calendar event created in Ghani University Slate.'
     };
 
     S.calendarEvents.push(newEvt);
@@ -900,11 +900,11 @@
     if (isDark) {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
-      localStorage.setItem('uol_theme', 'light');
+      localStorage.setItem('slate_theme', 'light');
     } else {
       document.documentElement.classList.remove('light');
       document.documentElement.classList.add('dark');
-      localStorage.setItem('uol_theme', 'dark');
+      localStorage.setItem('slate_theme', 'dark');
     }
   };
 
@@ -977,7 +977,7 @@
   // Initial Boot
   document.addEventListener('DOMContentLoaded', () => {
     // Restore Saved Theme
-    const savedTheme = localStorage.getItem('uol_theme');
+    const savedTheme = localStorage.getItem('slate_theme');
     if (savedTheme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');

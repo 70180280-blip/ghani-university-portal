@@ -1,25 +1,25 @@
 /**
- * Ghani University / UOL Style Slate LMS Stylesheet
+ * Ghani University Slate LMS Stylesheet
  * Primary Theme: Crisp Light & Dark Moodle-inspired LMS with Orange/Crimson Accent (#e0533c)
  */
 
 :root {
-  --uol-primary: #e0533c;
-  --uol-primary-hover: #c9432d;
-  --uol-primary-soft: rgba(224, 83, 60, 0.1);
-  --uol-bg: #f8fafc;
-  --uol-surface: #ffffff;
-  --uol-border: #e2e8f0;
-  --uol-text: #1e293b;
-  --uol-text-muted: #64748b;
+  --slate-primary: #e0533c;
+  --slate-primary-hover: #c9432d;
+  --slate-primary-soft: rgba(224, 83, 60, 0.1);
+  --slate-bg: #f8fafc;
+  --slate-surface: #ffffff;
+  --slate-border: #e2e8f0;
+  --slate-text: #1e293b;
+  --slate-text-muted: #64748b;
 }
 
 .dark {
-  --uol-bg: #0b1120;
-  --uol-surface: #131c31;
-  --uol-border: #1e293b;
-  --uol-text: #f8fafc;
-  --uol-text-muted: #94a3b8;
+  --slate-bg: #0b1120;
+  --slate-surface: #131c31;
+  --slate-border: #1e293b;
+  --slate-text: #f8fafc;
+  --slate-text-muted: #94a3b8;
 }
 
 /* Custom Scrollbars */
@@ -39,45 +39,45 @@
 }
 
 /* Navigation active bar */
-.uol-nav-link {
+.slate-nav-link {
   position: relative;
   transition: all 0.2s ease;
 }
-.uol-nav-link.active {
-  color: var(--uol-primary);
+.slate-nav-link.active {
+  color: var(--slate-primary);
   font-weight: 700;
 }
-.uol-nav-link.active::after {
+.slate-nav-link.active::after {
   content: '';
   position: absolute;
   bottom: -1px;
   left: 0;
   right: 0;
   height: 3px;
-  background-color: var(--uol-primary);
+  background-color: var(--slate-primary);
   border-radius: 3px 3px 0 0;
 }
 
 /* Filter pills active state */
-.uol-filter-pill {
+.slate-filter-pill {
   position: relative;
   transition: all 0.2s ease;
 }
-.uol-filter-pill.active {
-  color: var(--uol-primary);
+.slate-filter-pill.active {
+  color: var(--slate-primary);
   font-weight: 700;
 }
-.uol-filter-pill.active::after {
+.slate-filter-pill.active::after {
   content: '';
   position: absolute;
   bottom: -2px;
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--uol-primary);
+  background-color: var(--slate-primary);
 }
 
-/* Course Card Covers - Geometric Patterns matching UOL Slate */
+/* Course Card Covers - Geometric Patterns for Ghani University Slate LMS */
 .card-cover-blue {
   background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
   background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.2) 0%, transparent 40%),
@@ -153,8 +153,8 @@
 /* Course Menu active item */
 .course-menu-item.active {
   background-color: #fff1ee;
-  color: var(--uol-primary);
-  border-left: 3px solid var(--uol-primary);
+  color: var(--slate-primary);
+  border-left: 3px solid var(--slate-primary);
   font-weight: 700;
 }
 .dark .course-menu-item.active {
