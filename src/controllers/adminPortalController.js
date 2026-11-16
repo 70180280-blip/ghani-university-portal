@@ -1,4 +1,4 @@
-/**
+ya ko/**
  * Admin Portal Controller
  * 
  * Implements:
@@ -269,9 +269,14 @@ async function confirmUpload(req, res) {
       return res.status(404).json({ success: false, error: 'Upload batch not found.' });
     }
 
+    let parsedExtracted = {};
+    try {
+      parsedExtracted = JSON.parse(uploads[0].extracted_json || '{}');
+    } catch (e) {}
+
     const type = String(detectedType || uploads[0].detected_type || 'marks').toLowerCase().trim();
-    const course = (courseCode || 'CS401').trim();
-    const semNum = Number(semesterNumber) || 4;
+    const semNum = Number(semesterNumber) || Number(parsedExtracted.semester_number) || Number(uploads[0].semester_number) || 1;
+    const course = (courseCode || parsedExtracted.course_code || (semNum === 1 ? 'CS101' : 'CS401')).trim();
 
     let savedCount = 0;
     const recordsList = Array.isArray(records) ? records : (records && Array.isArray(records.records) ? records.records : []);
@@ -408,6 +413,7 @@ async function confirmUpload(req, res) {
         const { grade, gradePoint } = getGradeAndPoints(percentage);
         const isPassed = gradePoint > 0 ? 1 : 0;
 
+        const recordSem = Number(r.semester_number || r.current_semester) || semNum;
         await db.query(`
           INSERT INTO results (
             student_id, course_code, semester_number,
@@ -420,15 +426,16 @@ async function confirmUpload(req, res) {
             mid_marks = VALUES(mid_marks),
             final_marks = VALUES(final_marks),
             total_obtained = VALUES(total_obtained),
+            total_max = VALUES(total_max),
             percentage = VALUES(percentage),
             grade = VALUES(grade),
             grade_point = VALUES(grade_point),
             is_passed = VALUES(is_passed),
             upload_id = VALUES(upload_id)
-        `.replace('ON DUPLICATE KEY UPDATE', '--'), [
+        `, [
           studentId,
           targetCourse,
-          semNum,
+          recordSem,
           Number(r.assignment_marks) || 0,
           Number(r.quiz_marks) || 0,
           Number(r.mid_marks) || 0,
