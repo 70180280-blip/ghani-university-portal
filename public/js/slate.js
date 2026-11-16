@@ -454,8 +454,8 @@
     }
   };
 
-  // View Specific Course Detail
-  window.viewCourseDetail = function (courseId) {
+  // View Specific Course Detail (Loads Live 8-Week Syllabus from Teacher Portal)
+  window.viewCourseDetail = async function (courseId) {
     S.selectedCourseId = courseId;
     const course = S.courses.find(c => c.id === courseId) || S.courses[9]; // Defaults to AI course
 
@@ -466,6 +466,153 @@
 
     window.switchSlateTab('course-detail');
     window.switchCourseSubTab('course');
+
+    // Fetch live 8 weeks from server
+    const menuEl = document.getElementById('course-sidebar-menu');
+    const containerEl = document.getElementById('course-weeks-container');
+    if (!containerEl) return;
+
+    try {
+      const res = await fetch(`/api/slate/course-weeks/${encodeURIComponent(courseId)}`);
+      const data = await res.json();
+      const weeks = (data.success && data.weeks) ? data.weeks : [];
+
+      if (weeks.length > 0) {
+        // Update Sidebar
+        if (menuEl) {
+          menuEl.innerHTML = `
+            <a href="#topic-announcements" class="course-menu-item active block py-2 px-2.5 rounded-lg transition text-slate-800 dark:text-slate-200">Announcements</a>
+            <a href="#topic-instructor" class="course-menu-item block py-2 px-2.5 rounded-lg transition text-slate-700 dark:text-slate-300">Instructor Details</a>
+            <a href="#topic-syllabus" class="course-menu-item block py-2 px-2.5 rounded-lg transition text-slate-700 dark:text-slate-300">Mid Term Syllabus</a>
+            ${weeks.map(w => `
+              <a href="#week-${w.week_number}" class="course-menu-item block py-2 px-2.5 rounded-lg transition text-slate-700 dark:text-slate-300 truncate" title="${escapeHtml(w.title)}">
+                Week 0${w.week_number}: ${escapeHtml(w.title.replace(/^Week\s*[0-9]+:?\s*/i, ''))}
+              </a>
+            `).join('')}
+          `;
+        }
+
+        // Update Main Weeks Container
+        containerEl.innerHTML = `
+          <!-- Item 1: Announcements -->
+          <div id="topic-announcements" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-start gap-4 transition hover:shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 flex items-center justify-center text-lg shrink-0">
+              💬
+            </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white hover:text-[#e0533c] cursor-pointer" onclick="window.openAnnouncementsModal()">Course Announcements</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Official course notifications, lecture room allocations, and weekly schedule adjustments.</p>
+            </div>
+          </div>
+
+          <!-- Item 2: Instructor Details -->
+          <div id="topic-instructor" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-start gap-4 transition hover:shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-300 flex items-center justify-center text-lg shrink-0">
+              📄
+            </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Instructor Details</h4>
+              <div class="text-xs text-slate-600 dark:text-slate-400 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <p><strong>Instructor:</strong> <span>${escapeHtml(course.instructor)}</span></p>
+                <p><strong>Department:</strong> ${escapeHtml(course.department)}</p>
+                <p><strong>Office Hours:</strong> Mon &amp; Wed (11:00 AM - 1:00 PM)</p>
+                <p><strong>Email:</strong> faculty@gu.edu.pk</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8 Weeks Interactive Course Plan Cards -->
+          ${weeks.map(w => `
+            <div id="week-${w.week_number}" class="p-5 rounded-2xl bg-white dark:bg-[#131c31] border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm hover:border-[#e0533c]/40 transition">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#e0533c] font-black text-xs flex items-center justify-center border border-orange-200 dark:border-orange-900/50">
+                    W0${w.week_number}
+                  </span>
+                  <div>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+                      ${escapeHtml(w.title)}
+                    </h3>
+                    <p class="text-[11px] text-slate-400">Weekly Module &bull; 8 Weeks Breakdown</p>
+                  </div>
+                </div>
+                ${w.updated_at ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300">Updated by Faculty</span>' : ''}
+              </div>
+
+              <!-- Learning Objectives / Description -->
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                ${escapeHtml(w.description || 'Core topics and lecture discussions for this week.')}
+              </p>
+
+              <!-- Lecture Slides Download -->
+              ${w.slides_title ? `
+                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">
+                      PPT
+                    </div>
+                    <div class="min-w-0">
+                      <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeHtml(w.slides_title)}</h4>
+                      <p class="text-[10px] text-slate-400">Official Lecture Handouts &bull; PDF</p>
+                    </div>
+                  </div>
+                  <button onclick="alert('Downloading ${escapeHtml(w.slides_title)}...')" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition shrink-0">
+                    Download
+                  </button>
+                </div>
+              ` : ''}
+
+              <!-- Weekly Assignment / Task -->
+              ${w.assignment_title ? `
+                <div class="p-4 rounded-xl bg-orange-50/40 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-[#e0533c]/15 text-[#e0533c] flex items-center justify-center text-sm shrink-0">
+                      📝
+                    </div>
+                    <div>
+                      <h4 class="text-xs font-bold text-[#e0533c]">${escapeHtml(w.assignment_title)}</h4>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <strong>Due:</strong> ${escapeHtml(w.assignment_due || 'End of Week')} &bull; <strong>Marks:</strong> ${w.assignment_marks || 10}
+                      </p>
+                    </div>
+                  </div>
+                  <button onclick="window.openSubmissionModal()" class="px-3.5 py-1.5 bg-[#e0533c] hover:bg-[#c9432d] text-white rounded-xl text-xs font-bold transition shadow-sm shrink-0">
+                    Add submission
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+
+          <!-- Mid Term Syllabus -->
+          <div id="topic-syllabus" class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base shrink-0">
+                📢
+              </div>
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Mid Term Examination Syllabus</h4>
+            </div>
+
+            <div class="pl-11 text-xs text-slate-700 dark:text-slate-300 space-y-2 leading-relaxed">
+              <div>
+                <h5 class="font-bold text-slate-900 dark:text-white">&bull; Weeks 1 to 4 Theoretical Concepts</h5>
+                <ul class="list-disc pl-5 text-slate-600 dark:text-slate-400 mt-1 space-y-0.5">
+                  <li>Definitions, core foundation, and architecture overview</li>
+                  <li>Problem formulations and state-space analysis</li>
+                  <li>Analytical evaluation and methodology</li>
+                </ul>
+              </div>
+              <div>
+                <h5 class="font-bold text-slate-900 dark:text-white">&bull; Exam Instructions &amp; Hall Allocation</h5>
+                <p class="text-slate-600 dark:text-slate-400 mt-1">Mid term exams will be conducted in the Examination Hall as indicated on each student's official Exam Hall Slip.</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    } catch (e) {
+      console.warn('Could not load course weeks:', e.message);
+    }
   };
 
   // Course Sub-tab Switching (Course, Participants, Grades, Competencies)

@@ -48,4 +48,8 @@ router.post('/submissions/:id/grade', teacherPortalController.gradeSubmission);
 router.get('/meetings', teacherPortalController.getMeetingRequests);
 router.patch('/meetings/:id', teacherPortalController.updateMeetingRequest);
 
+// 8-Week Course Plan & Syllabus for Slate LMS
+router.get('/courses/:code/weeks', teacherPortalController.getCourseWeeks);
+router.post('/courses/:code/weeks', teacherPortalController.saveCourseWeek);
+
 module.exports = router;

@@ -201,6 +201,10 @@
     }
     if (tabName === 'materials') loadTeacherMaterials();
     if (tabName === 'meetings') loadTeacherMeetings();
+    if (tabName === 'weeks') {
+      const select = document.getElementById('t-weeks-course-select');
+      if (select && select.value) window.Teacher.loadCourseWeeks(select.value);
+    }
   };
 
   // 1. Load Stats
@@ -1027,6 +1031,126 @@
       loadTeacherStats();
     } catch (err) {
       showTeacherToast('Failed to publish: ' + err.message, 'error');
+    }
+  };
+
+  // 9. Load and Manage 8-Week Course Plan for Slate LMS
+  window.Teacher.loadCourseWeeks = async function(courseCode) {
+    const container = document.getElementById('teacher-weeks-list-container');
+    if (!container) return;
+    if (!courseCode) {
+      container.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs">Please select a course to view and edit its 8-week plan.</div>';
+      return;
+    }
+
+    container.innerHTML = '<div class="p-8 text-center text-slate-400 text-xs"><div class="animate-spin h-5 w-5 border-2 border-teal-400 border-t-transparent rounded-full mx-auto mb-2"></div>Loading 8-week syllabus plan from MySQL...</div>';
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${encodeURIComponent(courseCode)}/weeks`);
+      const data = await res.json();
+      if (!data.success) {
+        container.innerHTML = `<div class="p-4 text-center text-red-400 text-xs">Failed: ${data.error}</div>`;
+        return;
+      }
+
+      const weeks = data.weeks || [];
+      container.innerHTML = weeks.map(w => `
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-sm hover:border-teal-500/40 transition">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800/80 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 font-black text-xs flex items-center justify-center border border-teal-500/30">
+                W${w.week_number}
+              </span>
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Week 0${w.week_number} Plan</span>
+                  ${w.updated_at ? '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">✓ Saved on Slate</span>' : '<span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Default Draft</span>'}
+                </h4>
+                <p class="text-[11px] text-slate-400">Synchronized live with Student Slate LMS</p>
+              </div>
+            </div>
+            <button onclick="window.Teacher.saveWeekPlan('${escapeHtml(courseCode)}', ${w.week_number})" class="px-4 py-1.5 bg-gradient-to-r from-[#2563EB] to-[#0D9488] hover:opacity-90 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition">
+              <span>💾</span>
+              <span>Save to Slate LMS</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="space-y-1.5">
+              <label class="block font-bold text-slate-300">Week Topic / Title *</label>
+              <input type="text" id="week-${w.week_number}-title" value="${escapeHtml(w.title || '')}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:border-teal-400 focus:outline-none" placeholder="e.g. Introduction & Foundations" />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block font-bold text-slate-300">Lecture Slides Title</label>
+              <input type="text" id="week-${w.week_number}-slides" value="${escapeHtml(w.slides_title || '')}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:border-teal-400 focus:outline-none" placeholder="e.g. Module 01 - Lecture Slides" />
+            </div>
+
+            <div class="space-y-1.5 md:col-span-2">
+              <label class="block font-bold text-slate-300">Learning Objectives &amp; Lecture Summary</label>
+              <textarea id="week-${w.week_number}-desc" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:border-teal-400 focus:outline-none" placeholder="Outline what will be taught this week...">${escapeHtml(w.description || '')}</textarea>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block font-bold text-slate-300">Assignment / Homework Task</label>
+              <input type="text" id="week-${w.week_number}-assign" value="${escapeHtml(w.assignment_title || '')}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:border-teal-400 focus:outline-none" placeholder="e.g. Weekly Quiz 01 or Lab Task 01" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1.5">
+                <label class="block font-bold text-slate-300">Due Date</label>
+                <input type="text" id="week-${w.week_number}-due" value="${escapeHtml(w.assignment_due || '')}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:border-teal-400 focus:outline-none" placeholder="e.g. Week 1 Sunday, 11:59 PM" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="block font-bold text-slate-300">Max Marks</label>
+                <input type="number" id="week-${w.week_number}-marks" value="${w.assignment_marks || 10}" min="1" max="100" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:border-teal-400 focus:outline-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+    } catch (err) {
+      container.innerHTML = `<div class="p-4 text-center text-red-400 text-xs">Error: ${err.message}</div>`;
+    }
+  };
+
+  window.Teacher.saveWeekPlan = async function(courseCode, weekNum) {
+    const title = document.getElementById(`week-${weekNum}-title`)?.value.trim();
+    const desc = document.getElementById(`week-${weekNum}-desc`)?.value.trim();
+    const slides = document.getElementById(`week-${weekNum}-slides`)?.value.trim();
+    const assign = document.getElementById(`week-${weekNum}-assign`)?.value.trim();
+    const due = document.getElementById(`week-${weekNum}-due`)?.value.trim();
+    const marks = document.getElementById(`week-${weekNum}-marks`)?.value;
+
+    if (!title) {
+      alert(`Please provide a title for Week 0${weekNum}.`);
+      return;
+    }
+
+    try {
+      const res = await teacherFetch(`/api/teacher/courses/${encodeURIComponent(courseCode)}/weeks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          week_number: weekNum,
+          title,
+          description: desc,
+          slides_title: slides,
+          assignment_title: assign,
+          assignment_due: due,
+          assignment_marks: marks
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showTeacherToast(`Week 0${weekNum} plan saved and published to Slate LMS!`);
+        window.Teacher.loadCourseWeeks(courseCode);
+      } else {
+        alert(`Save error: ${data.error}`);
+      }
+    } catch (e) {
+      alert(`Network error: ${e.message}`);
     }
   };
 

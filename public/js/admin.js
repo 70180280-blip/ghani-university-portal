@@ -602,6 +602,49 @@ window.updatePreviewRow = function(idx, field, value) {
   }
 };
 
+window.editPreviewRecord = function(idx) {
+  const r = currentPreviewRecords[idx];
+  if (!r) return;
+
+  if (currentPreviewType === 'exam_slips') {
+    const newName = prompt('Edit Student Name:', r.student_name);
+    if (newName !== null) r.student_name = newName.trim();
+    const newFather = prompt('Edit Father Name:', r.father_name);
+    if (newFather !== null) r.father_name = newFather.trim();
+    const newRoll = prompt('Edit Roll / Reg Number:', r.roll_number || r.registration_no);
+    if (newRoll !== null) {
+      r.roll_number = newRoll.trim();
+      r.registration_no = newRoll.trim();
+    }
+    const newVenue = prompt('Edit Examination Venue:', r.exam_venue || 'Sheikhupura Campus - Examination Hall');
+    if (newVenue !== null) r.exam_venue = newVenue.trim();
+  } else if (r.courses && r.courses.length > 0) {
+    const newName = prompt('Edit Student Name:', r.student_name);
+    if (newName !== null) r.student_name = newName.trim();
+    const newFather = prompt('Edit Father Name:', r.father_name);
+    if (newFather !== null) r.father_name = newFather.trim();
+    const newReg = prompt('Edit Registration Number:', r.registration_no);
+    if (newReg !== null) r.registration_no = newReg.trim();
+    const newGpa = prompt('Edit Semester SGPA:', r.gpa !== null ? r.gpa : '2.67');
+    if (newGpa !== null && !isNaN(Number(newGpa))) r.gpa = Number(newGpa);
+  } else {
+    const newName = prompt('Edit Student Name:', r.student_name);
+    if (newName !== null) r.student_name = newName.trim();
+    const newFather = prompt('Edit Father Name:', r.father_name);
+    if (newFather !== null) r.father_name = newFather.trim();
+    const newMarks = prompt('Edit Total Obtained Marks:', r.total_obtained || 0);
+    if (newMarks !== null && !isNaN(Number(newMarks))) r.total_obtained = Number(newMarks);
+  }
+
+  // Re-render preview table with updated values
+  renderPreview({
+    detectedType: currentPreviewType,
+    summary: document.getElementById('preview-summary-text')?.innerText || '',
+    records: currentPreviewRecords
+  });
+  window.showAdminToast('Record updated in preview! Click "Confirm & Commit to Database" to save to MySQL.');
+};
+
 window.loadAtRiskReport = async function() {
   const container = document.getElementById('atrisk-report-container');
   if (!container) return;
@@ -1231,6 +1274,56 @@ function renderPreviewTable(data) {
         </tr>
       `;
     });
+  } else if (data.detectedType === 'exam_slips' || (data.records && data.records.length > 0 && Array.isArray(data.records[0].schedule))) {
+    // Exam Hall Slips Table
+    html = `
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-900 text-slate-400 font-bold border-b border-slate-700">
+          <tr>
+            <th class="py-2.5 px-3">Roll / Reg No</th>
+            <th class="py-2.5 px-3">Student Name</th>
+            <th class="py-2.5 px-3">Father Name</th>
+            <th class="py-2.5 px-2 text-center">Sem</th>
+            <th class="py-2.5 px-3">Examination Venue</th>
+            <th class="py-2.5 px-3">Scheduled Papers</th>
+            <th class="py-2.5 px-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-700/60">
+    `;
+
+    data.records.forEach((r, idx) => {
+      const scheduleCount = (r.schedule || []).length;
+      html += `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2.5 px-3 font-semibold text-sky-400 font-mono">
+            <input type="text" value="${escapeHtml(r.roll_number || r.registration_no || '')}" onchange="window.updatePreviewRow(${idx}, 'roll_number', this.value); window.updatePreviewRow(${idx}, 'registration_no', this.value)" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs text-sky-300 font-semibold w-28" />
+          </td>
+          <td class="py-2.5 px-3 font-medium text-white">
+            <input type="text" value="${escapeHtml(r.student_name || '')}" onchange="window.updatePreviewRow(${idx}, 'student_name', this.value)" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs text-slate-200 w-32" />
+          </td>
+          <td class="py-2.5 px-3 text-slate-300">
+            <input type="text" value="${escapeHtml(r.father_name || '')}" onchange="window.updatePreviewRow(${idx}, 'father_name', this.value)" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs text-slate-200 w-32" />
+          </td>
+          <td class="py-2.5 px-2 text-center font-bold text-amber-300">
+            ${r.semester_number || 8}
+          </td>
+          <td class="py-2.5 px-3 text-slate-300">
+            <input type="text" value="${escapeHtml(r.exam_venue || 'Sheikhupura Campus - Examination Hall')}" onchange="window.updatePreviewRow(${idx}, 'exam_venue', this.value)" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs text-slate-200 w-52" />
+          </td>
+          <td class="py-2.5 px-3 text-xs">
+            <span class="px-2.5 py-1 rounded bg-teal-950/80 text-teal-300 border border-teal-500/40 font-semibold">
+              📅 ${scheduleCount} Papers Date Sheet
+            </span>
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            <button type="button" onclick="window.editPreviewRecord(${idx})" class="px-2.5 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold shadow">
+              ✏️ Edit
+            </button>
+          </td>
+        </tr>
+      `;
+    });
   } else if (data.records && data.records.length > 0 && Array.isArray(data.records[0].courses) && data.records[0].courses.length > 0) {
     // Multi-Course Semester Results Table
     html = `
@@ -1244,6 +1337,7 @@ function renderPreviewTable(data) {
             <th class="py-2.5 px-3">Enrolled Courses &amp; Grades</th>
             <th class="py-2.5 px-2 text-center">SGPA</th>
             <th class="py-2.5 px-3">Validation</th>
+            <th class="py-2.5 px-3 text-center">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-700/60">
@@ -1285,6 +1379,11 @@ function renderPreviewTable(data) {
               <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
               <span>${(r.courses || []).length} Subjects Ready</span>
             </span>
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            <button type="button" onclick="window.editPreviewRecord(${idx})" class="px-2.5 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold shadow">
+              ✏️ Edit
+            </button>
           </td>
         </tr>
       `;

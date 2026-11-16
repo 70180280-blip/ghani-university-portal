@@ -646,6 +646,137 @@ async function updateMeetingRequest(req, res) {
   }
 }
 
+/**
+ * 13. Get 8-Week Course Plan & Syllabus for Slate LMS
+ */
+async function getCourseWeeks(req, res) {
+  try {
+    const { code } = req.params;
+    const cleanCode = (code || '').trim().toUpperCase();
+
+    // Query existing saved weeks from database
+    const [rows] = await db.query(
+      `SELECT * FROM course_weeks WHERE UPPER(course_code) = ? ORDER BY week_number ASC`,
+      [cleanCode]
+    );
+
+    const weekMap = new Map();
+    rows.forEach(r => weekMap.set(Number(r.week_number), r));
+
+    // Default 8-week syllabus generator based on course title or general outline
+    const defaultTopics = [
+      { week: 1, title: 'Introduction & Foundations', desc: 'Course overview, core principles, syllabus review, and initial setup.', slides: 'Module 01 - Lecture Slides', assign: 'Weekly Quiz 01 & Verification' },
+      { week: 2, title: 'Fundamental Concepts & Problem Formulation', desc: 'State-space representation, basic operations, and mathematical modeling.', slides: 'Module 02 - Lecture Slides', assign: 'Assignment 01 - Problem Formulation' },
+      { week: 3, title: 'Analytical Methods & Algorithmic Design', desc: 'Step-by-step algorithms, complexity analysis, and simulation.', slides: 'Module 03 - Lecture Slides', assign: 'Lab Task 02 - Implementation' },
+      { week: 4, title: 'Intermediate Applications & Practice', desc: 'Practical implementations, standard libraries, and case studies.', slides: 'Module 04 - Lecture Slides', assign: 'Assignment 02 - Practical Application' },
+      { week: 5, title: 'Mid-Term Review & Comprehensive Assessment', desc: 'Revision of Weeks 1 to 4 topics, past paper discussion, and Mid Term Exam.', slides: 'Mid-Term Revision Slides', assign: 'Mid-Term Examination & Assessment' },
+      { week: 6, title: 'Advanced Topics & Modern Methodologies', desc: 'Advanced paradigms, specialized toolchains, and efficiency optimizations.', slides: 'Module 06 - Lecture Slides', assign: 'Weekly Quiz 02 - Advanced Concepts' },
+      { week: 7, title: 'Project Development & Group Tasks', desc: 'Hands-on practical development, debugging, and intermediate checkpoints.', slides: 'Module 07 - Development Slides', assign: 'Term Project Progress Report' },
+      { week: 8, title: 'Final Project Submission & Course Wrap-up', desc: 'Final review, project presentations, examination preparation, and course wrap-up.', slides: 'Module 08 - Final Review Slides', assign: 'Final Course Project & Term Paper' }
+    ];
+
+    const weeks = [];
+    for (let w = 1; w <= 8; w++) {
+      if (weekMap.has(w)) {
+        const saved = weekMap.get(w);
+        weeks.push({
+          week_number: w,
+          title: saved.title,
+          description: saved.description,
+          slides_title: saved.slides_title,
+          slides_url: saved.slides_url,
+          assignment_title: saved.assignment_title,
+          assignment_due: saved.assignment_due,
+          assignment_marks: saved.assignment_marks || 10,
+          updated_at: saved.updated_at
+        });
+      } else {
+        const def = defaultTopics[w - 1];
+        weeks.push({
+          week_number: w,
+          title: `Week 0${w}: ${def.title}`,
+          description: def.desc,
+          slides_title: def.slides,
+          slides_url: `/materials/${cleanCode}_Week_${w}.pdf`,
+          assignment_title: def.assign,
+          assignment_due: `Week ${w} Sunday, 11:59 PM`,
+          assignment_marks: 10,
+          updated_at: null
+        });
+      }
+    }
+
+    return res.json({ success: true, course_code: cleanCode, weeks });
+  } catch (err) {
+    console.error('[Teacher Portal] Error getting course weeks:', err);
+    return res.status(500).json({ success: false, error: 'Failed to retrieve course weeks.' });
+  }
+}
+
+/**
+ * 14. Save / Update Course Week for Slate LMS
+ */
+async function saveCourseWeek(req, res) {
+  try {
+    const { code } = req.params;
+    const cleanCode = (code || '').trim().toUpperCase();
+    const {
+      week_number,
+      title,
+      description,
+      slides_title,
+      slides_url,
+      assignment_title,
+      assignment_due,
+      assignment_marks
+    } = req.body;
+
+    const weekNum = parseInt(week_number, 10);
+    if (!weekNum || weekNum < 1 || weekNum > 8) {
+      return res.status(400).json({ success: false, error: 'Valid week number (1-8) is required.' });
+    }
+    if (!title) {
+      return res.status(400).json({ success: false, error: 'Week title is required.' });
+    }
+
+    const teacherId = getActiveTeacherId(req);
+
+    await db.query(`
+      INSERT INTO course_weeks
+        (course_code, week_number, title, description, slides_title, slides_url, assignment_title, assignment_due, assignment_marks, teacher_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        title = VALUES(title),
+        description = VALUES(description),
+        slides_title = VALUES(slides_title),
+        slides_url = VALUES(slides_url),
+        assignment_title = VALUES(assignment_title),
+        assignment_due = VALUES(assignment_due),
+        assignment_marks = VALUES(assignment_marks),
+        teacher_id = VALUES(teacher_id)
+    `, [
+      cleanCode,
+      weekNum,
+      title.trim(),
+      (description || '').trim(),
+      (slides_title || '').trim(),
+      slides_url || null,
+      (assignment_title || '').trim(),
+      (assignment_due || '').trim(),
+      parseInt(assignment_marks, 10) || 10,
+      teacherId || null
+    ]);
+
+    return res.json({
+      success: true,
+      message: `Week ${weekNum} plan updated successfully and published to Slate LMS!`
+    });
+  } catch (err) {
+    console.error('[Teacher Portal] Error saving course week:', err);
+    return res.status(500).json({ success: false, error: 'Failed to save course week plan.' });
+  }
+}
+
 module.exports = {
   getCourses,
   getCourseStudents,
@@ -659,5 +790,7 @@ module.exports = {
   getSubmissions,
   gradeSubmission,
   getMeetingRequests,
-  updateMeetingRequest
+  updateMeetingRequest,
+  getCourseWeeks,
+  saveCourseWeek
 };

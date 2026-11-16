@@ -9,6 +9,7 @@ const path = require('path');
 const fs = require('fs');
 
 const slateController = require('../controllers/slateController');
+const teacherPortalController = require('../controllers/teacherPortalController');
 const { requireSlateAuth } = require('../middleware/auth');
 
 // Configure Multer for Slate attachments (images, PDFs, documents, zips)
@@ -37,6 +38,9 @@ const upload = multer({
   storage,
   limits: { fileSize: 30 * 1024 * 1024 } // 30 MB
 });
+
+// Public Course Weeks endpoint for Slate LMS
+router.get('/course-weeks/:code', teacherPortalController.getCourseWeeks);
 
 // Protect all slate routes
 router.use(requireSlateAuth);

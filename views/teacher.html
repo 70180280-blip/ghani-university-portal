@@ -154,6 +154,10 @@
           <span>🤝</span>
           <span>Student Consultations</span>
         </button>
+        <button onclick="window.switchTeacherTab('weeks')" data-tab="weeks" class="teacher-tab-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-2">
+          <span>🗓️</span>
+          <span>8-Week Plan (Slate LMS)</span>
+        </button>
         <a href="/slate?tab=channels" class="px-4 py-2 rounded-xl text-xs font-semibold text-teal-400 hover:text-teal-300 transition flex items-center gap-2">
           <span>👥</span>
           <span>Class Discussions</span>
@@ -388,6 +392,41 @@
 
         <div id="teacher-meetings-container" class="min-h-[200px]">
           <!-- Loaded dynamically via window.Teacher.loadTeacherMeetings -->
+        </div>
+      </section>
+
+      <!-- TAB 6: 8-Week Course Plan & Slate LMS Content -->
+      <section id="teacher-tab-weeks" class="teacher-tab-pane hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <span>🗓️</span>
+                <span>8-Week Course Syllabus &amp; Slate LMS Content Plan</span>
+              </h3>
+              <p class="text-xs text-slate-400">Configure what topics, lecture slides, assignments, and deadlines appear on the student Slate LMS portal for all 8 weeks of the semester.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-bold text-teal-300">Select Course:</label>
+              <select id="t-weeks-course-select" onchange="window.Teacher.loadCourseWeeks(this.value)" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+                <option value="AI-301">Introduction to Artificial Intelligence (AI-301)</option>
+                <option value="CA-301">Computer Architecture (CA-301)</option>
+                <option value="CNS-302">Cyber Networks and Security (CNS-302)</option>
+                <option value="DSA-201">Data Structures &amp; Algorithms (DSA-201)</option>
+                <option value="DSD-202">Digital System Design (DSD-202)</option>
+                <option value="EDA-203">Electronic Devices &amp; Applications (EDA-203)</option>
+                <option value="ESA-303">Embedded System Architecture (ESA-303)</option>
+                <option value="ESSL-304">Embedded Software System Lab (ESSL-304)</option>
+                <option value="ESD-305">Embedded Systems Development (ESD-305)</option>
+                <option value="CS-301">Database Systems (CS-301)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 8 Weeks Accordion List -->
+          <div id="teacher-weeks-list-container" class="space-y-4">
+            <!-- Rendered dynamically by teacher.js -->
+          </div>
         </div>
       </section>
 

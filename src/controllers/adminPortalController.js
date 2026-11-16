@@ -388,7 +388,43 @@ async function confirmUpload(req, res) {
       }
 
       // 3. Save according to detected type
-      if (type === 'attendance') {
+      if (type === 'exam_slips' || type === 'exam_hall_slips' || type === 'admit_cards') {
+        const regNo = normalizeRegNo(r.registration_no || r.roll_number);
+        const sName = (r.student_name || '').trim();
+        const fName = (r.father_name || '').trim();
+        const rollNo = (r.roll_number || r.registration_no || '').trim();
+        const prog = (r.program_code || 'BSCS').trim();
+        const sem = Number(r.semester_number) || semNum || 8;
+        const venue = (r.exam_venue || 'Sheikhupura Campus - Examination Hall').trim();
+        const scheduleStr = JSON.stringify(r.schedule || []);
+
+        let matchedStudentId = r.student_id;
+        if (!matchedStudentId && regNo) {
+          const [st] = await db.query('SELECT id FROM students WHERE UPPER(TRIM(registration_no)) = ?', [regNo]);
+          if (st.length > 0) matchedStudentId = st[0].id;
+        }
+        if (!matchedStudentId && sName) {
+          const [st] = await db.query('SELECT id FROM students WHERE LOWER(TRIM(name)) = ?', [sName.toLowerCase()]);
+          if (st.length > 0) matchedStudentId = st[0].id;
+        }
+
+        await db.query(`
+          INSERT INTO exam_hall_slips
+            (upload_id, student_id, registration_no, student_name, father_name, roll_number, program_code, semester_number, exam_venue, schedule_json)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE
+            student_name = VALUES(student_name),
+            father_name = VALUES(father_name),
+            roll_number = VALUES(roll_number),
+            program_code = VALUES(program_code),
+            exam_venue = VALUES(exam_venue),
+            schedule_json = VALUES(schedule_json),
+            upload_id = VALUES(upload_id)
+        `, [uploadId, matchedStudentId || null, regNo || rollNo, sName, fName, rollNo, prog, sem, venue, scheduleStr]);
+
+        savedCount++;
+        continue;
+      } else if (type === 'attendance') {
         const held = Number(r.attendance_held) || 28;
         const present = Number(r.attendance_present) || 0;
 
@@ -540,17 +576,56 @@ async function deleteUpload(req, res) {
     const { id } = req.params;
     const adminUser = req.session.admin?.username || 'admin';
 
-    // Remove results created by this upload
+    // 1. Fetch upload info before deleting
+    const [uploads] = await db.query('SELECT * FROM uploads WHERE id = ?', [id]);
+    if (uploads.length === 0) {
+      return res.status(404).json({ success: false, error: 'Upload not found.' });
+    }
+    const upload = uploads[0];
+
+    // 2. Remove results created by this upload
     await db.query('DELETE FROM results WHERE upload_id = ?', [id]);
-    // Remove attendance created by this upload
+    // 3. Remove attendance created by this upload
     await db.query('DELETE FROM attendance WHERE upload_id = ?', [id]);
+    // 4. Remove exam slips created by this upload
+    await db.query('DELETE FROM exam_hall_slips WHERE upload_id = ?', [id]);
 
-    // Update upload status
-    await db.query('UPDATE uploads SET status = ? WHERE id = ?', ['deleted', id]);
+    // 5. If this was a student roster upload, clean up students that have no other results or attendance
+    if (upload.detected_type === 'students' || upload.detected_type === 'student_list') {
+      try {
+        const extracted = JSON.parse(upload.extracted_json || '{}');
+        const list = Array.isArray(extracted) ? extracted : (extracted.records || []);
+        for (const item of list) {
+          const reg = item.registration_no;
+          if (reg) {
+            const [hasResults] = await db.query(`
+              SELECT r.id FROM results r
+              JOIN students s ON r.student_id = s.id
+              WHERE s.registration_no = ?
+            `, [reg]);
+            if (hasResults.length === 0) {
+              await db.query('DELETE FROM students WHERE registration_no = ?', [reg]);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Student cleanup warning:', e.message);
+      }
+    }
 
-    await logAdminAction(adminUser, 'DELETE_UPLOAD', 'uploads', id, `Deleted upload #${id} and purged associated result/attendance records`, req.ip);
+    // 6. Delete orphaned semesters without results
+    await db.query(`
+      DELETE sem FROM semesters sem
+      LEFT JOIN results r ON sem.student_id = r.student_id AND sem.semester_number = r.semester_number
+      WHERE r.id IS NULL
+    `);
 
-    return res.json({ success: true, message: `Upload #${id} and its associated records have been removed.` });
+    // 7. PERMANENTLY remove the upload record from uploads table
+    await db.query('DELETE FROM uploads WHERE id = ?', [id]);
+
+    await logAdminAction(adminUser, 'DELETE_UPLOAD', 'uploads', id, `Permanently purged upload #${id} and all related records from MySQL`, req.ip);
+
+    return res.json({ success: true, message: `Upload #${id} and all its data have been permanently removed from database.` });
   } catch (err) {
     console.error('[Admin Portal] Delete upload error:', err);
     return res.status(500).json({ success: false, error: 'Failed to delete upload.' });
@@ -562,7 +637,7 @@ async function deleteUpload(req, res) {
  */
 async function getUploadHistory(req, res) {
   try {
-    const [uploads] = await db.query('SELECT * FROM uploads ORDER BY created_at DESC');
+    const [uploads] = await db.query("SELECT * FROM uploads WHERE status != 'deleted' ORDER BY created_at DESC");
     return res.json({ success: true, uploads });
   } catch (err) {
     console.error('[Admin Portal] Error fetching upload history:', err);

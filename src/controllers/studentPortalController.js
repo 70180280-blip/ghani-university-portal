@@ -60,29 +60,53 @@ async function getStudentAcademicHistory(studentId) {
     });
   }
 
+  // Fetch official semester GPAs and CGPAs uploaded from files
+  const [semesterRows] = await db.query(
+    'SELECT semester_number, sgpa, cgpa, earned_ch, total_ch FROM semesters WHERE student_id = ?',
+    [studentId]
+  );
+  const semMetaMap = new Map();
+  for (const sr of semesterRows) {
+    semMetaMap.set(Number(sr.semester_number), sr);
+  }
+
   // Calculate SGPA and running CGPA for each semester
   const semesterList = [];
-  const cumulativeSemestersSoFar = [];
+  let cumEarnedCH = 0;
+  let cumWeightedPoints = 0;
 
   for (const [semNum, courses] of semesterMap.entries()) {
     const semGPA = calculateSemesterGPA(courses);
-    cumulativeSemestersSoFar.push({ semesterNumber: semNum, courses });
-    const cumStats = calculateCumulativeGPA(cumulativeSemestersSoFar);
+    const meta = semMetaMap.get(semNum);
+
+    // Official file SGPA takes absolute precedence if present
+    const effectiveSGPA = (meta && meta.sgpa !== null && !isNaN(Number(meta.sgpa)) && Number(meta.sgpa) > 0)
+      ? Number(Number(meta.sgpa).toFixed(2))
+      : semGPA.sgpa;
+
+    const semCH = (meta && meta.earned_ch && Number(meta.earned_ch) > 0) ? Number(meta.earned_ch) : (semGPA.totalCH || 18);
+    cumEarnedCH += semCH;
+    cumWeightedPoints += (effectiveSGPA * semCH);
+    const runningCGPA = cumEarnedCH > 0 ? Number((cumWeightedPoints / cumEarnedCH).toFixed(2)) : effectiveSGPA;
 
     semesterList.push({
       semester_number: semNum,
       courses,
       total_ch: semGPA.totalCH,
       earned_ch: semGPA.earnedCH,
-      sgpa: semGPA.sgpa,
-      cgpa: cumStats.cgpa,
+      sgpa: effectiveSGPA,
+      cgpa: (meta && meta.cgpa && Number(meta.cgpa) > 0) ? Number(Number(meta.cgpa).toFixed(2)) : runningCGPA,
       percentage: semGPA.percentage,
       total_obtained: semGPA.totalObtained,
       total_max: semGPA.totalMaxMarks
     });
   }
 
-  const overallStats = calculateCumulativeGPA(cumulativeSemestersSoFar);
+  const overallStats = {
+    totalCH: cumEarnedCH,
+    earnedCH: cumEarnedCH,
+    cgpa: semesterList.length > 0 ? semesterList[semesterList.length - 1].cgpa : 0.00
+  };
 
   return {
     semesterList,
@@ -671,11 +695,46 @@ async function getPersonalDetails(req, res) {
 }
 
 /**
- * 8. Admit Card Module
+ * 8. Admit Card Module (Prefers Official Uploaded Exam Hall Slip if Present)
  */
 async function getAdmitCard(req, res) {
   try {
     const student = req.session.student;
+
+    // Check if official exam hall slip exists in exam_hall_slips table
+    const [slips] = await db.query(`
+      SELECT * FROM exam_hall_slips
+      WHERE student_id = ? OR UPPER(TRIM(registration_no)) = ? OR UPPER(TRIM(student_name)) = ?
+      ORDER BY semester_number DESC LIMIT 1
+    `, [student.id, student.registration_no, student.name.toUpperCase().trim()]);
+
+    if (slips.length > 0) {
+      const slip = slips[0];
+      let parsedSchedule = [];
+      try {
+        parsedSchedule = typeof slip.schedule_json === 'string' ? JSON.parse(slip.schedule_json) : (slip.schedule_json || []);
+      } catch (e) {}
+
+      return res.json({
+        success: true,
+        student: {
+          ...student,
+          name: slip.student_name || student.name,
+          father_name: slip.father_name || student.father_name,
+          roll_number: slip.roll_number || student.registration_no,
+          current_semester: slip.semester_number || student.current_semester
+        },
+        examSchedule: parsedSchedule.map(p => ({
+          course_code: p.course_code || p.code,
+          course_title: p.course_title || p.title,
+          exam_date: p.date,
+          day_of_week: p.day,
+          start_time: p.time,
+          invigilator: p.invigilator || 'Assigned'
+        })),
+        examCenter: slip.exam_venue || 'Sheikhupura Campus - Examination Hall'
+      });
+    }
 
     const [schedule] = await db.query(`
       SELECT es.*, c.title as course_title, c.credit_hours
@@ -704,13 +763,36 @@ async function downloadAdmitCardPDF(req, res) {
   try {
     const student = req.session.student;
 
-    const [schedule] = await db.query(`
-      SELECT es.*, c.title as course_title, c.credit_hours
-      FROM exam_schedule es
-      JOIN courses c ON es.course_code = c.code
-      WHERE es.program_code = ? AND es.semester_number = ?
-      ORDER BY es.exam_date ASC, es.start_time ASC
-    `, [student.program_code, student.current_semester]);
+    const [slips] = await db.query(`
+      SELECT * FROM exam_hall_slips
+      WHERE student_id = ? OR UPPER(TRIM(registration_no)) = ? OR UPPER(TRIM(student_name)) = ?
+      ORDER BY semester_number DESC LIMIT 1
+    `, [student.id, student.registration_no, student.name.toUpperCase().trim()]);
+
+    let schedule = [];
+    if (slips.length > 0) {
+      try {
+        const parsed = typeof slips[0].schedule_json === 'string' ? JSON.parse(slips[0].schedule_json) : (slips[0].schedule_json || []);
+        schedule = parsed.map(p => ({
+          course_code: p.course_code || p.code,
+          course_title: p.course_title || p.title,
+          exam_date: p.date,
+          day_of_week: p.day,
+          start_time: p.time
+        }));
+      } catch (e) {}
+    }
+
+    if (schedule.length === 0) {
+      const [dbSched] = await db.query(`
+        SELECT es.*, c.title as course_title, c.credit_hours
+        FROM exam_schedule es
+        JOIN courses c ON es.course_code = c.code
+        WHERE es.program_code = ? AND es.semester_number = ?
+        ORDER BY es.exam_date ASC, es.start_time ASC
+      `, [student.program_code, student.current_semester]);
+      schedule = dbSched;
+    }
 
     const pdfBuffer = await pdfService.generateAdmitCardPDF(student, [], schedule);
 
