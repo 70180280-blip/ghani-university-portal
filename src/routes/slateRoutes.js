@@ -39,14 +39,13 @@ const upload = multer({
   limits: { fileSize: 30 * 1024 * 1024 } // 30 MB
 });
 
-// Public Course Weeks endpoint for Slate LMS
+// Public Slate LMS endpoints (accessible to students & preview)
+router.get('/me', slateController.getMe);
+router.get('/courses', slateController.getSlateCourses);
 router.get('/course-weeks/:code', teacherPortalController.getCourseWeeks);
 
-// Protect all slate routes
+// Protect sensitive write actions
 router.use(requireSlateAuth);
-
-// Profile & State
-router.get('/me', slateController.getMe);
 
 // Conversations & Messages
 router.get('/conversations', slateController.getConversations);

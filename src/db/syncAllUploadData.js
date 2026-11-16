@@ -37,13 +37,13 @@ async function bulkUpsertSemesters(rows, chunkSize = 100) {
     const values = chunk.flat();
     await pool.query(`
       INSERT INTO semesters (student_id, semester_number, academic_year, term, sgpa, earned_ch, total_ch, total_obtained, total_max, percentage)
-      VALUES ${placeholders}
+      VALUES ${placeholders} AS new_sem
       ON DUPLICATE KEY UPDATE
-        academic_year = VALUES(academic_year),
-        term = VALUES(term),
-        sgpa = VALUES(sgpa),
-        earned_ch = VALUES(earned_ch),
-        total_ch = VALUES(total_ch)
+        academic_year = new_sem.academic_year,
+        term = new_sem.term,
+        sgpa = new_sem.sgpa,
+        earned_ch = new_sem.earned_ch,
+        total_ch = new_sem.total_ch
     `, values);
   }
   return rows.length;
@@ -58,8 +58,8 @@ async function syncAllUploadData() {
   // Ensure default BSCS program exists
   await pool.query(`
     INSERT INTO programs (code, name, degree_title, total_credit_hours, total_semesters, department, faculty)
-    VALUES ('BSCS', 'BS Computer Science', 'Bachelor of Science in Computer Science', 130, 8, 'Department of Computer Science', 'Faculty of Information Technology')
-    ON DUPLICATE KEY UPDATE name=VALUES(name)
+    VALUES ('BSCS', 'BS Computer Science', 'Bachelor of Science in Computer Science', 130, 8, 'Department of Computer Science', 'Faculty of Information Technology') AS new_prog
+    ON DUPLICATE KEY UPDATE name=new_prog.name
   `);
 
   const batchYears = [2022, 2023, 2024, 2025, 2026];
@@ -96,18 +96,18 @@ async function syncAllUploadData() {
 
       await pool.query(`
         INSERT INTO students (registration_no, name, father_name, email, phone, father_phone, program_code, batch, current_semester, status, dob)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AS new_st
         ON DUPLICATE KEY UPDATE
-          name = VALUES(name),
-          father_name = VALUES(father_name),
-          email = VALUES(email),
-          phone = VALUES(phone),
-          father_phone = VALUES(father_phone),
-          program_code = VALUES(program_code),
-          batch = VALUES(batch),
-          current_semester = VALUES(current_semester),
-          status = VALUES(status),
-          dob = VALUES(dob)
+          name = new_st.name,
+          father_name = new_st.father_name,
+          email = new_st.email,
+          phone = new_st.phone,
+          father_phone = new_st.father_phone,
+          program_code = new_st.program_code,
+          batch = new_st.batch,
+          current_semester = new_st.current_semester,
+          status = new_st.status,
+          dob = new_st.dob
       `, [regNo, name, fatherName, email, phone, fatherPhone, programCode, batchStr, currentSem, status, dob]);
     }
 

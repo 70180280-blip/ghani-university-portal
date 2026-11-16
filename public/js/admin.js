@@ -262,19 +262,19 @@ window.retryDbConnection = async function() {
   if (ping) ping.className = 'hidden';
 
   try {
-    const res = await adminFetch('/api/admin/db/retry', { method: 'POST' });
+    const res = await fetch('/api/admin/db/retry', { method: 'POST', headers: { 'Accept': 'application/json' } });
     const data = await res.json();
     await window.loadDbStatus();
 
     if (data.success && data.isMySQL) {
       console.log('MySQL connection verified successfully.');
     } else {
-      const noticeMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : (data.error || 'Connection check failed');
+      const noticeMsg = typeof data.error === 'object' ? (data.error?.message || JSON.stringify(data.error)) : (data.error || 'Connection check failed');
       alert(`Database Notice: ${noticeMsg}\n\nPlease verify MySQL connection credentials.`);
     }
   } catch (err) {
     await window.loadDbStatus();
-    alert(`Connection check error: ${err.message}`);
+    alert(`Connection check error: ${err.message || 'Network error'}`);
   }
 };
 
@@ -580,7 +580,8 @@ window.confirmPreviewData = async function() {
         window.loadStudentManager();
       }
     } else {
-      alert(`Error: ${data.error}`);
+      const errStr = typeof data.error === 'object' ? (data.error?.message || JSON.stringify(data.error)) : (data.error || 'Failed to confirm data.');
+      alert(`Error: ${errStr}`);
     }
   } catch (err) {
     alert(`Confirmation error: ${err.message}`);

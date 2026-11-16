@@ -128,18 +128,18 @@ async function saveCourseGrades(req, res) {
       await db.query(
         `INSERT INTO results
            (student_id, course_code, semester_number, assignment_marks, quiz_marks, mid_marks, final_marks, total_obtained, total_max, percentage, grade, grade_point, is_passed)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AS new_res
          ON DUPLICATE KEY UPDATE
-           assignment_marks = VALUES(assignment_marks),
-           quiz_marks = VALUES(quiz_marks),
-           mid_marks = VALUES(mid_marks),
-           final_marks = VALUES(final_marks),
-           total_obtained = VALUES(total_obtained),
-           total_max = VALUES(total_max),
-           percentage = VALUES(percentage),
-           grade = VALUES(grade),
-           grade_point = VALUES(grade_point),
-           is_passed = VALUES(is_passed),
+           assignment_marks = new_res.assignment_marks,
+           quiz_marks = new_res.quiz_marks,
+           mid_marks = new_res.mid_marks,
+           final_marks = new_res.final_marks,
+           total_obtained = new_res.total_obtained,
+           total_max = new_res.total_max,
+           percentage = new_res.percentage,
+           grade = new_res.grade,
+           grade_point = new_res.grade_point,
+           is_passed = new_res.is_passed,
            updated_at = CURRENT_TIMESTAMP`,
         [studentId, code, semNum, assign, quiz, mid, finalExam, totalObtained, totalMax, pct, grade, gradePoint, isPassed]
       );
@@ -232,17 +232,17 @@ async function uploadCourseGradesFile(req, res) {
       await db.query(
         `INSERT INTO results
            (student_id, course_code, semester_number, assignment_marks, quiz_marks, mid_marks, final_marks, total_obtained, total_max, percentage, grade, grade_point, is_passed)
-         VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?)
+         VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?) AS new_res
          ON DUPLICATE KEY UPDATE
-           assignment_marks = VALUES(assignment_marks),
-           mid_marks = VALUES(mid_marks),
-           final_marks = VALUES(final_marks),
-           total_obtained = VALUES(total_obtained),
-           total_max = VALUES(total_max),
-           percentage = VALUES(percentage),
-           grade = VALUES(grade),
-           grade_point = VALUES(grade_point),
-           is_passed = VALUES(is_passed),
+           assignment_marks = new_res.assignment_marks,
+           mid_marks = new_res.mid_marks,
+           final_marks = new_res.final_marks,
+           total_obtained = new_res.total_obtained,
+           total_max = new_res.total_max,
+           percentage = new_res.percentage,
+           grade = new_res.grade,
+           grade_point = new_res.grade_point,
+           is_passed = new_res.is_passed,
            updated_at = CURRENT_TIMESTAMP`,
         [matchedStudent.id, code, semNum, assign, mid, finalExam, totalObtained, totalMax, pct, grade, gradePoint, isPassed]
       );
@@ -290,8 +290,8 @@ async function saveCourseAttendance(req, res) {
 
       await db.query(
         `INSERT INTO attendance (student_id, course_code, lecture_date, status, remarks)
-         VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE status = VALUES(status), remarks = VALUES(remarks)`,
+         VALUES (?, ?, ?, ?, ?) AS new_att
+         ON DUPLICATE KEY UPDATE status = new_att.status, remarks = new_att.remarks`,
         [studentId, code, lecture_date, status, remarks]
       );
       markedCount++;
@@ -370,8 +370,8 @@ async function uploadCourseAttendanceFile(req, res) {
 
       await db.query(
         `INSERT INTO attendance (student_id, course_code, lecture_date, status)
-         VALUES (?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE status = VALUES(status)`,
+         VALUES (?, ?, ?, ?) AS new_att
+         ON DUPLICATE KEY UPDATE status = new_att.status`,
         [student.id, code, dateVal, status]
       );
       count++;
@@ -744,16 +744,17 @@ async function saveCourseWeek(req, res) {
     await db.query(`
       INSERT INTO course_weeks
         (course_code, week_number, title, description, slides_title, slides_url, assignment_title, assignment_due, assignment_marks, teacher_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AS new_wk
       ON DUPLICATE KEY UPDATE
-        title = VALUES(title),
-        description = VALUES(description),
-        slides_title = VALUES(slides_title),
-        slides_url = VALUES(slides_url),
-        assignment_title = VALUES(assignment_title),
-        assignment_due = VALUES(assignment_due),
-        assignment_marks = VALUES(assignment_marks),
-        teacher_id = VALUES(teacher_id)
+        title = new_wk.title,
+        description = new_wk.description,
+        slides_title = new_wk.slides_title,
+        slides_url = new_wk.slides_url,
+        assignment_title = new_wk.assignment_title,
+        assignment_due = new_wk.assignment_due,
+        assignment_marks = new_wk.assignment_marks,
+        teacher_id = new_wk.teacher_id,
+        updated_at = NOW()
     `, [
       cleanCode,
       weekNum,

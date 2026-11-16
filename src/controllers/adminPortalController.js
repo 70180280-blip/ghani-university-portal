@@ -411,15 +411,15 @@ async function confirmUpload(req, res) {
         await db.query(`
           INSERT INTO exam_hall_slips
             (upload_id, student_id, registration_no, student_name, father_name, roll_number, program_code, semester_number, exam_venue, schedule_json)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AS new_slip
           ON DUPLICATE KEY UPDATE
-            student_name = VALUES(student_name),
-            father_name = VALUES(father_name),
-            roll_number = VALUES(roll_number),
-            program_code = VALUES(program_code),
-            exam_venue = VALUES(exam_venue),
-            schedule_json = VALUES(schedule_json),
-            upload_id = VALUES(upload_id)
+            student_name = new_slip.student_name,
+            father_name = new_slip.father_name,
+            roll_number = new_slip.roll_number,
+            program_code = new_slip.program_code,
+            exam_venue = new_slip.exam_venue,
+            schedule_json = new_slip.schedule_json,
+            upload_id = new_slip.upload_id
         `, [uploadId, matchedStudentId || null, regNo || rollNo, sName, fName, rollNo, prog, sem, venue, scheduleStr]);
 
         savedCount++;
@@ -455,8 +455,8 @@ async function confirmUpload(req, res) {
             try {
               await db.query(`
                 INSERT INTO courses (code, title, credit_hours, lecture_hours, lab_hours, department)
-                VALUES (?, ?, ?, 3, 0, 'Computer Science')
-                ON DUPLICATE KEY UPDATE title = VALUES(title)
+                VALUES (?, ?, ?, 3, 0, 'Computer Science') AS new_c
+                ON DUPLICATE KEY UPDATE title = new_c.title
               `, [cCode, c.course_title || cCode, cCode.endsWith('L') ? 1 : 3]);
             } catch (e) {}
 
@@ -471,15 +471,15 @@ async function confirmUpload(req, res) {
               INSERT INTO results (
                 student_id, course_code, semester_number,
                 total_obtained, total_max, percentage, grade, grade_point, is_passed, upload_id
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AS new_res
               ON DUPLICATE KEY UPDATE
-                total_obtained = VALUES(total_obtained),
-                total_max = VALUES(total_max),
-                percentage = VALUES(percentage),
-                grade = VALUES(grade),
-                grade_point = VALUES(grade_point),
-                is_passed = VALUES(is_passed),
-                upload_id = VALUES(upload_id)
+                total_obtained = new_res.total_obtained,
+                total_max = new_res.total_max,
+                percentage = new_res.percentage,
+                grade = new_res.grade,
+                grade_point = new_res.grade_point,
+                is_passed = new_res.is_passed,
+                upload_id = new_res.upload_id
             `, [
               studentId,
               cCode,
@@ -500,8 +500,8 @@ async function confirmUpload(req, res) {
             try {
               await db.query(`
                 INSERT INTO semesters (student_id, semester_number, sgpa, earned_ch, total_ch)
-                VALUES (?, ?, ?, 18, 18)
-                ON DUPLICATE KEY UPDATE sgpa = VALUES(sgpa)
+                VALUES (?, ?, ?, 18, 18) AS new_sem
+                ON DUPLICATE KEY UPDATE sgpa = new_sem.sgpa
               `, [studentId, recordSem, Number(r.gpa)]);
             } catch (e) {}
           }
@@ -518,19 +518,19 @@ async function confirmUpload(req, res) {
               student_id, course_code, semester_number,
               assignment_marks, quiz_marks, mid_marks, final_marks,
               total_obtained, total_max, percentage, grade, grade_point, is_passed, upload_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AS new_res
             ON DUPLICATE KEY UPDATE
-              assignment_marks = VALUES(assignment_marks),
-              quiz_marks = VALUES(quiz_marks),
-              mid_marks = VALUES(mid_marks),
-              final_marks = VALUES(final_marks),
-              total_obtained = VALUES(total_obtained),
-              total_max = VALUES(total_max),
-              percentage = VALUES(percentage),
-              grade = VALUES(grade),
-              grade_point = VALUES(grade_point),
-              is_passed = VALUES(is_passed),
-              upload_id = VALUES(upload_id)
+              assignment_marks = new_res.assignment_marks,
+              quiz_marks = new_res.quiz_marks,
+              mid_marks = new_res.mid_marks,
+              final_marks = new_res.final_marks,
+              total_obtained = new_res.total_obtained,
+              total_max = new_res.total_max,
+              percentage = new_res.percentage,
+              grade = new_res.grade,
+              grade_point = new_res.grade_point,
+              is_passed = new_res.is_passed,
+              upload_id = new_res.upload_id
           `, [
             studentId,
             targetCourse,

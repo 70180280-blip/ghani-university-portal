@@ -105,10 +105,9 @@ async function setCachedAI(cacheKey, studentId, featureType, promptHash, data, t
     const content = JSON.stringify(data);
     await db.query(`
       INSERT INTO ai_cache (cache_key, student_id, feature_type, prompt_hash, response_content, expires_at)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE response_content = VALUES(response_content), expires_at = VALUES(expires_at)
-    `.replace('ON DUPLICATE KEY UPDATE response_content = VALUES(response_content), expires_at = VALUES(expires_at)', ''), 
-    [cacheKey, studentId, featureType, promptHash, content, expiresAt]);
+      VALUES (?, ?, ?, ?, ?, ?) AS new_ac
+      ON DUPLICATE KEY UPDATE response_content = new_ac.response_content, expires_at = new_ac.expires_at
+    `, [cacheKey, studentId, featureType, promptHash, content, expiresAt]);
   } catch (e) {
     // Cache write failure is non-fatal
   }
@@ -865,10 +864,21 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
         }
       }
 
+      const isCourseOrAcademicHeader = (val) => {
+        if (!val || typeof val !== 'string' || val.trim().length < 2) return true;
+        const v = val.trim();
+        if (/^[A-F][+-]?[-–—0-9]*$/i.test(v)) return true; // e.g. A-80, B+75
+        if (/^(BS|MS|PhD|Bachelor|Master|Degree|Faculty|Department|Program|Semester|Session|Batch|Class|Section)\b/i.test(v)) return true;
+        if (/computer\s*science|software\s*engineering|information\s*technology|digital\s*logic|data\s*structure|programming|calculus|physics|english|automata|intelligence|database|course|subject|total|grade|marks|attendance|obtained/i.test(v)) return true;
+        return false;
+      };
+
       // If header mapping didn't find registration number, search in parts
       if (!regNo) {
-        const regPart = parts.find(p => /GTIU-[0-9]{4}-[A-Z]{2,4}-[0-9]+/i.test(p) || /^[A-Z]{2,4}-\d+/i.test(p));
-        regNo = regPart ? regPart.toUpperCase() : `GTIU-2024-CS-${String(studentSeq).padStart(3, '0')}`;
+        const regPart = parts.find(p => /GTIU-[0-9]{4}-[A-Z]{2,4}-[0-9]+/i.test(p) || /^[A-Z]{2,4}-\d+/i.test(p) || /^\d{5,8}$/.test(p.trim()));
+        if (regPart) {
+          regNo = regPart.trim().toUpperCase();
+        }
       }
 
       // If names weren't found from header, find non-numeric, non-registration text fields
@@ -878,13 +888,27 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
           if (/^\d+$/.test(p)) return false;
           if (phoneRegex.test(p)) return false;
           if (/^GTIU-[0-9]{4}-[A-Z]{2,4}-[0-9]+/i.test(p)) return false;
-          if (/^GTIU-[0-9]{4}/i.test(p)) return false; // Registration year prefix
+          if (/^GTIU-[0-9]{4}/i.test(p)) return false;
           if (/^(Male|Female|Active|Inactive|Fall|Spring|BSCS|BBA|BSAI|BSIT)$/i.test(p)) return false;
+          if (isCourseOrAcademicHeader(p)) return false;
           return true;
         });
 
         if (!studentName && textParts[0]) studentName = textParts[0];
         if (!fatherName && textParts[1]) fatherName = textParts[1];
+      }
+
+      // Skip invalid header / subject rows mistakenly captured
+      if (isCourseOrAcademicHeader(studentName)) {
+        continue;
+      }
+
+      if (!studentName && !regNo) {
+        continue;
+      }
+
+      if (!regNo) {
+        regNo = `GTIU-2024-CS-${String(studentSeq).padStart(3, '0')}`;
       }
 
       // If phones weren't found from header, search for phone numbers in parts

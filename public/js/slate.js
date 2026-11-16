@@ -25,32 +25,32 @@
         type: 'exam',
         badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
         course: 'All Courses',
-        description: 'Mid Term Examination Week begins across all undergraduate departments.'
+        description: 'Mid Term Examination Week begins across all Ghani University departments.'
       },
       {
         id: 2,
-        title: 'Assignment-2 Due',
+        title: 'Assignment-1 Due',
         date: '2026-11-20',
         type: 'assignment',
         badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
-        course: 'Computer Architecture-BSES Section D',
-        description: 'Submission deadline for Pipelining Hazard Analysis & Cache Design.'
+        course: 'Discrete Structures (CC-111)',
+        description: 'Set Theory & Mathematical Logic problem set submission.'
       },
       {
         id: 3,
-        title: 'SOC Assignment',
+        title: 'AI Lab Assignment',
         date: '2026-11-30',
         type: 'assignment',
-        badgeClass: 'bg-orange-100 text-[#e0533c] dark:bg-orange-950/60 dark:text-orange-300',
-        course: 'Introduction to Artificial Intelligence-5th BSES Section D',
-        description: 'Training Machine Learning Models on Three Data Modalities submission deadline.'
+        badgeClass: 'bg-orange-100 text-[#0284c7] dark:bg-sky-950/60 dark:text-sky-300',
+        course: 'Introduction to Artificial Intelligence (AI-301)',
+        description: 'Search algorithms and state-space graph implementation.'
       }
     ],
     timelineItems: [
       {
         id: 1,
-        title: 'Training Machine Learning Models on Three Data Modalities',
-        course: 'Introduction to Artificial Intelligence-5th BSES Section D',
+        title: 'Problem Set 1: Propositional Logic & Truth Tables',
+        course: 'Discrete Structures (CC-111)',
         dueDate: 'Monday, 30 November 2026, 12:00 AM',
         icon: '📝',
         status: 'due',
@@ -58,8 +58,8 @@
       },
       {
         id: 2,
-        title: 'Assignment 2: Cache Memory & Pipelining Simulator',
-        course: 'Computer Architecture-BSES Section D',
+        title: 'Lab 2: Binary Search Trees & AVL Trees Implementation',
+        course: 'Data Structures & Algorithms (CC-213)',
         dueDate: 'Friday, 20 November 2026, 11:59 PM',
         icon: '💻',
         status: 'due',
@@ -67,8 +67,8 @@
       },
       {
         id: 3,
-        title: 'Lab Report 04: ARM Cortex-M Assembly Syntax',
-        course: 'Embedded Software System Lab-BSES Section D',
+        title: 'Project Milestone 1: Requirements Specification (SRS)',
+        course: 'Software Engineering (CC-212)',
         dueDate: 'Wednesday, 25 November 2026, 5:00 PM',
         icon: '🔬',
         status: 'due',
@@ -77,124 +77,84 @@
     ],
     courses: [
       {
-        id: 'CA-301',
-        title: 'Computer Architecture-BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Muhammad Wisal',
-        avatarText: 'MW',
+        id: 'CC-111',
+        title: 'Discrete Structures (CC-111)',
+        department: 'Department of Computer Science',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
         coverClass: 'card-cover-blue',
         status: 'inprogress',
         starred: false
       },
       {
-        id: 'CNS-302',
-        title: 'Cyber Networks and Security-5th BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Engr. Haris Khan',
-        avatarText: 'HK',
+        id: 'GE-161',
+        title: 'Introduction to ICT (GE-161)',
+        department: 'Department of Computer Science',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
         coverClass: 'card-cover-cyan',
         status: 'inprogress',
         starred: true
       },
       {
-        id: 'DSA-201',
-        title: 'Data Structures and Algorithms-BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Atique Ur Rahman',
-        avatarText: 'A',
+        id: 'CC-213',
+        title: 'Data Structures & Algorithms (CC-213)',
+        department: 'Department of Computer Science',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
         coverClass: 'card-cover-azure',
         status: 'inprogress',
         starred: false
       },
       {
-        id: 'DSD-202',
-        title: 'Digital System Design-BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Abdul Hannan',
-        avatarText: 'A',
+        id: 'DC-222',
+        title: 'Theory of Automata (DC-222)',
+        department: 'Department of Computer Science',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
         coverClass: 'card-cover-purple',
         status: 'inprogress',
         starred: false
       },
       {
-        id: 'EDA-203',
-        title: 'Electronic Devices and Applications-BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Muhammad Wisal',
-        avatarText: 'MW',
+        id: 'CC-212',
+        title: 'Software Engineering (CC-212)',
+        department: 'Department of Computer Science',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
         coverClass: 'card-cover-green',
         status: 'inprogress',
         starred: false
       },
       {
-        id: 'ESA-303',
-        title: 'Embedded System Architecture-5th BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Dr. Zeeshan Haider',
-        avatarText: 'ZH',
-        coverClass: 'card-cover-blue',
+        id: 'SC-241',
+        title: 'Multivariate Calculus (SC-241)',
+        department: 'Department of Mathematics & Sciences',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
+        coverClass: 'card-cover-pink',
         status: 'inprogress',
         starred: false
       },
       {
-        id: 'ESSL-304',
-        title: 'Embedded Software System Lab-BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Abdul Hannan',
-        avatarText: 'A',
-        coverClass: 'card-cover-azure',
-        status: 'inprogress',
-        starred: false
-      },
-      {
-        id: 'ESD-305',
-        title: 'Embedded Systems Development-5th BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Layaeq Layaeq Ali',
-        avatarText: 'L',
+        id: 'UE-272',
+        title: 'Introduction to Psychology (UE-272)',
+        department: 'Faculty of Social Sciences',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
         coverClass: 'card-cover-teal',
         status: 'inprogress',
         starred: false
       },
       {
-        id: 'ICP-101',
-        title: 'Ideology and Constitution of Pakistan',
-        department: 'Digital Courses - Summer 2026',
-        instructor: 'Prof. Sajjad Ahmed',
-        avatarText: 'SA',
-        coverClass: 'card-cover-pakistan',
-        status: 'past',
-        starred: false
-      },
-      {
         id: 'AI-301',
-        title: 'Introduction to Artificial Intelligence-5th BSES Section D',
-        department: 'Department of Intelligent Systems',
-        instructor: 'Dr. Tariq Mahmood',
-        avatarText: 'TM',
-        coverClass: 'card-cover-pink',
+        title: 'Introduction to Artificial Intelligence (AI-301)',
+        department: 'Department of Computer Science',
+        instructor: 'Ghani University Faculty',
+        avatarText: 'GU',
+        coverClass: 'card-cover-blue',
         status: 'inprogress',
         starred: true
-      },
-      {
-        id: 'CS-201',
-        title: 'Discrete Structures',
-        department: 'Department of Computer Science',
-        instructor: 'Dr. Amjad Farooq',
-        avatarText: 'AF',
-        coverClass: 'card-cover-cyan',
-        status: 'past',
-        starred: false
-      },
-      {
-        id: 'CS-301',
-        title: 'Database Systems',
-        department: 'Department of Computer Science',
-        instructor: 'Engr. Noman Ali',
-        avatarText: 'NA',
-        coverClass: 'card-cover-purple',
-        status: 'inprogress',
-        starred: false
       }
     ],
     participants: [
@@ -971,6 +931,49 @@
     alert('iCalendar (.ics) Export:\nAcademic semester timetable and examination calendar ready to sync with Google Calendar or Apple iCal.');
   };
 
+  // Fetch live student profile and real MySQL courses
+  async function loadSlateLive() {
+    try {
+      // 1. Fetch current student profile
+      const pRes = await fetch('/api/slate/me');
+      const pData = await pRes.json();
+      if (pData.success && pData.user) {
+        const u = pData.user;
+        const firstName = u.name ? u.name.split(' ')[0] : 'Student';
+        const nameEl = document.getElementById('student-first-name');
+        if (nameEl) nameEl.textContent = firstName;
+
+        const dispEl = document.getElementById('user-display-name');
+        if (dispEl) dispEl.textContent = u.name;
+
+        const progEl = document.getElementById('user-display-program');
+        if (progEl) progEl.textContent = `${u.role || 'Student'} • ${u.program_code || 'BSCS'}`;
+
+        const initials = u.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'GU';
+        const initEl = document.getElementById('user-avatar-initials');
+        if (initEl) initEl.textContent = initials;
+      }
+    } catch (e) {
+      console.warn('Slate profile notice:', e.message);
+    }
+
+    try {
+      // 2. Fetch real courses from database
+      const cRes = await fetch('/api/slate/courses');
+      const cData = await cRes.json();
+      if (cData.success && Array.isArray(cData.courses) && cData.courses.length > 0) {
+        S.courses = cData.courses;
+        if (cData.stats) {
+          const countEl = document.getElementById('dash-courses-count');
+          if (countEl) countEl.textContent = cData.stats.enrolledCount;
+        }
+        window.renderCourses();
+      }
+    } catch (e) {
+      console.warn('Slate courses notice:', e.message);
+    }
+  }
+
   // Initial Boot
   document.addEventListener('DOMContentLoaded', () => {
     // Restore Saved Theme
@@ -997,6 +1000,9 @@
 
     // Render Initial View (My Courses)
     window.switchSlateTab('courses');
+
+    // Load Live Data from Database
+    loadSlateLive();
   });
 
 })();

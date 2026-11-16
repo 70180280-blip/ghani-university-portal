@@ -97,7 +97,7 @@ async function parseUploadedFile(filePath, originalName = '', mimeType = '') {
       }
 
       let structured = null;
-      if (/exam\s*hall\s*slip|examination\s*schedule|admit\s*card/i.test(fullText)) {
+      if (/exam\s*hall\s*slip|examination\s*schedule|admit\s*card|hall\s*slip/i.test(fullText + ' ' + originalName)) {
         try {
           structured = parseExamHallSlips(fullText, originalName);
         } catch (slipErr) {

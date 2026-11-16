@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UOL Slate | The University of Lahore LMS</title>
+  <title>Ghani University Slate | Communication & LMS</title>
   <link rel="icon" type="image/png" href="/images/logo.png" onerror="this.href='/favicon.ico'">
   <link rel="shortcut icon" href="/favicon.ico">
 
@@ -47,13 +47,13 @@
     <!-- Left: Cap Logo + Main Navigation Tabs -->
     <div class="flex items-center gap-6 sm:gap-10">
       <!-- Brand Logo -->
-      <a href="/slate" class="flex items-center gap-2 group">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-white text-base shadow">
-          🎓
+      <a href="/slate" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded-lg bg-blue-950/80 border border-sky-500/40 flex items-center justify-center p-1 shadow">
+          <img src="/images/logo.png" alt="GTIU" class="w-full h-full object-contain" />
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white">UOL</span>
-          <span class="hidden sm:inline-block text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 border-l border-slate-300 dark:border-slate-700">Slate LMS</span>
+          <span class="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">GHANI UNIVERSITY</span>
+          <span class="hidden sm:inline-block text-[11px] font-bold text-sky-500 uppercase tracking-widest pl-1.5 border-l border-slate-300 dark:border-slate-700">Slate LMS</span>
         </div>
       </a>
 
@@ -95,9 +95,9 @@
       <!-- User Profile Avatar Pill -->
       <div class="relative pl-2 border-l border-slate-200 dark:border-slate-800">
         <button onclick="window.toggleUserMenu()" class="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 p-0.5 shadow-sm">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 p-0.5 shadow-sm">
             <div class="w-full h-full rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-800 dark:text-white overflow-hidden">
-              <span id="user-avatar-initials">S</span>
+              <span id="user-avatar-initials">GU</span>
             </div>
           </div>
           <svg class="w-3.5 h-3.5 text-slate-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -106,8 +106,8 @@
         <!-- User Dropdown Menu -->
         <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-2 text-xs z-50">
           <div class="p-2 border-b border-slate-100 dark:border-slate-800">
-            <p class="font-bold text-slate-900 dark:text-white text-sm" id="user-display-name">Saifullah</p>
-            <p class="text-[11px] text-slate-400">Student &bull; BSCS</p>
+            <p class="font-bold text-slate-900 dark:text-white text-sm" id="user-display-name">Muhammad Ahmed</p>
+            <p class="text-[11px] text-slate-400" id="user-display-program">Student &bull; BSCS</p>
           </div>
           <a href="/" class="block px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium">Student Portal Home</a>
           <a href="/teacher" class="block px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium">Teacher Portal</a>
@@ -131,8 +131,8 @@
       <!-- Greeting Header -->
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-          <span>Hi, <span id="student-first-name">Saif</span>!</span>
-          <span>👋</span>
+          <span>Hi, <span id="student-first-name">Student</span>!</span>
+          <span class="inline-block animate-pulse">👋</span>
         </h1>
       </div>
 
