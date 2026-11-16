@@ -1231,6 +1231,64 @@ function renderPreviewTable(data) {
         </tr>
       `;
     });
+  } else if (data.records && data.records.length > 0 && Array.isArray(data.records[0].courses) && data.records[0].courses.length > 0) {
+    // Multi-Course Semester Results Table
+    html = `
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-900 text-slate-400 font-bold border-b border-slate-700">
+          <tr>
+            <th class="py-2.5 px-3">Reg No</th>
+            <th class="py-2.5 px-3">Student Name</th>
+            <th class="py-2.5 px-3">Father Name</th>
+            <th class="py-2.5 px-2 text-center">Sem</th>
+            <th class="py-2.5 px-3">Enrolled Courses &amp; Grades</th>
+            <th class="py-2.5 px-2 text-center">SGPA</th>
+            <th class="py-2.5 px-3">Validation</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-700/60">
+    `;
+
+    data.records.forEach((r, idx) => {
+      const coursesBadges = (r.courses || []).map(c => `
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-950/80 border border-blue-600/40 text-blue-200 text-[11px] font-mono mr-1 mb-1">
+          <span class="font-bold text-sky-300">${escapeHtml(c.course_code)}:</span>
+          <span>${c.marks}</span>
+          <span class="px-1 rounded bg-blue-800/80 text-[10px] font-bold text-white">${escapeHtml(c.grade || '-')}</span>
+        </span>
+      `).join('');
+
+      html += `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2.5 px-3 font-semibold text-sky-400 font-mono">
+            ${escapeHtml(r.registration_no || '')}
+          </td>
+          <td class="py-2.5 px-3 font-medium text-white">
+            ${escapeHtml(r.student_name || '')}
+          </td>
+          <td class="py-2.5 px-3 text-slate-300">
+            ${escapeHtml(r.father_name || '')}
+          </td>
+          <td class="py-2.5 px-2 text-center font-bold text-amber-300">
+            ${r.semester_number || 1}
+          </td>
+          <td class="py-2.5 px-3">
+            <div class="flex flex-wrap max-w-xl">
+              ${coursesBadges}
+            </div>
+          </td>
+          <td class="py-2.5 px-2 text-center font-bold text-emerald-400 font-mono text-xs">
+            ${r.gpa !== null && r.gpa !== undefined ? Number(r.gpa).toFixed(2) : '-'}
+          </td>
+          <td class="py-2.5 px-3 text-xs">
+            <span class="preview-validation-badge px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1 font-semibold">
+              <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span>${(r.courses || []).length} Subjects Ready</span>
+            </span>
+          </td>
+        </tr>
+      `;
+    });
   } else {
     // Marks or Attendance Table
     html = `

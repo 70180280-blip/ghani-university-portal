@@ -629,6 +629,12 @@ Absences Still Allowed Before Dropping Under 75%: ${absencesAllowed}
 // ============================================================================
 
 async function parseAdminUpload(fileInput, instruction, existingStudents = [], courses = []) {
+  // 1. If high-fidelity structured spreadsheet data is available, use it directly!
+  if (typeof fileInput === 'object' && fileInput.structuredData && Array.isArray(fileInput.structuredData.records) && fileInput.structuredData.records.length > 0) {
+    console.log(`[AI Service] Using direct smart spreadsheet ingestion: ${fileInput.structuredData.detected_type} (${fileInput.structuredData.records.length} records)`);
+    return fileInput.structuredData;
+  }
+
   const studentListBrief = existingStudents.map(s => `${s.registration_no} | ${s.name} | ${s.father_name}`).join('\n');
   const courseListBrief = courses.map(c => `${c.code} | ${c.title}`).join('\n');
 
@@ -742,12 +748,13 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
   const lowerText = (text || '').toLowerCase();
 
   let detectedType = 'marks';
-  if (lowerInst.includes('student') || lowerInst.includes('admission') || lowerInst.includes('phone') || lowerInst.includes('contact') ||
-      lowerText.includes('father phone') || lowerText.includes('father contact') || lowerText.includes('student phone') || lowerText.includes('guardian') ||
-      lowerText.includes('student contact') || lowerText.includes('student name')) {
-    detectedType = 'students';
+  if (lowerText.includes('result') || lowerText.includes('marks award') || lowerText.includes(' grade') || lowerText.includes('gpa') || lowerInst.includes('result') || lowerInst.includes('marks')) {
+    detectedType = 'marks';
   } else if (lowerInst.includes('attendance') || lowerText.includes('attendance') || lowerText.includes('hazri')) {
     detectedType = 'attendance';
+  } else if (lowerInst.includes('student') || lowerInst.includes('admission') || lowerInst.includes('phone') || lowerInst.includes('contact') ||
+      lowerText.includes('father phone') || lowerText.includes('father contact') || lowerText.includes('student phone') || lowerText.includes('guardian')) {
+    detectedType = 'students';
   }
 
   // 1. If detected type is Student List
@@ -759,7 +766,7 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       // Ignore sheet title markers or institute branding lines
-      if (line.startsWith('---') || line.includes('GHANI TECHNICAL') || line.includes('DEPARTMENT OF')) {
+      if (line.startsWith('---') || line.includes('GHANI TECHNICAL') || line.includes('DEPARTMENT OF') || line.includes('Results') || line.includes('SAMPLE / TESTING')) {
         continue;
       }
 
@@ -812,7 +819,8 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
         continue; // Header row consumed, do not process as data!
       }
 
-      if (parts.length >= 2) {
+      // ONLY collect lines AFTER header row has been found
+      if (headerColMap && parts.length >= 2) {
         dataLines.push(parts);
       }
     }

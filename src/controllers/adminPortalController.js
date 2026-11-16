@@ -130,8 +130,8 @@ async function uploadFile(req, res) {
     const [students] = await db.query('SELECT id, registration_no, name, father_name FROM students');
     const [courses] = await db.query('SELECT code, title FROM courses');
 
-    // 3. AI extraction & normalization
-    const aiExtracted = await aiService.parseAdminUpload(parsedFile.text, instruction, students, courses);
+    // 3. AI extraction & normalization (prioritizes high-precision smart spreadsheet parsing)
+    const aiExtracted = await aiService.parseAdminUpload(parsedFile, instruction, students, courses);
 
     // 4. Validate records, detect impossible values, and flag anomalies
     const validatedRecords = (aiExtracted.records || []).map(r => {
@@ -272,7 +272,7 @@ async function confirmUpload(req, res) {
     let parsedExtracted = {};
     try {
       parsedExtracted = JSON.parse(uploads[0].extracted_json || '{}');
-    } catch (e) {}
+    } catch (e) { }
 
     const type = String(detectedType || uploads[0].detected_type || 'marks').toLowerCase().trim();
     const semNum = Number(semesterNumber) || Number(parsedExtracted.semester_number) || Number(uploads[0].semester_number) || 1;
@@ -407,48 +407,112 @@ async function confirmUpload(req, res) {
         savedCount++;
       } else {
         // Marks (Results)
-        const totalMax = Number(r.total_max) || 100;
-        const totalObt = Number(r.total_obtained) || 0;
-        const percentage = calculateSubjectPercentage(totalObt, totalMax);
-        const { grade, gradePoint } = getGradeAndPoints(percentage);
-        const isPassed = gradePoint > 0 ? 1 : 0;
-
         const recordSem = Number(r.semester_number || r.current_semester) || semNum;
-        await db.query(`
-          INSERT INTO results (
-            student_id, course_code, semester_number,
-            assignment_marks, quiz_marks, mid_marks, final_marks,
-            total_obtained, total_max, percentage, grade, grade_point, is_passed, upload_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ON DUPLICATE KEY UPDATE
-            assignment_marks = VALUES(assignment_marks),
-            quiz_marks = VALUES(quiz_marks),
-            mid_marks = VALUES(mid_marks),
-            final_marks = VALUES(final_marks),
-            total_obtained = VALUES(total_obtained),
-            total_max = VALUES(total_max),
-            percentage = VALUES(percentage),
-            grade = VALUES(grade),
-            grade_point = VALUES(grade_point),
-            is_passed = VALUES(is_passed),
-            upload_id = VALUES(upload_id)
-        `, [
-          studentId,
-          targetCourse,
-          recordSem,
-          Number(r.assignment_marks) || 0,
-          Number(r.quiz_marks) || 0,
-          Number(r.mid_marks) || 0,
-          Number(r.final_marks) || 0,
-          totalObt,
-          totalMax,
-          percentage,
-          grade,
-          gradePoint,
-          isPassed,
-          uploadId
-        ]);
-        savedCount++;
+
+        // Check if multi-course record
+        if (Array.isArray(r.courses) && r.courses.length > 0) {
+          for (const c of r.courses) {
+            const cCode = String(c.course_code || '').trim();
+            if (!cCode) continue;
+
+            // Auto-ensure course exists in courses table
+            try {
+              await db.query(`
+                INSERT INTO courses (code, title, credit_hours, lecture_hours, lab_hours, department)
+                VALUES (?, ?, ?, 3, 0, 'Computer Science')
+                ON DUPLICATE KEY UPDATE title = VALUES(title)
+              `, [cCode, c.course_title || cCode, cCode.endsWith('L') ? 1 : 3]);
+            } catch (e) {}
+
+            const cMarks = Number(c.marks) || 0;
+            const cMax = Number(c.max) || 100;
+            const cPct = calculateSubjectPercentage(cMarks, cMax);
+            const { grade, gradePoint } = getGradeAndPoints(cPct);
+            const finalGrade = c.grade || grade;
+            const isPassed = finalGrade !== 'F' && gradePoint > 0 ? 1 : 0;
+
+            await db.query(`
+              INSERT INTO results (
+                student_id, course_code, semester_number,
+                total_obtained, total_max, percentage, grade, grade_point, is_passed, upload_id
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              ON DUPLICATE KEY UPDATE
+                total_obtained = VALUES(total_obtained),
+                total_max = VALUES(total_max),
+                percentage = VALUES(percentage),
+                grade = VALUES(grade),
+                grade_point = VALUES(grade_point),
+                is_passed = VALUES(is_passed),
+                upload_id = VALUES(upload_id)
+            `, [
+              studentId,
+              cCode,
+              recordSem,
+              cMarks,
+              cMax,
+              cPct,
+              finalGrade,
+              gradePoint,
+              isPassed,
+              uploadId
+            ]);
+            savedCount++;
+          }
+
+          // Save Semester GPA if provided
+          if (r.gpa !== null && r.gpa !== undefined && !isNaN(Number(r.gpa))) {
+            try {
+              await db.query(`
+                INSERT INTO semesters (student_id, semester_number, sgpa, earned_ch, total_ch)
+                VALUES (?, ?, ?, 18, 18)
+                ON DUPLICATE KEY UPDATE sgpa = VALUES(sgpa)
+              `, [studentId, recordSem, Number(r.gpa)]);
+            } catch (e) {}
+          }
+        } else {
+          // Single-course standard marks
+          const totalMax = Number(r.total_max) || 100;
+          const totalObt = Number(r.total_obtained) || 0;
+          const percentage = calculateSubjectPercentage(totalObt, totalMax);
+          const { grade, gradePoint } = getGradeAndPoints(percentage);
+          const isPassed = gradePoint > 0 ? 1 : 0;
+
+          await db.query(`
+            INSERT INTO results (
+              student_id, course_code, semester_number,
+              assignment_marks, quiz_marks, mid_marks, final_marks,
+              total_obtained, total_max, percentage, grade, grade_point, is_passed, upload_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+              assignment_marks = VALUES(assignment_marks),
+              quiz_marks = VALUES(quiz_marks),
+              mid_marks = VALUES(mid_marks),
+              final_marks = VALUES(final_marks),
+              total_obtained = VALUES(total_obtained),
+              total_max = VALUES(total_max),
+              percentage = VALUES(percentage),
+              grade = VALUES(grade),
+              grade_point = VALUES(grade_point),
+              is_passed = VALUES(is_passed),
+              upload_id = VALUES(upload_id)
+          `, [
+            studentId,
+            targetCourse,
+            recordSem,
+            Number(r.assignment_marks) || 0,
+            Number(r.quiz_marks) || 0,
+            Number(r.mid_marks) || 0,
+            Number(r.final_marks) || 0,
+            totalObt,
+            totalMax,
+            percentage,
+            grade,
+            gradePoint,
+            isPassed,
+            uploadId
+          ]);
+          savedCount++;
+        }
       }
     }
 
