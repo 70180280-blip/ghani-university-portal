@@ -24,6 +24,27 @@ const {
 const pdfService = require('../services/pdfService');
 
 /**
+ * Safely resolve student session or user, refreshing fresh data from DB
+ */
+async function resolveStudent(req) {
+  let student = req.session?.student || req.user;
+  if (!student || !student.id) return null;
+  try {
+    const [rows] = await db.query(
+      'SELECT s.*, p.name as program_name, p.total_credit_hours as total_ch_required FROM students s LEFT JOIN programs p ON s.program_code = p.code WHERE s.id = ?',
+      [student.id]
+    );
+    if (rows.length > 0) {
+      student = { ...student, ...rows[0] };
+      if (req.session) req.session.student = student;
+    }
+  } catch (e) {
+    console.warn('[Student Portal] resolveStudent warning:', e.message);
+  }
+  return student;
+}
+
+/**
  * Get Student Academic History with pre-computed semester & cumulative GPA
  */
 async function getStudentAcademicHistory(studentId) {
@@ -130,18 +151,11 @@ async function getStudentAcademicHistory(studentId) {
  */
 async function getDashboardData(req, res) {
   try {
-    let student = req.session?.student || req.user;
+    const student = await resolveStudent(req);
     if (!student) {
       return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
     }
     const studentId = student.id;
-
-    // Refresh student from database to guarantee latest profile fields
-    const [studentRows] = await db.query('SELECT * FROM students WHERE id = ?', [studentId]);
-    if (studentRows.length > 0) {
-      student = { ...student, ...studentRows[0] };
-      if (req.session) req.session.student = student;
-    }
 
     // 1. Academic History
     const { semesterList, overallStats } = await getStudentAcademicHistory(studentId);
@@ -312,7 +326,10 @@ async function getDashboardData(req, res) {
  */
 async function getMyResults(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const studentId = student.id;
     const { semesterList, overallStats } = await getStudentAcademicHistory(studentId);
 
@@ -372,7 +389,11 @@ async function getMyResults(req, res) {
  */
 async function getAttendanceReport(req, res) {
   try {
-    const studentId = req.session.student.id;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
+    const studentId = student.id;
 
     // Fetch all attendance records with course details
     const [records] = await db.query(`
@@ -489,7 +510,10 @@ async function getAttendanceReport(req, res) {
  */
 async function getInterimTranscript(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const { semesterList, overallStats } = await getStudentAcademicHistory(student.id);
 
     return res.json({
@@ -519,7 +543,10 @@ async function getInterimTranscript(req, res) {
  */
 async function downloadTranscriptPDF(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).send('Unauthorized');
+    }
     const { semesterList, overallStats } = await getStudentAcademicHistory(student.id);
 
     const pdfBuffer = await pdfService.generateInterimTranscriptPDF(student, semesterList, overallStats);
@@ -538,7 +565,10 @@ async function downloadTranscriptPDF(req, res) {
  */
 async function getRegisteredCourses(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     let [courses] = await db.query(`
       SELECT e.*, c.title, c.credit_hours, c.lecture_hours, c.lab_hours, c.department, c.prerequisite
       FROM enrollments e
@@ -583,7 +613,10 @@ async function getRegisteredCourses(req, res) {
  */
 async function getMyTimetable(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
 
     const [timetable] = await db.query(`
       SELECT * FROM timetable
@@ -623,7 +656,10 @@ async function getMyTimetable(req, res) {
  */
 async function getDegreeAudit(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const { semesterList, overallStats } = await getStudentAcademicHistory(student.id);
 
     const totalRequiredCH = student.total_ch_required || 130;
@@ -649,8 +685,8 @@ async function getDegreeAudit(req, res) {
 
     // Pending courses from university catalog for this program
     const [allProgramCourses] = await db.query('SELECT * FROM courses ORDER BY code ASC');
-    const completedCodes = new Set(completedCourses.map(c => c.code.toUpperCase()));
-    const pendingCourses = allProgramCourses.filter(c => !completedCodes.has(c.code.toUpperCase()));
+    const completedCodes = new Set(completedCourses.map(c => (c.code || '').toUpperCase()));
+    const pendingCourses = (allProgramCourses || []).filter(c => !completedCodes.has((c.code || '').toUpperCase()));
 
     return res.json({
       success: true,
@@ -667,7 +703,7 @@ async function getDegreeAudit(req, res) {
     });
   } catch (err) {
     console.error('[Student Portal] Error fetching degree audit:', err);
-    return res.status(500).json({ success: false, error: 'Failed to calculate degree audit.' });
+    return res.status(500).json({ success: false, error: 'Failed to calculate degree audit: ' + (err.message || 'Server error') });
   }
 }
 
@@ -676,7 +712,11 @@ async function getDegreeAudit(req, res) {
  */
 async function getPersonalDetails(req, res) {
   try {
-    const studentId = req.session.student.id;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
+    const studentId = student.id;
     const [rows] = await db.query(`
       SELECT s.*, p.name as program_name, p.faculty, p.department
       FROM students s
@@ -720,7 +760,10 @@ async function getPersonalDetails(req, res) {
  */
 async function getAdmitCard(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
 
     // Check if official exam hall slip exists in exam_hall_slips table
     const [slips] = await db.query(`
@@ -734,7 +777,7 @@ async function getAdmitCard(req, res) {
       let parsedSchedule = [];
       try {
         parsedSchedule = typeof slip.schedule_json === 'string' ? JSON.parse(slip.schedule_json) : (slip.schedule_json || []);
-      } catch (e) {}
+      } catch (e) { }
 
       return res.json({
         success: true,
@@ -782,7 +825,10 @@ async function getAdmitCard(req, res) {
  */
 async function downloadAdmitCardPDF(req, res) {
   try {
-    const student = req.session.student;
+    const student = await resolveStudent(req);
+    if (!student) {
+      return res.status(401).send('Unauthorized');
+    }
 
     const [slips] = await db.query(`
       SELECT * FROM exam_hall_slips
@@ -801,7 +847,7 @@ async function downloadAdmitCardPDF(req, res) {
           day_of_week: p.day,
           start_time: p.time
         }));
-      } catch (e) {}
+      } catch (e) { }
     }
 
     if (schedule.length === 0) {

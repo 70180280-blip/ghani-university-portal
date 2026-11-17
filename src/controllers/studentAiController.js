@@ -137,7 +137,10 @@ async function buildStudentAcademicContext(student) {
  */
 async function chat(req, res) {
   try {
-    const student = req.session.student;
+    const student = req.session?.student || req.user;
+    if (!student || !student.id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const { message } = req.body;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -167,7 +170,10 @@ async function chat(req, res) {
  */
 async function getInsights(req, res) {
   try {
-    const student = req.session.student;
+    const student = req.session?.student || req.user;
+    if (!student || !student.id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const studentContext = await buildStudentAcademicContext(student);
 
     const insights = await aiService.generateStudentInsights(studentContext);
@@ -193,7 +199,10 @@ async function getInsights(req, res) {
  */
 async function simulateWhatIf(req, res) {
   try {
-    const student = req.session.student;
+    const student = req.session?.student || req.user;
+    if (!student || !student.id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const rawCourses = req.body.simulatedCourses || req.body.courses;
 
     if (!rawCourses || !Array.isArray(rawCourses) || rawCourses.length === 0) {
@@ -238,7 +247,10 @@ async function simulateWhatIf(req, res) {
  */
 async function getSmartAttendanceAlert(req, res) {
   try {
-    const student = req.session.student;
+    const student = req.session?.student || req.user;
+    if (!student || !student.id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const courseCode = req.query.courseCode || req.query.course_code;
 
     const [attRows] = await db.query(`
