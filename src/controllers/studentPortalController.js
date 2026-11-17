@@ -60,14 +60,18 @@ async function getStudentAcademicHistory(studentId) {
     });
   }
 
-  // Fetch official semester GPAs and CGPAs uploaded from files
+  // Fetch official semester GPAs uploaded from files (semesters table stores sgpa, earned_ch, total_ch)
   const [semesterRows] = await db.query(
-    'SELECT semester_number, sgpa, cgpa, earned_ch, total_ch FROM semesters WHERE student_id = ?',
+    'SELECT semester_number, sgpa, earned_ch, total_ch FROM semesters WHERE student_id = ?',
     [studentId]
   );
   const semMetaMap = new Map();
   for (const sr of semesterRows) {
-    semMetaMap.set(Number(sr.semester_number), sr);
+    const sNum = Number(sr.semester_number);
+    semMetaMap.set(sNum, sr);
+    if (!semesterMap.has(sNum)) {
+      semesterMap.set(sNum, []);
+    }
   }
 
   // Calculate SGPA and running CGPA for each semester
@@ -75,7 +79,11 @@ async function getStudentAcademicHistory(studentId) {
   let cumEarnedCH = 0;
   let cumWeightedPoints = 0;
 
-  for (const [semNum, courses] of semesterMap.entries()) {
+  // Sort semesters in ascending order
+  const sortedSemNums = Array.from(semesterMap.keys()).sort((a, b) => a - b);
+
+  for (const semNum of sortedSemNums) {
+    const courses = semesterMap.get(semNum) || [];
     const semGPA = calculateSemesterGPA(courses);
     const meta = semMetaMap.get(semNum);
 
@@ -84,7 +92,10 @@ async function getStudentAcademicHistory(studentId) {
       ? Number(Number(meta.sgpa).toFixed(2))
       : semGPA.sgpa;
 
-    const semCH = (meta && meta.earned_ch && Number(meta.earned_ch) > 0) ? Number(meta.earned_ch) : (semGPA.totalCH || 18);
+    const semCH = (meta && meta.earned_ch && Number(meta.earned_ch) > 0)
+      ? Number(meta.earned_ch)
+      : (semGPA.totalCH || (courses.length > 0 ? 18 : 0));
+
     cumEarnedCH += semCH;
     cumWeightedPoints += (effectiveSGPA * semCH);
     const runningCGPA = cumEarnedCH > 0 ? Number((cumWeightedPoints / cumEarnedCH).toFixed(2)) : effectiveSGPA;
@@ -92,10 +103,10 @@ async function getStudentAcademicHistory(studentId) {
     semesterList.push({
       semester_number: semNum,
       courses,
-      total_ch: semGPA.totalCH,
-      earned_ch: semGPA.earnedCH,
+      total_ch: (meta && meta.total_ch) ? Number(meta.total_ch) : semGPA.totalCH,
+      earned_ch: semCH,
       sgpa: effectiveSGPA,
-      cgpa: (meta && meta.cgpa && Number(meta.cgpa) > 0) ? Number(Number(meta.cgpa).toFixed(2)) : runningCGPA,
+      cgpa: runningCGPA,
       percentage: semGPA.percentage,
       total_obtained: semGPA.totalObtained,
       total_max: semGPA.totalMaxMarks
@@ -119,13 +130,23 @@ async function getStudentAcademicHistory(studentId) {
  */
 async function getDashboardData(req, res) {
   try {
-    const student = req.session.student;
+    let student = req.session?.student || req.user;
+    if (!student) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Student session not found' });
+    }
     const studentId = student.id;
+
+    // Refresh student from database to guarantee latest profile fields
+    const [studentRows] = await db.query('SELECT * FROM students WHERE id = ?', [studentId]);
+    if (studentRows.length > 0) {
+      student = { ...student, ...studentRows[0] };
+      if (req.session) req.session.student = student;
+    }
 
     // 1. Academic History
     const { semesterList, overallStats } = await getStudentAcademicHistory(studentId);
     const completedSemesters = semesterList.filter(s => s.semester_number < student.current_semester);
-    const latestSem = completedSemesters[completedSemesters.length - 1] || { sgpa: 0 };
+    const latestSem = completedSemesters[completedSemesters.length - 1] || semesterList[semesterList.length - 1] || { sgpa: 0 };
 
     // 2. Attendance Summary
     const [attRows] = await db.query(`

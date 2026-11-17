@@ -352,8 +352,18 @@ function showPortalApp() {
   if (currentStudent) {
     const nameEl = document.getElementById('nav-student-name');
     const regEl = document.getElementById('nav-student-reg');
-    if (nameEl) nameEl.innerText = currentStudent.name;
-    if (regEl) regEl.innerText = currentStudent.registration_no;
+    if (nameEl) nameEl.innerText = currentStudent.name || 'Student';
+    if (regEl) regEl.innerText = currentStudent.registration_no || '';
+
+    // Immediately populate banner elements from currentStudent so fallback placeholders are never shown
+    const bannerName = document.getElementById('banner-student-name');
+    const bannerFather = document.getElementById('banner-father-name');
+    const bannerReg = document.getElementById('banner-reg-no');
+    const bannerClass = document.getElementById('banner-class');
+    if (bannerName) bannerName.innerText = currentStudent.name || 'Student';
+    if (bannerFather) bannerFather.innerText = currentStudent.father_name || '—';
+    if (bannerReg) bannerReg.innerText = currentStudent.registration_no || '—';
+    if (bannerClass) bannerClass.innerText = `${currentStudent.program_code || 'BSCS'} - Semester ${currentStudent.current_semester || 1}`;
   }
 }
 
@@ -371,10 +381,10 @@ async function loadDashboard() {
     const cgpaEl = document.getElementById('banner-cgpa');
     const chEl = document.getElementById('banner-earned-ch');
 
-    if (nameEl) nameEl.innerText = s.name;
-    if (fatherEl) fatherEl.innerText = s.father_name;
-    if (regEl) regEl.innerText = s.registration_no;
-    if (classEl) classEl.innerText = s.current_class;
+    if (nameEl) nameEl.innerText = s.name || 'Student';
+    if (fatherEl) fatherEl.innerText = s.father_name || '—';
+    if (regEl) regEl.innerText = s.registration_no || '—';
+    if (classEl) classEl.innerText = s.current_class || `${s.program_code} - Semester ${s.current_semester}`;
     if (cgpaEl) cgpaEl.innerText = Number(s.cgpa || 0).toFixed(2);
     if (chEl) chEl.innerText = `${s.earned_ch || 0} CH`;
 
