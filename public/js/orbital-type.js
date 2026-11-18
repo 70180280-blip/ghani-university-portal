@@ -181,9 +181,9 @@
 
       // Base Pedestal
       const baseGrad = this.ctx.createLinearGradient(baseFootL.x, baseFootL.y, baseFootR.x, baseFootR.y);
-      baseGrad.addColorStop(0, 'rgba(30, 58, 138, 0.40)');
-      baseGrad.addColorStop(0.5, 'rgba(59, 130, 246, 0.75)');
-      baseGrad.addColorStop(1, 'rgba(14, 116, 144, 0.40)');
+      baseGrad.addColorStop(0, 'rgba(18, 61, 50, 0.45)');
+      baseGrad.addColorStop(0.5, 'rgba(201, 164, 76, 0.85)');
+      baseGrad.addColorStop(1, 'rgba(29, 102, 82, 0.50)');
 
       this.ctx.strokeStyle = baseGrad;
       this.ctx.lineWidth = 3.5;
@@ -208,18 +208,18 @@
         else this.ctx.lineTo(pt.x, pt.y);
       }
 
-      this.ctx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
+      this.ctx.strokeStyle = 'rgba(201, 164, 76, 0.45)';
       this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
       // Outer metallic highlight for meridian ring
-      this.ctx.strokeStyle = 'rgba(147, 197, 253, 0.65)';
+      this.ctx.strokeStyle = 'rgba(221, 232, 225, 0.75)';
       this.ctx.lineWidth = 1.2;
       this.ctx.stroke();
 
       // North Pole Spindle Pin
-      this.ctx.fillStyle = '#93C5FD';
-      this.ctx.shadowColor = '#3B82F6';
+      this.ctx.fillStyle = '#C9A44C';
+      this.ctx.shadowColor = '#C9A44C';
       this.ctx.shadowBlur = 8;
       this.ctx.beginPath();
       this.ctx.arc(northPin.x, northPin.y, 3.5 * northPin.scale, 0, Math.PI * 2);
@@ -237,15 +237,15 @@
      * Draw 3D Spherical Atmosphere Body & Faint Rotating Longitude Meridians
      */
     drawGlobeSphere() {
-      // 1. Spherical Body Radial Glow (Deep ocean / planetary sphere)
+      // 1. Spherical Body Radial Glow (Deep Emerald & Gold planetary sphere)
       const sphereGrad = this.ctx.createRadialGradient(
         this.centerX - this.radius * 0.28, this.centerY - this.radius * 0.28, 15,
         this.centerX, this.centerY, this.radius
       );
-      sphereGrad.addColorStop(0, 'rgba(59, 130, 246, 0.25)'); // Specular highlight quadrant
-      sphereGrad.addColorStop(0.4, 'rgba(30, 58, 138, 0.20)'); // Deep oceanic body
-      sphereGrad.addColorStop(0.85, 'rgba(15, 23, 42, 0.35)'); // Shaded terminator
-      sphereGrad.addColorStop(1, 'rgba(13, 148, 136, 0.18)'); // Atmospheric limb glow
+      sphereGrad.addColorStop(0, 'rgba(201, 164, 76, 0.22)'); // Gold specular highlight quadrant
+      sphereGrad.addColorStop(0.4, 'rgba(29, 102, 82, 0.25)'); // Secondary green body
+      sphereGrad.addColorStop(0.85, 'rgba(18, 61, 50, 0.45)'); // Deep emerald shaded terminator
+      sphereGrad.addColorStop(1, 'rgba(201, 164, 76, 0.18)'); // Gold atmospheric limb glow
 
       this.ctx.save();
       this.ctx.fillStyle = sphereGrad;
@@ -254,7 +254,7 @@
       this.ctx.fill();
 
       // Thin atmospheric rim circle
-      this.ctx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
+      this.ctx.strokeStyle = 'rgba(201, 164, 76, 0.40)';
       this.ctx.lineWidth = 1.5;
       this.ctx.stroke();
       this.ctx.restore();
@@ -376,19 +376,19 @@
         this.ctx.textBaseline = 'middle';
 
         if (isFront) {
-          // Front characters: Ultra-bold, brilliant pure white & sky-blue with neon glow
+          // Front characters: Ultra-bold, brilliant pure white & gold with emerald neon glow
           if (depthNorm > 0.65) {
             this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-            this.ctx.shadowColor = 'rgba(59, 130, 246, 0.95)';
+            this.ctx.shadowColor = 'rgba(201, 164, 76, 0.95)';
             this.ctx.shadowBlur = 10 * p.scale;
           } else {
-            this.ctx.fillStyle = `rgba(147, 197, 253, ${alpha})`;
-            this.ctx.shadowColor = 'rgba(59, 130, 246, 0.85)';
+            this.ctx.fillStyle = `rgba(201, 164, 76, ${alpha})`;
+            this.ctx.shadowColor = 'rgba(29, 102, 82, 0.85)';
             this.ctx.shadowBlur = 8 * p.scale;
           }
         } else {
-          // Rear characters: Subdued navy fading gracefully behind the globe
-          this.ctx.fillStyle = `rgba(59, 130, 246, ${alpha * 0.32})`;
+          // Rear characters: Subdued emerald fading gracefully behind the globe
+          this.ctx.fillStyle = `rgba(29, 102, 82, ${alpha * 0.35})`;
           this.ctx.shadowBlur = 0;
         }
 
@@ -405,13 +405,13 @@
         // Luminous GU Core Text
         this.ctx.font = '900 24px "Inter", sans-serif';
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        this.ctx.shadowColor = 'rgba(59, 130, 246, 0.95)';
+        this.ctx.shadowColor = 'rgba(201, 164, 76, 0.95)';
         this.ctx.shadowBlur = 16;
         this.ctx.fillText('GU', this.centerX, this.centerY - 2);
 
         // Core Subtitle
         this.ctx.font = '800 9px "Inter", sans-serif';
-        this.ctx.fillStyle = 'rgba(147, 197, 253, 0.90)';
+        this.ctx.fillStyle = 'rgba(201, 164, 76, 0.95)';
         this.ctx.shadowBlur = 6;
         this.ctx.fillText('EST. 2026', this.centerX, this.centerY + 16);
         this.ctx.restore();

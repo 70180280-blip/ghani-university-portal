@@ -23,15 +23,24 @@
       theme: {
         extend: {
           colors: {
+            gu: {
+              emerald: '#123D32',      // Primary — Deep Emerald
+              secondary: '#1D6652',    // Secondary Green
+              gold: '#C9A44C',         // Premium Gold
+              bg: '#F5F7F4',           // Background
+              surface: '#FFFFFF',      // Cards / Surfaces
+              text: '#26352F',         // Text / Headings
+              softGreen: '#DDE8E1'     // Borders / Soft Green
+            },
             gtiu: {
-              navy: '#1E3A8A',
-              blue: '#3B82F6',
-              sky: '#3B82F6',
-              soft: '#93C5FD',
-              lightBg: '#F8FAFC',
+              navy: '#123D32',
+              blue: '#1D6652',
+              sky: '#C9A44C',
+              soft: '#DDE8E1',
+              lightBg: '#F5F7F4',
               white: '#FFFFFF',
               red: '#C4161C',
-              charcoal: '#4A4A4A'
+              charcoal: '#26352F'
             }
           }
         }
@@ -43,7 +52,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Custom Fiori Stylesheet -->
-  <link rel="stylesheet" href="/css/portal.css?v=20261108_final">
+  <link rel="stylesheet" href="/css/portal.css?v=20261118_emerald">
   
   <!-- Immediate Theme Initializer -->
   <script>
@@ -72,20 +81,20 @@
         <div class="relative flex items-center justify-center">
           <img src="/images/logo.png" alt="Ghani University Emblem" class="h-11 w-auto object-contain rounded-lg shadow-sm"
                onerror="this.classList.add('hidden'); document.getElementById('logo-fallback-nav').classList.remove('hidden');" />
-          <div id="logo-fallback-nav" class="hidden h-10 w-10 rounded-lg bg-[#1E3A8A] border border-[#3B82F6] flex items-center justify-center font-black text-white text-sm">
+          <div id="logo-fallback-nav" class="hidden h-10 w-10 rounded-lg bg-[#123D32] border border-[#C9A44C] flex items-center justify-center font-black text-[#C9A44C] text-sm">
             GU
           </div>
         </div>
         <div>
           <h1 class="text-base sm:text-lg font-black tracking-tight leading-tight uppercase">Ghani University</h1>
-          <p class="text-[11px] text-[#93C5FD] hidden sm:block font-medium">Sheikhupura Campus • Student Academic Portal</p>
+          <p class="text-[11px] text-[#C9A44C] hidden sm:block font-medium">Sheikhupura Campus • Excellence in Education &amp; Innovation</p>
         </div>
       </div>
 
       <!-- Right Controls: Theme Toggle, Profile Info, Logout -->
       <div class="flex items-center gap-3">
         <!-- Theme Toggle -->
-        <button id="theme-toggle-btn" class="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-sky-200 flex items-center gap-1.5 cursor-pointer shadow-sm" title="Toggle Dark/Light Mode">
+        <button id="theme-toggle-btn" class="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-[#DDE8E1] hover:text-white flex items-center gap-1.5 cursor-pointer shadow-sm" title="Toggle Dark/Light Mode">
           <span id="theme-icon"></span>
           <span id="theme-label" class="text-xs font-semibold hidden sm:inline">Theme</span>
         </button>
@@ -94,7 +103,7 @@
         <div id="user-profile-menu" class="hidden flex items-center gap-3 pl-2 border-l border-white/20">
           <div class="text-right hidden md:block">
             <span id="nav-student-name" class="block text-xs font-bold text-white">Student</span>
-            <span id="nav-student-reg" class="block text-[10px] text-sky-200"></span>
+            <span id="nav-student-reg" class="block text-[10px] text-[#C9A44C]"></span>
           </div>
           <button id="logout-btn" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1">
             <span>Logout</span>
@@ -118,7 +127,7 @@
         </div>
         <div class="space-y-1 pt-2">
           <h2 class="text-2xl font-black text-white tracking-wider uppercase">Ghani University</h2>
-          <p class="text-xs text-[#93C5FD] font-semibold tracking-wide">Sheikhupura • Academic Information Portal</p>
+          <p class="text-xs text-[#C9A44C] font-semibold tracking-wide">Sheikhupura • Excellence in Education &amp; Innovation</p>
         </div>
       </div>
 
@@ -131,7 +140,7 @@
             <img src="/images/logo.png" alt="Ghani University Logo" class="h-16 w-auto object-contain mx-auto" />
           </div>
           <h3 class="text-lg font-bold text-white">Student Portal Sign In</h3>
-          <p class="text-xs text-slate-400">Ghani University, Sheikhupura</p>
+          <p class="text-xs text-[#DDE8E1]">Ghani University, Sheikhupura</p>
         </div>
 
         <!-- Error Alert -->
@@ -142,29 +151,29 @@
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Registration Number</label>
             <input type="text" id="login-reg-no" required placeholder="Registration Number..."
-                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono" />
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#1D6652] focus:ring-1 focus:ring-[#C9A44C] font-mono" />
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Student Full Name</label>
           <input type="text" id="login-student-name" required placeholder="Student Full Name..."
-                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" />
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#1D6652] focus:ring-1 focus:ring-[#C9A44C]" />
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Father's Name</label>
           <input type="text" id="login-father-name" required placeholder="Father's Name..."
-                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]" />
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#1D6652] focus:ring-1 focus:ring-[#C9A44C]" />
         </div>
 
         <!-- Optional Extra Verification Field (Configurable in config/university.js) -->
         <div id="optional-verification-container" class="hidden">
           <label id="optional-field-label" class="block text-xs font-semibold text-slate-300 mb-1">Security PIN / DOB</label>
           <input type="text" id="login-extra-field" placeholder="Enter verification value"
-                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#3B82F6]" />
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#1D6652] focus:ring-1 focus:ring-[#C9A44C]" />
         </div>
 
-        <button type="submit" id="login-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white rounded-xl text-xs font-bold shadow-lg transition">
+        <button type="submit" id="login-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-[#123D32] via-[#16473B] to-[#1D6652] hover:opacity-95 text-white border border-[#C9A44C]/50 rounded-xl text-xs font-bold shadow-lg transition tracking-wide">
           Sign In to Portal
         </button>
       </form>
@@ -186,30 +195,30 @@
   <main id="portal-section" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
     
     <!-- Welcome & Student Status Banner -->
-    <section class="rounded-2xl bg-gradient-to-r from-[#1E3A8A] via-slate-900 to-[#1E3A8A]/90 border border-[#3B82F6]/40 p-6 shadow-xl relative overflow-hidden">
+    <section class="rounded-2xl bg-gradient-to-r from-[#123D32] via-[#16473A] to-[#1D6652] border border-[#C9A44C]/60 p-6 shadow-xl relative overflow-hidden">
       <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="space-y-1">
           <div class="flex items-center gap-2">
             <h2 id="banner-student-name" class="text-xl sm:text-2xl font-black text-white">Student Name</h2>
-            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Active</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#1D6652]/80 text-[#DDE8E1] border border-[#C9A44C]/40">Active</span>
           </div>
           <p class="text-xs text-slate-300">
             s/o <span id="banner-father-name" class="font-semibold text-white">—</span> | 
-            Reg No: <span id="banner-reg-no" class="font-mono text-[#93C5FD] font-bold">—</span>
+            Reg No: <span id="banner-reg-no" class="font-mono text-[#C9A44C] font-bold">—</span>
           </p>
-          <p class="text-xs text-[#93C5FD]">
-            Current Class: <strong id="banner-class">BSCS - Semester 4</strong> | Sheikhupura Campus
+          <p class="text-xs text-[#DDE8E1]">
+            Current Class: <strong id="banner-class" class="text-white">BSCS - Semester 4</strong> | Sheikhupura Campus • <span class="text-[#C9A44C] font-medium">Excellence in Education &amp; Innovation</span>
           </p>
         </div>
 
         <!-- Academic Key Metric Badges -->
         <div class="flex items-center gap-3">
-          <div class="text-center px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700">
-            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Cumulative CGPA</span>
-            <span id="banner-cgpa" class="text-xl font-black text-sky-400">0.00</span>
+          <div class="text-center px-4 py-2 rounded-xl bg-[#0A1C17]/80 border border-[#C9A44C]/50 shadow-inner">
+            <span class="text-[10px] text-[#DDE8E1]/80 uppercase tracking-wider block font-semibold">Cumulative CGPA</span>
+            <span id="banner-cgpa" class="text-xl font-black text-[#C9A44C]">0.00</span>
           </div>
-          <div class="text-center px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700">
-            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Earned Credits</span>
+          <div class="text-center px-4 py-2 rounded-xl bg-[#0A1C17]/80 border border-[#DDE8E1]/30 shadow-inner">
+            <span class="text-[10px] text-[#DDE8E1]/80 uppercase tracking-wider block font-semibold">Earned Credits</span>
             <span id="banner-earned-ch" class="text-xl font-black text-emerald-400">0 CH</span>
           </div>
         </div>
@@ -219,7 +228,7 @@
     <!-- SECTION 1: RESULTS TILES -->
     <section class="space-y-3">
       <div class="fiori-section-header">
-        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <svg class="w-4 h-4 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span>Results & Degree Audit</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -229,10 +238,10 @@
           <div>
             <div class="flex justify-between items-center mb-2">
               <span class="text-xs font-semibold text-slate-400">Academic Standing</span>
-              <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
+              <div class="p-2 rounded-lg bg-[#C9A44C]/15 text-[#C9A44C]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">My Results</h3>
-            <p id="tile-results-count" class="text-xl font-bold text-sky-400">4 Semesters</p>
+            <p id="tile-results-count" class="text-xl font-bold text-[#C9A44C]">4 Semesters</p>
           </div>
           <p id="tile-results-sub" class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Detailed component breakdown</p>
         </div>
@@ -256,7 +265,7 @@
     <!-- SECTION 2: STUDENT ACADEMICS TILES -->
     <section class="space-y-3">
       <div class="fiori-section-header">
-        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <svg class="w-4 h-4 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
         <span>Student Academics</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -266,10 +275,10 @@
           <div>
             <div class="flex justify-between items-center mb-2">
               <span class="text-xs font-semibold text-slate-400">Active Load</span>
-              <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg></div>
+              <div class="p-2 rounded-lg bg-[#1D6652]/20 text-[#1D6652] dark:text-[#C9A44C]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg></div>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">Registered Courses</h3>
-            <p id="tile-courses-count" class="text-xl font-bold text-sky-400">4 Courses</p>
+            <p id="tile-courses-count" class="text-xl font-bold text-[#123D32] dark:text-[#C9A44C]">4 Courses</p>
           </div>
           <p id="tile-courses-sub" class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Current semester enrollment</p>
         </div>
@@ -279,10 +288,10 @@
           <div>
             <div class="flex justify-between items-center mb-2">
               <span class="text-xs font-semibold text-slate-400">Daily Routine</span>
-              <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+              <div class="p-2 rounded-lg bg-[#C9A44C]/15 text-[#C9A44C]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">My Timetable</h3>
-            <p id="tile-timetable-count" class="text-xl font-bold text-indigo-400">2 Classes Today</p>
+            <p id="tile-timetable-count" class="text-xl font-bold text-[#C9A44C]">2 Classes Today</p>
           </div>
           <p id="tile-timetable-sub" class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Weekly class schedule</p>
         </div>
@@ -306,7 +315,7 @@
     <!-- SECTION 3: STUDENT ADMINISTRATION TILES -->
     <section class="space-y-3">
       <div class="fiori-section-header">
-        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <svg class="w-4 h-4 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>Student Administration</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -319,7 +328,7 @@
               <span id="tile-attendance-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">RISK</span>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">Attendance Report</h3>
-            <p id="tile-attendance-count" class="text-xl font-bold text-sky-400">89.2% Overall</p>
+            <p id="tile-attendance-count" class="text-xl font-bold text-[#1D6652] dark:text-[#C9A44C]">89.2% Overall</p>
           </div>
           <p id="tile-attendance-sub" class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">75% Policy Compliance</p>
         </div>
@@ -329,10 +338,10 @@
           <div>
             <div class="flex justify-between items-center mb-2">
               <span class="text-xs font-semibold text-slate-400">Official Document</span>
-              <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+              <div class="p-2 rounded-lg bg-[#1D6652]/20 text-[#1D6652] dark:text-[#C9A44C]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">Interim Transcript</h3>
-            <p class="text-xl font-bold text-sky-300">Verified PDF</p>
+            <p class="text-xl font-bold text-[#123D32] dark:text-[#C9A44C]">Verified PDF</p>
           </div>
           <p class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Print & PDF Download</p>
         </div>
@@ -356,33 +365,33 @@
     <!-- SECTION 4: ACADEMIC CALENDAR & STUDENT TOOLS -->
     <section class="space-y-3">
       <div class="fiori-section-header">
-        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <svg class="w-4 h-4 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         <span>Academic Calendar &amp; Student Services</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         
         <!-- Official Academic Calendar Tile -->
-        <div onclick="openView('academic-calendar')" class="fiori-tile rounded-xl p-5 cursor-pointer flex flex-col justify-between border-sky-500/40 hover:border-sky-400 transition">
+        <div onclick="openView('academic-calendar')" class="fiori-tile rounded-xl p-5 cursor-pointer flex flex-col justify-between border-[#C9A44C]/40 hover:border-[#C9A44C] transition">
           <div>
             <div class="flex justify-between items-center mb-2">
-              <span class="text-xs font-semibold text-sky-400">Official Schedule</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300">Session 2026-2027</span>
+              <span class="text-xs font-semibold text-[#C9A44C]">Official Schedule</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1D6652]/30 text-[#DDE8E1] border border-[#C9A44C]/30">Session 2026-2027</span>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">Academic Calendar</h3>
-            <p class="text-xl font-bold text-sky-400">Key Dates &amp; Events</p>
+            <p class="text-xl font-bold text-[#123D32] dark:text-[#C9A44C]">Key Dates &amp; Events</p>
           </div>
           <p class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Midterms, finals, results &amp; recess schedule</p>
         </div>
 
         <!-- CGPA Goal Calculator Tile -->
-        <div onclick="openView('what-if')" class="fiori-tile rounded-xl p-5 cursor-pointer flex flex-col justify-between border-indigo-500/40 hover:border-indigo-400 transition">
+        <div onclick="openView('what-if')" class="fiori-tile rounded-xl p-5 cursor-pointer flex flex-col justify-between border-[#1D6652]/40 hover:border-[#C9A44C] transition">
           <div>
             <div class="flex justify-between items-center mb-2">
               <span class="text-xs font-semibold text-slate-400">HEC Quality Points Formula</span>
-              <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
+              <div class="p-2 rounded-lg bg-[#C9A44C]/15 text-[#C9A44C]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
             </div>
             <h3 class="text-sm font-bold text-white mb-1">CGPA Goal Calculator</h3>
-            <p class="text-xl font-bold text-indigo-300">Target Simulator</p>
+            <p class="text-xl font-bold text-[#C9A44C]">Target Simulator</p>
           </div>
           <p class="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-700/50">Simulate upcoming semester credit hours</p>
         </div>

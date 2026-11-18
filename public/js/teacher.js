@@ -49,7 +49,7 @@
     }
     const item = document.createElement('div');
     item.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-2xl border text-xs font-bold flex items-center gap-2 transition-all transform duration-300 translate-y-2 opacity-0 ${
-      type === 'success' ? 'bg-[#0D9488] text-white border-teal-400' : 'bg-red-600 text-white border-red-400'
+      type === 'success' ? 'bg-[#1D6652] text-white border-teal-400' : 'bg-red-600 text-white border-red-400'
     }`;
     item.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span><span>${escapeHtml(message)}</span>`;
     box.appendChild(item);
@@ -178,10 +178,10 @@
 
     document.querySelectorAll('.teacher-tab-btn').forEach(b => {
       if (b.getAttribute('data-tab') === tabName) {
-        b.classList.add('bg-[#0D9488]', 'text-white', 'shadow');
+        b.classList.add('bg-[#1D6652]', 'text-white', 'shadow');
         b.classList.remove('text-slate-400', 'hover:text-white');
       } else {
-        b.classList.remove('bg-[#0D9488]', 'text-white', 'shadow');
+        b.classList.remove('bg-[#1D6652]', 'text-white', 'shadow');
         b.classList.add('text-slate-400', 'hover:text-white');
       }
     });
@@ -261,11 +261,11 @@
       let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
       T.courses.forEach(c => {
         html += `
-          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-md hover:border-[#0D9488]/50 transition flex flex-col justify-between">
+          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-md hover:border-[#1D6652]/50 transition flex flex-col justify-between">
             <div class="space-y-2">
               <div class="flex justify-between items-start gap-2">
                 <div>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#2563EB]/20 text-[#2563EB] border border-[#2563EB]/30">${c.course_code}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1D6652]/20 text-[#1D6652] border border-[#1D6652]/30">${c.course_code}</span>
                   <h3 class="text-sm font-bold text-white mt-1">${escapeHtml(c.course_title)}</h3>
                 </div>
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/15 text-teal-400 border border-teal-500/30">Sec ${c.section || 'A'}</span>
@@ -276,7 +276,7 @@
 
             <!-- Action buttons: Enter Marks, Mark Attendance, Open Slate -->
             <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2">
-              <button onclick="window.Teacher.jumpToGrades('${c.course_code}')" class="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+              <button onclick="window.Teacher.jumpToGrades('${c.course_code}')" class="px-3 py-1.5 bg-[#1D6652] hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
                 <span>📊 Marks</span>
               </button>
               <button onclick="window.Teacher.jumpToAttendance('${c.course_code}')" class="px-3 py-1.5 bg-teal-700 hover:bg-teal-600 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
@@ -384,17 +384,17 @@
             <td class="p-3 text-center">
               <input type="number" id="mid-${s.id}" value="${mid}" min="0" max="30" step="0.5" placeholder="0-30"
                      oninput="window.Teacher.recalcRow(${s.id})"
-                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#0D9488]" />
+                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#1D6652]" />
             </td>
             <td class="p-3 text-center">
               <input type="number" id="final-${s.id}" value="${finalM}" min="0" max="50" step="0.5" placeholder="0-50"
                      oninput="window.Teacher.recalcRow(${s.id})"
-                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#0D9488]" />
+                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#1D6652]" />
             </td>
             <td class="p-3 text-center">
               <input type="number" id="assign-${s.id}" value="${assign}" min="0" max="20" step="0.5" placeholder="0-20"
                      oninput="window.Teacher.recalcRow(${s.id})"
-                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#0D9488]" />
+                     class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center text-white font-bold focus:border-[#1D6652]" />
             </td>
             <td class="p-3 text-center font-bold text-white text-xs">
               <span id="total-${s.id}">${total}</span> / 100
@@ -408,7 +408,7 @@
               </span>
             </td>
             <td class="p-3 text-right">
-              <button onclick="window.Teacher.saveSingleGrade(${s.id}, '${courseCode}')" class="px-2.5 py-1 bg-teal-600/30 hover:bg-[#0D9488] text-teal-200 hover:text-white rounded-lg text-xs font-bold transition">
+              <button onclick="window.Teacher.saveSingleGrade(${s.id}, '${courseCode}')" class="px-2.5 py-1 bg-teal-600/30 hover:bg-[#1D6652] text-teal-200 hover:text-white rounded-lg text-xs font-bold transition">
                 Save
               </button>
             </td>
@@ -747,7 +747,7 @@
           <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#2563EB]/20 text-[#2563EB]">${m.course_code}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1D6652]/20 text-[#1D6652]">${m.course_code}</span>
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-teal-500/15 text-teal-400">${m.material_type}</span>
                 <span class="text-xs text-slate-400">• Max Marks: ${m.total_marks || 10}</span>
               </div>
@@ -756,7 +756,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <button onclick="window.Teacher.viewSubmissions(${m.id}, '${escapeHtml(m.title)}')" class="px-3.5 py-1.5 bg-[#0D9488] hover:bg-teal-600 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1">
+              <button onclick="window.Teacher.viewSubmissions(${m.id}, '${escapeHtml(m.title)}')" class="px-3.5 py-1.5 bg-[#1D6652] hover:bg-teal-600 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1">
                 <span>Submissions (${m.submission_count || 0})</span>
               </button>
               <button onclick="window.Teacher.handleDeleteMaterial(${m.id})" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-xs font-semibold border border-red-500/30">
@@ -800,7 +800,7 @@
           <div class="py-4 space-y-3">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div>
-                <h4 class="text-sm font-bold text-white">${escapeHtml(sub.student_name)} <span class="text-xs font-mono text-[#93C5FD]">(${escapeHtml(sub.registration_no)})</span></h4>
+                <h4 class="text-sm font-bold text-white">${escapeHtml(sub.student_name)} <span class="text-xs font-mono text-[#C9A44C]">(${escapeHtml(sub.registration_no)})</span></h4>
                 <p class="text-xs text-slate-400">Submitted: ${new Date(sub.submitted_at).toLocaleString()}</p>
                 ${sub.student_comment ? `<p class="text-xs text-slate-300 italic mt-1">"${escapeHtml(sub.student_comment)}"</p>` : ''}
               </div>
@@ -822,7 +822,7 @@
                 <input type="text" id="grade-feedback-${sub.id}" value="${escapeHtml(sub.teacher_feedback || '')}" placeholder="Instructor feedback to student..."
                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs text-white" />
               </div>
-              <button type="submit" class="px-4 py-1.5 bg-[#0D9488] hover:bg-teal-600 text-white rounded-lg text-xs font-bold shadow">
+              <button type="submit" class="px-4 py-1.5 bg-[#1D6652] hover:bg-teal-600 text-white rounded-lg text-xs font-bold shadow">
                 ${isGraded ? 'Update Grade' : 'Submit Grade'}
               </button>
             </form>
@@ -1069,7 +1069,7 @@
                 <p class="text-[11px] text-slate-400">Synchronized live with Student Slate LMS</p>
               </div>
             </div>
-            <button onclick="window.Teacher.saveWeekPlan('${escapeHtml(courseCode)}', ${w.week_number})" class="px-4 py-1.5 bg-gradient-to-r from-[#2563EB] to-[#0D9488] hover:opacity-90 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition">
+            <button onclick="window.Teacher.saveWeekPlan('${escapeHtml(courseCode)}', ${w.week_number})" class="px-4 py-1.5 bg-gradient-to-r from-[#1D6652] to-[#1D6652] hover:opacity-90 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition">
               <span>💾</span>
               <span>Save to Slate LMS</span>
             </button>

@@ -1,33 +1,45 @@
 /**
- * Ghani University Portal - SAP Fiori Style Styling & Theme Rules
- * Branding: Navy #1E3A8A, Blue #3B82F6, Soft Sky #93C5FD, Light #F8FAFC, White #FFFFFF
+ * Ghani University Portal - Official Brand Design System & Themes
+ * Brand Colors:
+ * - Primary: Deep Emerald #123D32
+ * - Secondary Green: #1D6652
+ * - Premium Gold: #C9A44C
+ * - Background: #F5F7F4
+ * - Cards / Surfaces: #FFFFFF
+ * - Text / Headings: #26352F
+ * - Borders / Soft Green: #DDE8E1
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap');
 
 :root {
-  --color-primary: #1E3A8A;
-  --color-accent: #3B82F6;
-  --color-soft: #93C5FD;
+  --color-primary: #123D32;       /* Deep Emerald */
+  --color-secondary: #1D6652;     /* Secondary Green */
+  --color-gold: #C9A44C;          /* Premium Gold */
+  --color-bg-page: #F5F7F4;       /* Background */
+  --color-surface: #FFFFFF;       /* Cards / Surfaces */
+  --color-text-headings: #26352F; /* Text / Headings */
+  --color-border: #DDE8E1;        /* Borders / Soft Green */
   --color-danger: #C4161C;
-  --color-text-secondary: #4A4A4A;
-  --bg-main: #0B1120;
-  --bg-card: #1E293B;
-  --bg-card-hover: #243044;
-  --border-color: #334155;
-  --text-main: #F8FAFC;
-  --text-muted: #94A3B8;
-  --tile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+
+  /* Dark Theme Default */
+  --bg-main: #0A1C17;             /* Deep Emerald Night */
+  --bg-card: #122B24;             /* Deep Emerald Surface */
+  --bg-card-hover: #17382F;
+  --border-color: #214A3E;
+  --text-main: #F5F7F4;
+  --text-muted: #A3BFB5;
+  --tile-shadow: 0 4px 14px rgba(10, 28, 23, 0.45), 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 html.light {
-  --bg-main: #F8FAFC;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
-  --border-color: #E2E8F0;
-  --text-main: #0F172A;
-  --text-muted: #64748B;
-  --tile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --bg-main: #F5F7F4;             /* Clean Canvas from Palette */
+  --bg-card: #FFFFFF;             /* Crisp Card Surface from Palette */
+  --bg-card-hover: #F0F4F1;
+  --border-color: #DDE8E1;        /* Soft Green Border from Palette */
+  --text-main: #26352F;           /* Deep Forest Charcoal from Palette */
+  --text-muted: #536E65;
+  --tile-shadow: 0 4px 10px -2px rgba(18, 61, 50, 0.07), 0 2px 4px -2px rgba(18, 61, 50, 0.04);
 }
 
 body {
@@ -43,188 +55,196 @@ body {
 /* ========================================================================== */
 
 html.light body {
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
+  background-color: #F5F7F4 !important;
+  color: #26352F !important;
 }
 
 /* Fiori Section Headers in Light Mode */
 html.light .fiori-section-header {
-  color: #0F172A !important;
+  color: #26352F !important;
 }
 html.light .fiori-section-header::after {
-  background: #CBD5E1 !important;
+  background: #DDE8E1 !important;
 }
 
 /* Fiori Tiles in Light Mode */
 html.light .fiori-tile {
   background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03) !important;
+  border-color: #DDE8E1 !important;
+  box-shadow: 0 4px 10px -2px rgba(18, 61, 50, 0.06), 0 2px 4px -2px rgba(18, 61, 50, 0.04) !important;
 }
 
 html.light .fiori-tile:hover {
-  background-color: #F8FAFC !important;
-  border-color: #3B82F6 !important;
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.18) !important;
+  background-color: #FFFFFF !important;
+  border-color: #C9A44C !important;
+  box-shadow: 0 10px 20px -3px rgba(201, 164, 76, 0.22) !important;
 }
 
 html.light .fiori-tile h3 {
-  color: #0F172A !important;
+  color: #26352F !important;
 }
 
 html.light .fiori-tile .text-white {
-  color: #0F172A !important;
+  color: #26352F !important;
 }
 
-html.light .fiori-tile .text-slate-200 {
-  color: #1E293B !important;
+html.light .fiori-tile .text-slate-200,
+html.light .fiori-tile .text-slate-100 {
+  color: #26352F !important;
 }
 
 html.light .fiori-tile .text-slate-300,
 html.light .fiori-tile .text-slate-400,
 html.light .fiori-tile p[id$="-sub"] {
-  color: #64748B !important;
+  color: #536E65 !important;
 }
 
 html.light .fiori-tile .border-slate-700\/50,
 html.light .fiori-tile .border-slate-700,
 html.light .fiori-tile .border-slate-800 {
-  border-color: #E2E8F0 !important;
+  border-color: #DDE8E1 !important;
 }
 
 /* Login View in Light Mode */
-html.light #login-section > div {
+html.light #login-section > div > div.bg-slate-900\/95,
+html.light #login-section .bg-slate-900\/95,
+html.light #login-section .bg-slate-900 {
   background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  border-color: #DDE8E1 !important;
+  box-shadow: 0 20px 25px -5px rgba(18, 61, 50, 0.08), 0 8px 10px -6px rgba(18, 61, 50, 0.04) !important;
 }
 
-html.light #login-section h2 {
-  color: #0F172A !important;
+html.light #login-section h2,
+html.light #login-section h3 {
+  color: #26352F !important;
 }
 
 html.light #login-section p {
-  color: #64748B !important;
+  color: #536E65 !important;
 }
 
 html.light #login-section label {
-  color: #334155 !important;
+  color: #26352F !important;
 }
 
 html.light #login-section input {
-  background-color: #F8FAFC !important;
-  border-color: #CBD5E1 !important;
-  color: #0F172A !important;
+  background-color: #F5F7F4 !important;
+  border-color: #DDE8E1 !important;
+  color: #26352F !important;
 }
 
 html.light #login-section input:focus {
-  border-color: #3B82F6 !important;
+  border-color: #1D6652 !important;
+  outline-color: #C9A44C !important;
   background-color: #FFFFFF !important;
 }
 
 html.light #login-section input::placeholder {
-  color: #94A3B8 !important;
+  color: #8CA39A !important;
 }
 
-html.light #login-section .border-slate-800 {
-  border-color: #E2E8F0 !important;
+html.light #login-section .border-slate-800,
+html.light #login-section .border-slate-700 {
+  border-color: #DDE8E1 !important;
 }
 
 /* Student Banner in Light Mode */
-html.light #portal-section .rounded-2xl.bg-gradient-to-r {
-  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%) !important;
-  border-color: #93C5FD !important;
-  box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25) !important;
+html.light #portal-section .rounded-2xl.bg-gradient-to-r,
+#portal-section .rounded-2xl.bg-gradient-to-r {
+  background: linear-gradient(135deg, #123D32 0%, #16473A 50%, #1D6652 100%) !important;
+  border: 1px solid #C9A44C !important;
+  box-shadow: 0 10px 25px -5px rgba(18, 61, 50, 0.3) !important;
 }
 
-html.light #portal-section .rounded-2xl.bg-gradient-to-r h2,
-html.light #portal-section .rounded-2xl.bg-gradient-to-r .text-white {
+#portal-section .rounded-2xl.bg-gradient-to-r h2,
+#portal-section .rounded-2xl.bg-gradient-to-r .text-white {
   color: #FFFFFF !important;
 }
 
-html.light #portal-section .rounded-2xl.bg-gradient-to-r .text-slate-300 {
-  color: #E0F2FE !important;
+#portal-section .rounded-2xl.bg-gradient-to-r .text-slate-300 {
+  color: #DDE8E1 !important;
 }
 
-html.light #portal-section .rounded-2xl.bg-gradient-to-r .bg-slate-800\/80 {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
+#portal-section .rounded-2xl.bg-gradient-to-r .bg-slate-800\/80 {
+  background-color: rgba(18, 61, 50, 0.65) !important;
+  border: 1px solid rgba(201, 164, 76, 0.4) !important;
   backdrop-filter: blur(8px);
 }
 
-html.light #portal-section .rounded-2xl.bg-gradient-to-r .text-slate-400 {
-  color: #E0F2FE !important;
+#portal-section .rounded-2xl.bg-gradient-to-r .text-slate-400 {
+  color: #DDE8E1 !important;
 }
 
 /* Modal Windows in Light Mode */
 html.light #view-modal-container {
-  background-color: rgba(15, 23, 42, 0.5) !important;
+  background-color: rgba(18, 61, 50, 0.5) !important;
 }
 
 html.light #view-modal-container > div {
   background-color: #FFFFFF !important;
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2) !important;
+  border-color: #DDE8E1 !important;
+  box-shadow: 0 25px 50px -12px rgba(18, 61, 50, 0.22) !important;
 }
 
 html.light #view-modal-container > div > div:first-child {
-  background-color: #F8FAFC !important;
-  border-bottom-color: #E2E8F0 !important;
+  background: linear-gradient(90deg, #123D32 0%, #1D6652 100%) !important;
+  border-bottom: 2px solid #C9A44C !important;
 }
 
 html.light #view-modal-title {
-  color: #0F172A !important;
+  color: #FFFFFF !important;
 }
 
 html.light #view-modal-container .bg-slate-900,
 html.light #view-modal-container .bg-slate-950 {
   background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
+  border-color: #DDE8E1 !important;
 }
 
 html.light #view-modal-container .bg-slate-800\/80,
 html.light #view-modal-container .bg-slate-800\/50,
-html.light #view-modal-container .bg-slate-800 {
-  background-color: #F8FAFC !important;
-  border-color: #E2E8F0 !important;
+html.light #view-modal-container .bg-slate-800,
+html.light #view-modal-container .bg-slate-800\/40 {
+  background-color: #F5F7F4 !important;
+  border-color: #DDE8E1 !important;
 }
 
 html.light #view-modal-container h2,
 html.light #view-modal-container h3,
 html.light #view-modal-container h4,
 html.light #view-modal-container .text-white {
-  color: #0F172A !important;
+  color: #26352F !important;
 }
 
 html.light #view-modal-container .text-slate-100,
 html.light #view-modal-container .text-slate-200 {
-  color: #1E293B !important;
+  color: #26352F !important;
 }
 
 html.light #view-modal-container .text-slate-300,
 html.light #view-modal-container .text-slate-400 {
-  color: #64748B !important;
+  color: #536E65 !important;
 }
 
 html.light #view-modal-container .border-slate-700,
 html.light #view-modal-container .border-slate-800 {
-  border-color: #E2E8F0 !important;
+  border-color: #DDE8E1 !important;
 }
 
 /* Tables inside modal views */
 html.light #view-modal-container table th {
-  background-color: #F1F5F9 !important;
-  color: #334155 !important;
-  border-color: #E2E8F0 !important;
+  background-color: #F5F7F4 !important;
+  color: #26352F !important;
+  border-color: #DDE8E1 !important;
 }
 
 html.light #view-modal-container table td {
-  border-color: #E2E8F0 !important;
-  color: #1E293B !important;
+  border-color: #DDE8E1 !important;
+  color: #26352F !important;
 }
 
 html.light #view-modal-container table tr:hover td {
-  background-color: #F8FAFC !important;
+  background-color: #F0F4F1 !important;
 }
 
 /* Inputs & selects inside modals */
@@ -232,46 +252,48 @@ html.light #view-modal-container input,
 html.light #view-modal-container select,
 html.light #view-modal-container textarea {
   background-color: #FFFFFF !important;
-  border-color: #CBD5E1 !important;
-  color: #0F172A !important;
+  border-color: #DDE8E1 !important;
+  color: #26352F !important;
 }
 
 html.light #view-modal-container input::placeholder,
 html.light #view-modal-container textarea::placeholder {
-  color: #94A3B8 !important;
+  color: #8CA39A !important;
 }
 
 /* AI Chat bubbles in light mode */
 html.light #ai-chat-messages .bg-slate-800 {
-  background-color: #F1F5F9 !important;
-  border: 1px solid #E2E8F0 !important;
-  color: #0F172A !important;
+  background-color: #F5F7F4 !important;
+  border: 1px solid #DDE8E1 !important;
+  color: #26352F !important;
 }
 
 html.light #ai-chat-messages .text-slate-200 {
-  color: #1E293B !important;
+  color: #26352F !important;
 }
 
 /* Footer in Light Mode */
 html.light footer {
-  border-color: #E2E8F0 !important;
-  color: #64748B !important;
+  border-color: #DDE8E1 !important;
+  color: #536E65 !important;
 }
-html.light footer p {
-  color: #64748B !important;
-}
+html.light footer p,
 html.light footer a {
-  color: #64748B !important;
+  color: #536E65 !important;
 }
 html.light footer a:hover {
-  color: #0F172A !important;
+  color: #123D32 !important;
 }
+
+/* ========================================================================== */
+/* FIORI CORE COMPONENTS (THEME INDEPENDENT & DARK HARMONIZATION)             */
+/* ========================================================================== */
 
 /* Fiori Top Shell Navigation Bar */
 .fiori-shell {
-  background: linear-gradient(90deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%);
-  border-bottom: 2px solid #93C5FD;
-  box-shadow: 0 4px 15px -2px rgba(30, 58, 138, 0.3);
+  background: linear-gradient(90deg, #123D32 0%, #16473B 55%, #1D6652 100%) !important;
+  border-bottom: 2px solid #C9A44C !important;
+  box-shadow: 0 4px 15px -2px rgba(18, 61, 50, 0.4) !important;
 }
 
 /* Fiori Tiles */
@@ -279,7 +301,7 @@ html.light footer a:hover {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   box-shadow: var(--tile-shadow);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -287,8 +309,8 @@ html.light footer a:hover {
 .fiori-tile:hover {
   background-color: var(--bg-card-hover);
   transform: translateY(-3px);
-  border-color: #3B82F6;
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+  border-color: #C9A44C !important;
+  box-shadow: 0 10px 20px -3px rgba(201, 164, 76, 0.25) !important;
 }
 
 .fiori-tile::before {
@@ -298,12 +320,12 @@ html.light footer a:hover {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #1E3A8A, #3B82F6);
-  opacity: 0.9;
+  background: linear-gradient(90deg, #123D32, #C9A44C);
+  opacity: 0.95;
 }
 
 .fiori-tile.warning-tile::before {
-  background: #C4161C;
+  background: #C4161C !important;
 }
 
 /* Fiori Section Headers */
@@ -339,14 +361,14 @@ html.light footer a:hover {
   background: var(--bg-main);
 }
 ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #1D6652;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3B82F6;
+  background: #C9A44C;
 }
 
-/* Table Overflow & Header Clipping Fix (Ghalti No. 10) */
+/* Table Overflow & Header Clipping Fix */
 .table-container,
 .overflow-x-auto {
   overflow-x: auto !important;

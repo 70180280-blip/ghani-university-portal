@@ -50,8 +50,8 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
     }
 
     if (!hasLogoImage) {
-      doc.rect(42, 48, 45, 45).fill('#0B2A7A');
-      doc.fillColor('#FFFFFF').fontSize(14).font('Helvetica-Bold').text('GTIU', 45, 62, { width: 39, align: 'center' });
+      doc.rect(42, 48, 45, 45).fill('#123D32');
+      doc.fillColor('#FFFFFF').fontSize(14).font('Helvetica-Bold').text('GU', 45, 62, { width: 39, align: 'center' });
     }
 
     // Official University Titles
@@ -69,34 +69,34 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
 
     // Document Title Banner
     const bannerY = 106;
-    doc.rect(36, bannerY, 523, 20).fill('#0B2A7A');
+    doc.rect(36, bannerY, 523, 20).fill('#123D32');
     doc.fillColor('#FFFFFF').fontSize(11).font('Helvetica-Bold')
       .text('OFFICIAL INTERIM ACADEMIC TRANSCRIPT', 36, bannerY + 5, { width: 523, align: 'center' });
 
     // Student Information Grid
     const infoY = 132;
-    doc.rect(36, infoY, 523, 62).lineWidth(1).strokeColor('#CBD5E1').stroke();
-    doc.fillColor('#F8FAFC').rect(37, infoY + 1, 521, 60).fill();
+    doc.rect(36, infoY, 523, 62).lineWidth(1).strokeColor('#DDE8E1').stroke();
+    doc.fillColor('#F5F7F4').rect(37, infoY + 1, 521, 60).fill();
 
-    doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0B2A7A');
+    doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#123D32');
     doc.text('STUDENT NAME:', 46, infoY + 8);
     doc.text("FATHER'S NAME:", 46, infoY + 22);
     doc.text('REGISTRATION NO:', 46, infoY + 36);
     doc.text('ACADEMIC PROGRAM:', 46, infoY + 50);
 
-    doc.font('Helvetica').fillColor('#1E293B');
+    doc.font('Helvetica').fillColor('#26352F');
     doc.text(student.name.toUpperCase(), 150, infoY + 8);
     doc.text(student.father_name.toUpperCase(), 150, infoY + 22);
     doc.text(student.registration_no, 150, infoY + 36);
     doc.text(`${student.program_name || student.program_code}`, 150, infoY + 50);
 
-    doc.font('Helvetica-Bold').fillColor('#0B2A7A');
+    doc.font('Helvetica-Bold').fillColor('#123D32');
     doc.text('BATCH / INTAKE:', 340, infoY + 8);
     doc.text('CURRENT STATUS:', 340, infoY + 22);
     doc.text('DATE OF ISSUE:', 340, infoY + 36);
     doc.text('DEGREE DURATION:', 340, infoY + 50);
 
-    doc.font('Helvetica').fillColor('#1E293B');
+    doc.font('Helvetica').fillColor('#26352F');
     doc.text(student.batch, 440, infoY + 8);
     doc.text(student.status || 'Active / Regular', 440, infoY + 22);
     doc.text(new Date().toISOString().split('T')[0], 440, infoY + 36);
@@ -113,14 +113,14 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
       }
 
       // Semester Header Box
-      doc.rect(36, currentY, 523, 16).fill('#1E293B');
+      doc.rect(36, currentY, 523, 16).fill('#26352F');
       doc.fillColor('#FFFFFF').fontSize(8.5).font('Helvetica-Bold')
         .text(`SEMESTER ${sem.semester_number} (${sem.term || 'Fall'} ${sem.academic_year || '2023'})`, 42, currentY + 4);
 
       currentY += 16;
 
       // Table Header
-      doc.rect(36, currentY, 523, 14).fill('#E2E8F0');
+      doc.rect(36, currentY, 523, 14).fill('#DDE8E1');
       doc.fillColor('#0F172A').fontSize(7.5).font('Helvetica-Bold');
       doc.text('Course Code', 42, currentY + 3);
       doc.text('Course Title', 110, currentY + 3);
@@ -135,7 +135,7 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
       // Table Rows
       const courses = sem.courses || [];
       courses.forEach((c, idx) => {
-        const bg = idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC';
+        const bg = idx % 2 === 0 ? '#FFFFFF' : '#F5F7F4';
         doc.rect(36, currentY, 523, 13).fill(bg);
 
         doc.fillColor('#334155').fontSize(7.5).font('Helvetica');
@@ -147,7 +147,7 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
 
         // Fail grade in red
         const isF = (c.grade || '').toUpperCase() === 'F';
-        doc.fillColor(isF ? '#C4161C' : '#0B2A7A').font(isF ? 'Helvetica-Bold' : 'Helvetica')
+        doc.fillColor(isF ? '#C4161C' : '#123D32').font(isF ? 'Helvetica-Bold' : 'Helvetica')
           .text(c.grade || 'P', 435, currentY + 2);
 
         doc.fillColor('#334155').font('Helvetica')
@@ -157,8 +157,8 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
       });
 
       // Semester Summary Row
-      doc.rect(36, currentY, 523, 14).fill('#EFF6FF');
-      doc.fillColor('#0B2A7A').fontSize(7.5).font('Helvetica-Bold');
+      doc.rect(36, currentY, 523, 14).fill('#E9F1EE');
+      doc.fillColor('#123D32').fontSize(7.5).font('Helvetica-Bold');
       doc.text(`Semester Total CH: ${sem.total_ch || 0}   |   Earned CH: ${sem.earned_ch || 0}   |   SGPA: ${Number(sem.sgpa || 0).toFixed(2)}   |   Cumulative CGPA: ${Number(sem.cgpa || overallStats.cgpa || 0).toFixed(2)}`, 42, currentY + 3);
 
       currentY += 18;
@@ -171,7 +171,7 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
     }
 
     doc.moveDown(0.5);
-    doc.rect(36, currentY, 523, 30).fill('#0B2A7A');
+    doc.rect(36, currentY, 523, 30).fill('#123D32');
     doc.fillColor('#FFFFFF').fontSize(9).font('Helvetica-Bold');
     doc.text('CUMULATIVE ACADEMIC RECORD SUMMARY', 42, currentY + 5);
 
@@ -181,7 +181,7 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
     currentY += 40;
 
     // Grading Legend & Signatures
-    doc.rect(36, currentY, 523, 32).lineWidth(0.5).strokeColor('#E2E8F0').stroke();
+    doc.rect(36, currentY, 523, 32).lineWidth(0.5).strokeColor('#DDE8E1').stroke();
     doc.fillColor('#475569').fontSize(6.5).font('Helvetica')
       .text('GRADING SCALE: A (4.00, >=85%), A- (3.67, 80-84%), B+ (3.33, 75-79%), B (3.00, 70-74%), B- (2.67, 65-69%), C+ (2.33, 61-64%), C (2.00, 58-60%), C- (1.67, 55-57%), D (1.00, 50-54%), F (0.00, <50%).', 42, currentY + 4, { width: 510 })
       .text('Note: This is a verified electronic interim transcript issued for academic and evaluation purposes.', 42, currentY + 18);
@@ -193,7 +193,7 @@ function generateInterimTranscriptPDF(student, semestersWithCourses = [], overal
       .moveTo(50, currentY + 25).lineTo(180, currentY + 25).stroke()
       .moveTo(380, currentY + 25).lineTo(510, currentY + 25).stroke();
 
-    doc.fontSize(7.5).font('Helvetica-Bold').fillColor('#1E293B')
+    doc.fontSize(7.5).font('Helvetica-Bold').fillColor('#26352F')
       .text('Prepared & Checked By', 50, currentY + 28, { width: 130, align: 'center' })
       .text('Controller of Examinations', 380, currentY + 28, { width: 130, align: 'center' });
 
@@ -240,8 +240,8 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
       }
     }
     if (!hasLogo) {
-      doc.rect(42, 48, 45, 45).fill('#0B2A7A');
-      doc.fillColor('#FFFFFF').fontSize(14).font('Helvetica-Bold').text('GTIU', 45, 62, { width: 39, align: 'center' });
+      doc.rect(42, 48, 45, 45).fill('#123D32');
+      doc.fillColor('#FFFFFF').fontSize(14).font('Helvetica-Bold').text('GU', 45, 62, { width: 39, align: 'center' });
     }
 
     // Header Text
@@ -256,14 +256,14 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
 
     // Admit Card Banner
     const bannerY = 104;
-    doc.rect(36, bannerY, 523, 20).fill('#0B2A7A');
+    doc.rect(36, bannerY, 523, 20).fill('#123D32');
     doc.fillColor('#FFFFFF').fontSize(11).font('Helvetica-Bold')
       .text('EXAMINATION ADMISSION SLIP (STUDENT COPY)', 36, bannerY + 5, { width: 523, align: 'center' });
 
     // Student Information Grid + Photo Placeholder
     const infoY = 130;
-    doc.rect(36, infoY, 430, 85).lineWidth(1).strokeColor('#CBD5E1').stroke();
-    doc.fillColor('#F8FAFC').rect(37, infoY + 1, 428, 83).fill();
+    doc.rect(36, infoY, 430, 85).lineWidth(1).strokeColor('#DDE8E1').stroke();
+    doc.fillColor('#F5F7F4').rect(37, infoY + 1, 428, 83).fill();
 
     // Photo Box Placeholder
     doc.rect(475, infoY, 84, 85).lineWidth(1).strokeColor('#94A3B8').stroke();
@@ -273,30 +273,30 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
       .font('Helvetica').fontSize(6.5)
       .text('(Affix passport size photograph)', 478, infoY + 44, { width: 78, align: 'center' });
 
-    doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#0B2A7A');
+    doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#123D32');
     doc.text('CANDIDATE NAME:', 46, infoY + 10);
     doc.text("FATHER'S NAME:", 46, infoY + 26);
     doc.text('REGISTRATION NO:', 46, infoY + 42);
     doc.text('PROGRAM & BATCH:', 46, infoY + 58);
     doc.text('EXAMINATION CENTER:', 46, infoY + 74);
 
-    doc.font('Helvetica').fillColor('#1E293B');
+    doc.font('Helvetica').fillColor('#26352F');
     doc.text(student.name.toUpperCase(), 155, infoY + 10);
     doc.text(student.father_name.toUpperCase(), 155, infoY + 26);
     doc.text(student.registration_no, 155, infoY + 42);
     doc.text(`${student.program_code} - ${student.batch}`, 155, infoY + 58);
-    doc.text('GTIU Main Academic Block, Sheikhupura Bypass Campus', 155, infoY + 74);
+    doc.text('Ghani University Main Academic Block, Sheikhupura Campus', 155, infoY + 74);
 
     // Examination Dates Table
     let currentY = 228;
-    doc.rect(36, currentY, 523, 18).fill('#1E293B');
+    doc.rect(36, currentY, 523, 18).fill('#26352F');
     doc.fillColor('#FFFFFF').fontSize(8.5).font('Helvetica-Bold')
       .text('REGISTERED COURSES & DATE SHEET', 42, currentY + 5);
 
     currentY += 18;
 
     // Table Header
-    doc.rect(36, currentY, 523, 16).fill('#E2E8F0');
+    doc.rect(36, currentY, 523, 16).fill('#DDE8E1');
     doc.fillColor('#0F172A').fontSize(7.5).font('Helvetica-Bold');
     doc.text('Course Code', 42, currentY + 4);
     doc.text('Course Title', 115, currentY + 4);
@@ -315,7 +315,7 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
     ];
 
     scheduleList.forEach((item, idx) => {
-      const bg = idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC';
+      const bg = idx % 2 === 0 ? '#FFFFFF' : '#F5F7F4';
       doc.rect(36, currentY, 523, 20).fill(bg);
 
       doc.fillColor('#334155').fontSize(7.5).font('Helvetica');
@@ -326,7 +326,7 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
       doc.text(item.room || 'Hall A', 450, currentY + 5);
 
       // Signature line for invigilator
-      doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(500, currentY + 14).lineTo(550, currentY + 14).stroke();
+      doc.strokeColor('#DDE8E1').lineWidth(0.5).moveTo(500, currentY + 14).lineTo(550, currentY + 14).stroke();
 
       currentY += 20;
     });
@@ -341,7 +341,7 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
       .text('IMPORTANT INSTRUCTIONS FOR EXAM CANDIDATES:', 46, currentY + 8);
 
     doc.fillColor('#334155').fontSize(7.5).font('Helvetica')
-      .text('1. Entry to the examination hall is strictly prohibited without this Admit Card and official GTIU Student ID Card.', 46, currentY + 22)
+      .text('1. Entry to the examination hall is strictly prohibited without this Admit Card and official Ghani University Student ID Card.', 46, currentY + 22)
       .text('2. Candidates must be seated at least 15 minutes before the start of the examination.', 46, currentY + 34)
       .text('3. Mobile phones, programmable calculators, smart watches, and unauthorized material are strictly prohibited.', 46, currentY + 46)
       .text('4. Candidate must maintain at least 75% attendance in each course to be eligible to sit in the examination.', 46, currentY + 58)
@@ -355,7 +355,7 @@ function generateAdmitCardPDF(student, registeredCourses = [], examSchedule = []
       .moveTo(50, currentY + 25).lineTo(180, currentY + 25).stroke()
       .moveTo(380, currentY + 25).lineTo(510, currentY + 25).stroke();
 
-    doc.fontSize(7.5).font('Helvetica-Bold').fillColor('#1E293B')
+    doc.fontSize(7.5).font('Helvetica-Bold').fillColor('#26352F')
       .text('Student Signature', 50, currentY + 28, { width: 130, align: 'center' })
       .text('Controller of Examinations', 380, currentY + 28, { width: 130, align: 'center' });
 

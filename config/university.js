@@ -14,7 +14,7 @@ module.exports = {
   phone: '+92 56 3781200 / +92 56 3781201',
   email: 'registrar@gu.edu.pk | info@gu.edu.pk',
   website: 'https://ghani-university-portal.vercel.app',
-  tagline: 'Excellence in Knowledge & Character',
+  tagline: 'Excellence in Education & Innovation',
   
   // Institute structure
   faculties: [
@@ -88,18 +88,33 @@ module.exports = {
     label: 'Date of Birth (YYYY-MM-DD)'
   },
 
-  // Official Branding Colors from Palette (#1E3A8A, #3B82F6, #93C5FD, #F8FAFC, #FFFFFF)
+  // Official Branding Colors from Palette:
+  // Primary — Deep Emerald #123D32
+  // Secondary Green #1D6652
+  // Premium Gold #C9A44C
+  // Background #F5F7F4
+  // Cards / Surfaces #FFFFFF
+  // Text / Headings #26352F
+  // Borders / Soft Green #DDE8E1
   colors: {
-    navy: '#1E3A8A',        // Primary Deep Navy
-    blue: '#3B82F6',        // Vibrant Royal Blue
-    skyBlue: '#3B82F6',     // Primary Accent
-    softSky: '#93C5FD',     // Highlight & Subtle Accent
-    white: '#FFFFFF',       // Crisp White
-    lightBg: '#F8FAFC',     // Clean Off-White Background
-    red: '#C4161C',         // Warnings and critical actions
-    charcoal: '#4A4A4A',    // Secondary text
-    darkBg: '#0B1120',
-    darkCard: '#1E293B'
+    primary: '#123D32',         // Deep Emerald
+    secondary: '#1D6652',       // Secondary Green
+    gold: '#C9A44C',            // Premium Gold
+    background: '#F5F7F4',      // Background
+    surface: '#FFFFFF',         // Cards / Surfaces
+    text: '#26352F',            // Text / Headings
+    border: '#DDE8E1',          // Borders / Soft Green
+    red: '#C4161C',             // Warnings and critical actions
+    darkBg: '#0A1C17',          // Deep Emerald Night
+    darkCard: '#132E27',        // Deep Emerald Surface
+    // Compatibility aliases:
+    navy: '#123D32',
+    blue: '#1D6652',
+    skyBlue: '#C9A44C',
+    softSky: '#DDE8E1',
+    white: '#FFFFFF',
+    lightBg: '#F5F7F4',
+    charcoal: '#26352F'
   },
 
   // Logo configuration

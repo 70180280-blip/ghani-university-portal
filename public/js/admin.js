@@ -1663,7 +1663,7 @@ window.loadTeachersManager = async function() {
               <button onclick="window.openAssignCourseModal(${t.id}, '${escapeHtml(t.name)}')" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600 text-sky-300 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition">
                 + Course
               </button>
-              <button onclick="window.handleImpersonateTeacher(${t.id})" class="px-2.5 py-1 bg-teal-600/20 hover:bg-[#0D9488] text-teal-300 hover:text-white rounded-lg text-xs font-bold border border-teal-500/30 transition" title="Log into teacher workbench">
+              <button onclick="window.handleImpersonateTeacher(${t.id})" class="px-2.5 py-1 bg-teal-600/20 hover:bg-[#1D6652] text-teal-300 hover:text-white rounded-lg text-xs font-bold border border-teal-500/30 transition" title="Log into teacher workbench">
                 👨‍🏫 Login
               </button>
               <button onclick="window.handleDeleteTeacher(${t.id}, '${escapeHtml(t.name)}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-lg text-xs font-semibold border border-red-500/30 transition">
