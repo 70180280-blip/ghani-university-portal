@@ -44,7 +44,6 @@ const db = require('./src/db/pool');
 const universityConfig = require('./config/university');
 const studentRoutes = require('./src/routes/studentRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
-const teacherRoutes = require('./src/routes/teacherRoutes');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -100,7 +99,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 // 5. API Routes
 app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/teacher', teacherRoutes);
 
 function readViewFile(filename) {
   const candidates = [
@@ -127,10 +125,7 @@ app.get('/admin', (req, res) => {
   res.send(readViewFile('admin.html'));
 });
 
-app.get('/teacher', (req, res) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.send(readViewFile('teacher.html'));
-});
+app.get('/teacher', (req, res) => res.redirect('/admin'));
 
 app.get('/slate', (req, res) => {
   res.redirect('/');

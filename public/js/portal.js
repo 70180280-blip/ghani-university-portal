@@ -766,7 +766,7 @@ async function loadAttendanceView(container) {
       container.innerHTML = `
         <div class="p-8 text-center text-slate-400 space-y-2">
           <p class="text-sm font-semibold">No attendance sessions logged yet.</p>
-          <p class="text-xs">Faculty can upload attendance records from the Admin ERP.</p>
+          <p class="text-xs">Attendance records can be uploaded from the Administrator ERP.</p>
         </div>
       `;
       return;
