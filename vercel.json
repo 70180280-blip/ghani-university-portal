@@ -10,16 +10,20 @@
       "destination": "/admin/index.html"
     },
     {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    }
+  ],
+  "redirects": [
+    {
       "source": "/teacher",
-      "destination": "/teacher/index.html"
+      "destination": "/admin",
+      "permanent": false
     },
     {
       "source": "/slate",
-      "destination": "/slate/index.html"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/",
+      "permanent": false
     }
   ]
 }
