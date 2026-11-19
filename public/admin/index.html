@@ -234,8 +234,7 @@
             Upload Student Data File (Excel, PDF, or PowerPoint)
           </h3>
           <p class="text-xs text-slate-400 mt-1">
-            Our institutional ingestion engine automatically detects columns like <strong>Student Name</strong>, <strong>Father's Name</strong>, <strong>Student Contact Number</strong>, and <strong>Father's Contact Number</strong>.
-          </p>
+            Upload official student enrollment files, semester results spreadsheets, or examination rosters in Excel (.xlsx, .csv) or PDF format.</p>
         </div>
 
         <form id="admin-upload-form" class="space-y-4">
@@ -251,10 +250,10 @@
 
             <!-- Plain Instruction -->
             <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700 space-y-2">
-              <label class="block text-xs font-bold text-sky-300">Plain Instruction (Optional)</label>
-              <input type="text" id="upload-instruction-input" placeholder="e.g. 'This is student list with phone and father contact' or 'BSCS Batch 2024'"
+              <label class="block text-xs font-bold text-sky-300">Dataset Label / Session Note (Optional)</label>
+              <input type="text" id="upload-instruction-input" placeholder="e.g. 'Fall 2026 CS-4th Semester Student Enrollment' or 'Midterm Results Sheet'"
                      class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#1D6652] focus:ring-1 focus:ring-[#C9A44C]" />
-              <p class="text-[11px] text-slate-400">Helps prioritize column mapping</p>
+              <p class="text-[11px] text-slate-400">Target batch, academic semester, or session label</p>
             </div>
 
           </div>
@@ -390,9 +389,9 @@
     <div id="tab-content-search" class="hidden space-y-6">
       <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
         <div>
-          <h3 class="text-sm font-bold text-white">Institutional Database Query Engine</h3>
+          <h3 class="text-sm font-bold text-white">Institutional Records Search</h3>
           <p class="text-xs text-slate-400">
-            Ask any question in plain language. The query engine executes a strictly validated, read-only parameterized query against whitelisted university tables.
+            Search students, courses, enrollments, and academic standing records using registration number, program, or status filters.
           </p>
         </div>
 
@@ -403,7 +402,7 @@
         </div>
 
         <div class="flex gap-2">
-          <input type="text" id="ai-search-input" placeholder="e.g. 'Show me all students in BSCS' or 'Who failed Digital Logic?'"
+          <input type="text" id="ai-search-input" placeholder="Search by student name, registration number, course code, or batch..."
                  class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#1D6652] focus:ring-1 focus:ring-[#C9A44C]" />
           <button onclick="window.handleAiSearch()" class="px-5 py-2.5 bg-[#1D6652] hover:bg-[#123D32] text-white border border-[#C9A44C]/40 rounded-xl text-xs font-bold transition">
             Search
@@ -429,7 +428,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h3 class="text-sm font-bold text-white">Institutional At-Risk Students Audit</h3>
-            <p class="text-xs text-slate-400">Deterministic code flags students below 75% attendance, CGPA &lt; 2.0, or with failed courses; academic advisory compiles the council report.</p>
+            <p class="text-xs text-slate-400">Academic compliance audit: Flags students under 75% attendance threshold, CGPA below 2.00 academic warning, or course deficiencies for Academic Council review.</p>
           </div>
           <button onclick="window.loadAtRiskReport()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs font-semibold border border-slate-700">
             Refresh Audit

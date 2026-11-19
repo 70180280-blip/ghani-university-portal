@@ -108,13 +108,7 @@ window.quickFillStudent = function(reg, name, father) {
   }
 };
 
-window.sendQuickPrompt = function(promptText) {
-  const input = document.getElementById('ai-chat-input');
-  if (input) {
-    input.value = promptText;
-    document.getElementById('ai-chat-form')?.dispatchEvent(new Event('submit'));
-  }
-};
+// Quick prompt helper retired.
 
 window.runWhatIfSimulation = async function() {
   const selects = document.querySelectorAll('.sim-grade');
@@ -1529,7 +1523,7 @@ function loadWhatIfView(container) {
     <div class="space-y-6">
       <p class="text-xs text-slate-400">
         Choose hypothetical courses and your target letter grades to simulate your future SGPA and projected CGPA.
-        <strong>All GPAs and quality points are calculated in deterministic code</strong>, with institutional advisory guidance.
+        Projected SGPA and cumulative CGPA are calculated using the official Higher Education Commission (HEC) Quality Points &amp; Grading Formula.
       </p>
 
       <div class="space-y-3 bg-slate-800/40 p-4 rounded-xl border border-slate-700">

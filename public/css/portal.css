@@ -261,16 +261,7 @@ html.light #view-modal-container textarea::placeholder {
   color: #8CA39A !important;
 }
 
-/* AI Chat bubbles in light mode */
-html.light #ai-chat-messages .bg-slate-800 {
-  background-color: #F5F7F4 !important;
-  border: 1px solid #DDE8E1 !important;
-  color: #26352F !important;
-}
 
-html.light #ai-chat-messages .text-slate-200 {
-  color: #26352F !important;
-}
 
 /* Footer in Light Mode */
 html.light footer {

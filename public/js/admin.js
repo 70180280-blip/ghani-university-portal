@@ -344,8 +344,8 @@ window.handleAiSearch = async function(queryText) {
   const tableContainer = document.getElementById('ai-search-table-container');
 
   if (resultsArea) resultsArea.classList.remove('hidden');
-  if (explanationBox) explanationBox.innerHTML = 'Translating natural language into safe parameterized query...';
-  if (tableContainer) tableContainer.innerHTML = '<div class="p-6 text-center text-slate-400">Executing safe query...</div>';
+  if (explanationBox) explanationBox.innerHTML = 'Searching institutional records database...';
+  if (tableContainer) tableContainer.innerHTML = '<div class="p-6 text-center text-slate-400">Retrieving database records...</div>';
 
   try {
     const res = await adminFetch('/api/admin/ai/search', {
@@ -361,7 +361,7 @@ window.handleAiSearch = async function(queryText) {
       return;
     }
 
-    if (explanationBox) explanationBox.innerHTML = `<strong>Query Intent:</strong> ${data.explanation} (${data.rowCount} rows returned)`;
+    if (explanationBox) explanationBox.innerHTML = `<strong>Active Filter:</strong> ${data.explanation} (${data.rowCount} rows returned)`;
 
     const exportBtn = document.getElementById('ai-search-export-btn');
     if (!data.data || data.data.length === 0) {
@@ -646,7 +646,7 @@ window.editPreviewRecord = function(idx) {
 window.loadAtRiskReport = async function() {
   const container = document.getElementById('atrisk-report-container');
   if (!container) return;
-  container.innerHTML = '<div class="p-6 text-center text-slate-400"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-sky-400 mb-2"></div><br/>Analyzing institutional data for at-risk flags...</div>';
+  container.innerHTML = '<div class="p-6 text-center text-slate-400"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-sky-400 mb-2"></div><br/>Compiling academic standing and attendance compliance audit...</div>';
 
   try {
     const res = await adminFetch('/api/admin/ai/at-risk');

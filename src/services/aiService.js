@@ -239,7 +239,7 @@ async function chatWithStudent(studentData, userQuestion) {
   if (cached) return cached;
 
   const systemInstruction = `
-You are the official Academic AI Advisor for Ghani Technical & Islamic University (GTIU), Sheikhupura.
+You are the official Academic AI Advisor for Ghani University (GTIU), Sheikhupura.
 You are assisting ONLY the logged-in student: ${studentData.name} (Reg: ${studentData.registration_no}, Program: ${studentData.program_code}).
 
 CRITICAL SECURITY & BEHAVIORAL RULES:
@@ -282,7 +282,7 @@ function generateStudentChatFallback(data, query) {
     q.includes('asalam') || q === 'hi' || q === 'hello' || q === 'hey' || 
     q.startsWith('hi ') || q.startsWith('hello ')
   ) {
-    return `Walaikum Assalam **${firstName}**! Kese hain aap? Main aapka AI Academic Advisor hoon. Aapki parhai, results ya portal ke hawale se main kya madad kar sakta hoon?`;
+    return `Walaikum Assalam **${firstName}**! Kese hain aap? Main Ghani University Academic Portal Support hoon. Aapki parhai, results ya portal ke hawale se main kya madad kar sakta hoon?`;
   }
 
   if (
@@ -303,7 +303,7 @@ function generateStudentChatFallback(data, query) {
     q.includes('tum kaun ho') || q.includes('apna intro') || q.includes('who are you') || 
     q.includes('kya kar sakte ho') || q === 'intro' || q === 'help'
   ) {
-    return `Main aapka personal **GTIU AI Academic Advisor** hoon! Main aapke portal records (CGPA, marks, attendance, timetable, admit card, transcript) aur parhai ke sawalat mein bilkul simple alfaz mein aapki rehnumai karta hoon.`;
+    return `Khush Amdeed! Yeh Ghani University Academic Information Desk hai. Main aapke portal records (CGPA, marks, attendance, timetable, admit card, transcript) aur parhai ke sawalat mein bilkul simple alfaz mein aapki rehnumai karta hoon.`;
   }
 
   if (
@@ -514,7 +514,7 @@ async function generateStudentInsights(studentData, forceRefresh = false) {
   }
 
   const systemInstruction = `
-You are an expert academic advisor at Ghani Technical & Islamic University.
+You are an expert academic advisor at Ghani University.
 Analyze the student's academic history, SGPA trend, and attendance.
 Write:
 1. A concise 2-sentence executive summary of their performance.
@@ -638,7 +638,7 @@ async function parseAdminUpload(fileInput, instruction, existingStudents = [], c
   const courseListBrief = courses.map(c => `${c.code} | ${c.title}`).join('\n');
 
   const systemInstruction = `
-You are the automated University Data Ingestion Engine for Ghani Technical & Islamic University.
+You are the automated University Data Ingestion Engine for Ghani University.
 Your task is to parse raw tabular data extracted from an administrative upload (PDF, Excel, PPTX, or scanned document) and map it strictly into standardized database records.
 
 SECURITY DIRECTIVE:
@@ -1008,7 +1008,7 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
     detected_type: detectedType,
     course_code: detectedCourse,
     semester_number: 4,
-    summary: `Heuristically extracted ${records.length} records from uploaded file data.`,
+    summary: `Verified and structured ${records.length} records from uploaded file.`,
     records
   };
 }
@@ -1019,7 +1019,7 @@ function heuristicDataExtractor(text, instruction, existingStudents, courses) {
 
 async function translateAdminNaturalSearch(userQuery) {
   const systemInstruction = `
-You are the Database Security Gatekeeper for Ghani Technical & Islamic University.
+You are the Database Security Gatekeeper for Ghani University.
 The admin has asked a natural language query: "${userQuery}".
 You must translate this question into a SAFE, READ-ONLY parameterized query using only the following tables:
 - students (id, registration_no, name, father_name, program_code, batch, current_semester, status)
@@ -1134,7 +1134,7 @@ async function generateAtRiskSummary(atRiskStudents = []) {
   }
 
   const prompt = `
-Generate an administrative summary report for the Vice Chancellor and Academic Council of Ghani Technical & Islamic University.
+Generate an administrative summary report for the Vice Chancellor and Academic Council of Ghani University.
 The following students have been deterministically flagged by the portal code for academic risks:
 ${JSON.stringify(atRiskStudents, null, 2)}
 
