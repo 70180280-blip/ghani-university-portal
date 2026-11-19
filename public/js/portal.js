@@ -489,7 +489,7 @@ window.loadFilteredSemesterResult = function() {
           <span class="font-bold text-white text-sm">${match.term} ${match.academic_year} Official Gazetted Result</span>
         </div>
         <div class="text-xs space-x-3 text-slate-300">
-          <span>SGPA: <strong class="text-sky-300 font-bold text-sm">${match.sgpa.toFixed(2)}</strong></span>
+          <span>SGPA: <strong class="text-[#C9A44C] font-bold text-sm">${match.sgpa.toFixed(2)}</strong></span>
           <span>Earned CH: <strong class="text-emerald-300 font-bold">${match.earned_ch} / ${match.total_ch}</strong></span>
           <span>Percentage: <strong class="text-white">${match.percentage}%</strong></span>
         </div>
@@ -518,7 +518,7 @@ window.loadFilteredSemesterResult = function() {
     const isF = c.grade === 'F';
     semHtml += `
       <tr class="hover:bg-slate-700/30">
-        <td class="py-2 px-3 font-semibold text-sky-400 font-mono">${escapeHtml(c.courseCode)}</td>
+        <td class="py-2 px-3 font-semibold text-[#C9A44C] font-mono">${escapeHtml(c.courseCode)}</td>
         <td class="py-2 px-3 font-medium text-slate-200">${escapeHtml(c.title)}</td>
         <td class="py-2 px-2 text-center text-slate-300">${c.creditHours}</td>
         <td class="py-2 px-2 text-center text-slate-400">${c.assignmentMarks}</td>
@@ -527,7 +527,7 @@ window.loadFilteredSemesterResult = function() {
         <td class="py-2 px-2 text-center text-slate-400">${c.finalMarks}</td>
         <td class="py-2 px-2 text-center font-bold text-white">${c.marksObtained} / ${c.totalMarks}</td>
         <td class="py-2 px-2 text-center font-semibold text-slate-200">${c.percentage}%</td>
-        <td class="py-2 px-2 text-center font-bold ${isF ? 'text-red-400 bg-red-950/40 rounded' : 'text-emerald-400'}">${escapeHtml(c.grade)}</td>
+        <td class="py-2 px-2 text-center font-bold ${isF ? 'text-red-400 bg-red-950/40 rounded' : 'text-[#C9A44C]'}">${escapeHtml(c.grade)}</td>
         <td class="py-2 px-2 text-center font-mono text-slate-300">${Number(c.gradePoint).toFixed(1)}</td>
       </tr>
     `;
@@ -556,11 +556,11 @@ async function loadResultsView(container) {
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700">
             <span class="text-xs text-slate-400">Current CGPA</span>
-            <p class="text-2xl font-bold text-sky-400">${cgpa}</p>
+            <p class="text-2xl font-bold text-[#C9A44C]">${cgpa}</p>
           </div>
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700">
             <span class="text-xs text-slate-400">Total Earned CH</span>
-            <p class="text-2xl font-bold text-emerald-400">${earnedCH} CH</p>
+            <p class="text-2xl font-bold text-[#C9A44C]">${earnedCH} CH</p>
           </div>
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700">
             <span class="text-xs text-slate-400">Overall Percentage</span>
@@ -576,7 +576,7 @@ async function loadResultsView(container) {
         <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl">
           <div class="border-b border-slate-800 pb-2">
             <h4 class="text-sm font-bold text-white flex items-center gap-2">
-              <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              <svg class="w-4 h-4 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
               <span>Term Examination Result Lookup</span>
             </h4>
             <p class="text-xs text-slate-400 mt-0.5">Select Academic Year and Session Term to view official semester transcript</p>
@@ -585,7 +585,7 @@ async function loadResultsView(container) {
           <form id="result-term-form" onsubmit="event.preventDefault(); window.loadFilteredSemesterResult();" class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
               <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Year: <span class="text-sky-400 font-bold">*</span></label>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Year: <span class="text-[#C9A44C] font-bold">*</span></label>
                 <select id="result-filter-year" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 transition shadow-inner">
                   <option value="2026">2026</option>
                   <option value="2025">2025</option>
@@ -595,7 +595,7 @@ async function loadResultsView(container) {
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Session: <span class="text-sky-400 font-bold">*</span></label>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Session: <span class="text-[#C9A44C] font-bold">*</span></label>
                 <select id="result-filter-session" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 transition shadow-inner">
                   <option value="Fall">Fall</option>
                   <option value="Spring">Spring</option>
@@ -632,7 +632,7 @@ async function loadResultsView(container) {
         html += `
           <div class="rounded-xl border border-slate-700 overflow-hidden bg-slate-800/40">
             <div class="bg-slate-800 px-4 py-3 flex flex-wrap justify-between items-center gap-2 border-b border-slate-700">
-              <span class="font-bold text-sky-300">Semester ${sem.semester_number} (${sem.term} ${sem.academic_year})</span>
+              <span class="font-bold text-[#C9A44C]">Semester ${sem.semester_number} (${sem.term} ${sem.academic_year})</span>
               <div class="text-xs space-x-3 text-slate-300">
                 <span>SGPA: <strong class="text-white">${sem.sgpa.toFixed(2)}</strong></span>
                 <span>Earned CH: <strong class="text-white">${sem.earned_ch} / ${sem.total_ch}</strong></span>
@@ -671,7 +671,7 @@ async function loadResultsView(container) {
               <td class="py-2 px-2 text-center text-slate-400">${c.finalMarks}</td>
               <td class="py-2 px-2 text-center font-bold text-white">${c.marksObtained} / ${c.totalMarks}</td>
               <td class="py-2 px-2 text-center">${c.percentage}%</td>
-              <td class="py-2 px-2 text-center font-bold ${isF ? 'text-red-500 bg-red-950/40 rounded' : 'text-sky-400'}">${escapeHtml(c.grade)}</td>
+              <td class="py-2 px-2 text-center font-bold ${isF ? 'text-red-500 bg-red-950/40 rounded' : 'text-[#C9A44C]'}">${escapeHtml(c.grade)}</td>
             </tr>
           `;
         });
@@ -779,11 +779,11 @@ async function loadAttendanceView(container) {
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700">
             <span class="text-xs text-slate-400">Overall Attendance</span>
-            <p class="text-2xl font-bold ${data.overall.isAtRisk ? 'text-red-400' : 'text-emerald-400'}">${data.overall.percentage}%</p>
+            <p class="text-2xl font-bold ${data.overall.isAtRisk ? 'text-red-400' : 'text-[#C9A44C]'}">${data.overall.percentage}%</p>
           </div>
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700">
             <span class="text-xs text-slate-400">Classes Attended</span>
-            <p class="text-2xl font-bold text-sky-400">${data.overall.present} / ${data.overall.total}</p>
+            <p class="text-2xl font-bold text-[#C9A44C]">${data.overall.present} / ${data.overall.total}</p>
           </div>
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700">
             <span class="text-xs text-slate-400">Absences Logged</span>
@@ -814,7 +814,7 @@ async function loadAttendanceView(container) {
               <p class="text-xs text-slate-400">${c.present} Present | ${c.absent} Absent | ${c.leave} Leave | Total: ${c.total} Sessions</p>
             </div>
             <div class="text-right">
-              <span class="inline-block px-2.5 py-1 text-xs font-bold rounded ${isRisk ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-emerald-500/20 text-emerald-400'}">
+              <span class="inline-block px-2.5 py-1 text-xs font-bold rounded ${isRisk ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-emerald-500/20 text-[#C9A44C]'}">
                 ${c.percentage}% ${isRisk ? 'CRITICAL WARNING' : 'SAFE'}
               </span>
               <p class="text-xs text-slate-400 mt-1">Can miss: <strong class="text-white">${c.absencesAllowedNow}</strong> more class(es)</p>
@@ -836,7 +836,7 @@ async function loadAttendanceView(container) {
     `;
 
     (data.calendarRecords || []).slice(0, 30).forEach(r => {
-      let badge = '<span class="text-emerald-400 font-bold">Present</span>';
+      let badge = '<span class="text-[#C9A44C] font-bold">Present</span>';
       if (r.status === 'absent') badge = '<span class="text-red-400 font-bold">Absent</span>';
       if (r.status === 'leave') badge = '<span class="text-amber-400 font-bold">Leave</span>';
 
@@ -1023,7 +1023,7 @@ async function loadRegisteredCoursesView(container) {
     if (!data.courses || data.courses.length === 0) {
       container.innerHTML = `
         <div class="p-8 text-center text-slate-400 space-y-2">
-          <div class="inline-flex p-3 rounded-full bg-sky-500/10 text-sky-400 mb-1">
+          <div class="inline-flex p-3 rounded-full bg-sky-500/10 text-[#C9A44C] mb-1">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           </div>
           <p class="text-sm font-semibold text-slate-200">No active course registrations found for Semester ${data.currentSemester || 1}.</p>
@@ -1040,13 +1040,13 @@ async function loadRegisteredCoursesView(container) {
         <div class="flex flex-wrap justify-between items-center gap-3 p-4 bg-slate-800/80 rounded-xl border border-slate-700">
           <div>
             <h4 class="text-sm font-bold text-white flex items-center gap-2">
-              <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <svg class="w-4 h-4 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <span>Current Registered Load (Semester ${data.currentSemester || 1})</span>
             </h4>
             <p class="text-xs text-slate-400 mt-0.5">Officially enrolled academic subjects for ongoing term</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-3 py-1 bg-sky-500/20 text-sky-300 font-bold text-xs rounded-lg border border-sky-500/30">
+            <span class="px-3 py-1 bg-sky-500/20 text-[#C9A44C] font-bold text-xs rounded-lg border border-sky-500/30">
               ${data.courses.length} Courses
             </span>
             <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold text-xs rounded-lg border border-emerald-500/30">
@@ -1071,7 +1071,7 @@ async function loadRegisteredCoursesView(container) {
       html += `
         <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-sky-500/60 transition space-y-3">
           <div class="flex justify-between items-start">
-            <span class="px-2.5 py-1 text-xs font-bold font-mono bg-sky-500/20 text-sky-400 rounded-lg border border-sky-500/30">${escapeHtml(code)}</span>
+            <span class="px-2.5 py-1 text-xs font-bold font-mono bg-sky-500/20 text-[#C9A44C] rounded-lg border border-sky-500/30">${escapeHtml(code)}</span>
             <span class="px-2 py-0.5 text-xs font-semibold bg-slate-700 text-slate-200 rounded">${ch} CH</span>
           </div>
           <div>
@@ -1118,7 +1118,7 @@ async function loadTimetableView(container) {
       <div class="space-y-6">
         <div class="p-4 rounded-xl bg-sky-950/30 border border-sky-500/40 flex justify-between items-center">
           <div>
-            <h4 class="font-bold text-sky-300">Today is ${data.currentDay}</h4>
+            <h4 class="font-bold text-[#C9A44C]">Today is ${data.currentDay}</h4>
             <p class="text-xs text-slate-300">${data.todayEventsCount} scheduled class(es) today</p>
           </div>
         </div>
@@ -1141,7 +1141,7 @@ async function loadTimetableView(container) {
       const isToday = slot.day_of_week === data.currentDay;
       html += `
         <tr class="${isToday ? 'bg-sky-500/10 font-medium' : 'hover:bg-slate-700/20'}">
-          <td class="py-2.5 px-3 font-bold ${isToday ? 'text-sky-400' : 'text-slate-200'}">${slot.day_of_week}</td>
+          <td class="py-2.5 px-3 font-bold ${isToday ? 'text-[#C9A44C]' : 'text-slate-200'}">${slot.day_of_week}</td>
           <td class="py-2.5 px-3 text-slate-300">${slot.start_time.slice(0, 5)} - ${slot.end_time.slice(0, 5)}</td>
           <td class="py-2.5 px-3 font-semibold text-slate-200">${slot.course_code} - ${slot.course_title}</td>
           <td class="py-2.5 px-3 text-slate-400">${slot.teacher_name}</td>
@@ -1170,7 +1170,7 @@ async function loadDegreeAuditView(container) {
         <div class="p-5 rounded-xl bg-slate-800/50 border border-slate-700 space-y-3">
           <div class="flex justify-between items-center text-xs">
             <span class="font-bold text-slate-200">Degree Completion Progress</span>
-            <span class="font-bold text-sky-400">${a.progressPct}% Complete</span>
+            <span class="font-bold text-[#C9A44C]">${a.progressPct}% Complete</span>
           </div>
           <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
             <div class="h-3 rounded-full bg-gradient-to-r from-sky-500 to-emerald-400" style="width: ${a.progressPct}%"></div>
@@ -1194,7 +1194,7 @@ async function loadDegreeAuditView(container) {
             <span class="font-bold text-slate-200">${c.code}</span>
             <span class="text-slate-400 ml-1">${c.title}</span>
           </div>
-          <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded font-bold">${c.grade} (${c.creditHours} CH)</span>
+          <span class="px-2 py-0.5 bg-emerald-500/20 text-[#C9A44C] rounded font-bold">${c.grade} (${c.creditHours} CH)</span>
         </div>
       `;
     });
@@ -1221,7 +1221,7 @@ async function loadPersonalDetailsView(container) {
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>${escapeHtml(p.name)}</span>
             </h4>
-            <p class="text-xs text-slate-400 mt-0.5 font-mono text-sky-400 font-semibold">${escapeHtml(p.registration_no)}</p>
+            <p class="text-xs text-slate-400 mt-0.5 font-mono text-[#C9A44C] font-semibold">${escapeHtml(p.registration_no)}</p>
           </div>
           <span class="px-3 py-1 rounded-lg text-xs font-bold ${p.status === 'Active' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-slate-300'}">
             ${escapeHtml(p.status || 'Active')}
@@ -1241,13 +1241,13 @@ async function loadPersonalDetailsView(container) {
 
           <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1">
             <span class="text-[11px] font-medium text-slate-400">Registration Number</span>
-            <p class="text-sm font-bold text-sky-400 font-mono">${escapeHtml(p.registration_no)}</p>
+            <p class="text-sm font-bold text-[#C9A44C] font-mono">${escapeHtml(p.registration_no)}</p>
           </div>
 
           <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1">
             <span class="text-[11px] font-medium text-slate-400">Student Contact Number</span>
-            <p class="text-sm font-bold text-sky-300 font-mono flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <p class="text-sm font-bold text-[#C9A44C] font-mono flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
               <span>${escapeHtml(p.phone || 'N/A')}</span>
             </p>
           </div>
@@ -1255,7 +1255,7 @@ async function loadPersonalDetailsView(container) {
           <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1">
             <span class="text-[11px] font-medium text-slate-400">Father's Contact Number</span>
             <p class="text-sm font-bold text-emerald-300 font-mono flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              <svg class="w-3.5 h-3.5 text-[#C9A44C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
               <span>${escapeHtml(p.father_phone || 'N/A')}</span>
             </p>
           </div>
@@ -1280,7 +1280,7 @@ async function loadPersonalDetailsView(container) {
 
           <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1">
             <span class="text-[11px] font-medium text-slate-400">Current Semester</span>
-            <p class="text-sm font-bold text-sky-400">Semester ${p.current_semester || 1}</p>
+            <p class="text-sm font-bold text-[#C9A44C]">Semester ${p.current_semester || 1}</p>
           </div>
         </div>
       </div>
@@ -1371,9 +1371,9 @@ function loadAcademicCalendarView(container) {
             <span>📅</span>
             <span>Ghani University Academic Calendar &amp; Key Deadlines</span>
           </h3>
-          <p class="text-xs text-sky-300 mt-0.5">Academic Session 2026 – 2027 • Approved by University Academic Council</p>
+          <p class="text-xs text-[#C9A44C] mt-0.5">Academic Session 2026 – 2027 • Approved by University Academic Council</p>
         </div>
-        <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-[#C9A44C] border border-sky-500/30">
           Fall 2026 &amp; Spring 2027
         </span>
       </div>
@@ -1393,20 +1393,20 @@ function loadAcademicCalendarView(container) {
             <tr class="hover:bg-slate-800/40">
               <td class="p-3 font-semibold text-white">Orientation &amp; Commencement of Classes</td>
               <td class="p-3 text-slate-300">Fall 2026</td>
-              <td class="p-3 font-mono text-sky-400">Monday, Aug 17, 2026</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Completed</span></td>
+              <td class="p-3 font-mono text-[#C9A44C]">Monday, Aug 17, 2026</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-[#C9A44C]">Completed</span></td>
             </tr>
             <tr class="hover:bg-slate-800/40">
               <td class="p-3 font-semibold text-white">Course Add / Drop &amp; Section Changes</td>
               <td class="p-3 text-slate-300">Fall 2026</td>
               <td class="p-3 font-mono text-slate-300">Aug 17 – Aug 28, 2026</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Closed</span></td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-[#C9A44C]">Closed</span></td>
             </tr>
             <tr class="hover:bg-slate-800/40">
               <td class="p-3 font-semibold text-white">1st Mandatory Attendance Review (75% Check)</td>
               <td class="p-3 text-slate-300">Fall 2026</td>
               <td class="p-3 font-mono text-slate-300">Friday, Sep 25, 2026</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Completed</span></td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-[#C9A44C]">Completed</span></td>
             </tr>
             <tr class="hover:bg-slate-800/40 bg-blue-950/20">
               <td class="p-3 font-bold text-sky-200">Mid-Term Examination Week</td>
@@ -1418,7 +1418,7 @@ function loadAcademicCalendarView(container) {
               <td class="p-3 font-semibold text-white">Mid-Term Result Notification &amp; Script Inspection</td>
               <td class="p-3 text-slate-300">Fall 2026</td>
               <td class="p-3 font-mono text-slate-300">Monday, Oct 26, 2026</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400">Upcoming</span></td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-[#C9A44C]">Upcoming</span></td>
             </tr>
             <tr class="hover:bg-slate-800/40">
               <td class="p-3 font-semibold text-white">Last Date for Course Withdrawal (Grade W)</td>
@@ -1441,13 +1441,13 @@ function loadAcademicCalendarView(container) {
             <tr class="hover:bg-slate-800/40 bg-blue-950/20">
               <td class="p-3 font-bold text-sky-200">Terminal / Final Examinations</td>
               <td class="p-3 text-slate-300">Fall 2026</td>
-              <td class="p-3 font-mono text-sky-400 font-bold">Dec 14 – Dec 30, 2026</td>
+              <td class="p-3 font-mono text-[#C9A44C] font-bold">Dec 14 – Dec 30, 2026</td>
               <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300">Scheduled</span></td>
             </tr>
             <tr class="hover:bg-slate-800/40">
               <td class="p-3 font-semibold text-white">Official Gazette Result Notification</td>
               <td class="p-3 text-slate-300">Fall 2026</td>
-              <td class="p-3 font-mono text-emerald-400 font-bold">Friday, Jan 08, 2027</td>
+              <td class="p-3 font-mono text-[#C9A44C] font-bold">Friday, Jan 08, 2027</td>
               <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">Scheduled</span></td>
             </tr>
             <tr class="hover:bg-slate-800/40">
@@ -1459,7 +1459,7 @@ function loadAcademicCalendarView(container) {
             <tr class="hover:bg-slate-800/40">
               <td class="p-3 font-semibold text-white">Spring 2027 Semester Commencement</td>
               <td class="p-3 text-slate-300">Spring 2027</td>
-              <td class="p-3 font-mono text-sky-300">Monday, Jan 18, 2027</td>
+              <td class="p-3 font-mono text-[#C9A44C]">Monday, Jan 18, 2027</td>
               <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">Next Term</span></td>
             </tr>
           </tbody>
@@ -1469,13 +1469,13 @@ function loadAcademicCalendarView(container) {
       <!-- University Academic Regulations Box -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 space-y-2">
-          <h4 class="font-bold text-sky-400">Attendance Regulations</h4>
+          <h4 class="font-bold text-[#C9A44C]">Attendance Regulations</h4>
           <p class="text-slate-300 leading-relaxed">
             Minimum 75% class attendance is mandatory in each registered course to be eligible for Terminal Examinations. Students falling below 75% will be debarred as per university policy.
           </p>
         </div>
         <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 space-y-2">
-          <h4 class="font-bold text-emerald-400">Grading Policy (4.00 Scale)</h4>
+          <h4 class="font-bold text-[#C9A44C]">Grading Policy (4.00 Scale)</h4>
           <p class="text-slate-300 leading-relaxed">
             A (85%+ = 4.00), A- (80-84% = 3.67), B+ (75-79% = 3.33), B (70-74% = 3.00), C (58-64% = 2.00), D (50-54% = 1.00), F (&lt;50% = 0.00). Minimum CGPA for degree award is 2.00.
           </p>
@@ -1497,8 +1497,8 @@ async function loadAiInsightsView(container) {
       <div class="space-y-6">
         <div class="p-5 rounded-xl bg-gradient-to-r from-sky-950/60 to-indigo-950/40 border border-sky-500/30 space-y-3">
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-sky-300">Executive Academic Assessment</span>
-            <span class="px-3 py-1 text-xs font-bold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/40">${ins.status_badge || 'Good Standing'}</span>
+            <span class="text-xs font-bold text-[#C9A44C]">Executive Academic Assessment</span>
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-sky-500/20 text-[#C9A44C] border border-sky-500/40">${ins.status_badge || 'Good Standing'}</span>
           </div>
           <p class="text-sm text-slate-200 leading-relaxed">${ins.summary}</p>
         </div>
@@ -1511,7 +1511,7 @@ async function loadAiInsightsView(container) {
     (ins.suggestions || []).forEach(tip => {
       html += `
         <li class="flex items-start gap-2">
-          <span class="text-sky-400 font-bold mt-0.5">•</span>
+          <span class="text-[#C9A44C] font-bold mt-0.5">•</span>
           <span>${tip}</span>
         </li>
       `;
@@ -1594,7 +1594,7 @@ function loadWhatIfView(container) {
         <div class="grid grid-cols-3 gap-3 text-center">
           <div class="p-3 rounded-lg bg-slate-800 border border-slate-700">
             <span class="text-[10px] text-slate-400">Simulated SGPA</span>
-            <p id="sim-sgpa-val" class="text-xl font-bold text-sky-400">0.00</p>
+            <p id="sim-sgpa-val" class="text-xl font-bold text-[#C9A44C]">0.00</p>
           </div>
           <div class="p-3 rounded-lg bg-slate-800 border border-slate-700">
             <span class="text-[10px] text-slate-400">Previous CGPA</span>
@@ -1602,12 +1602,12 @@ function loadWhatIfView(container) {
           </div>
           <div class="p-3 rounded-lg bg-slate-800 border border-slate-700">
             <span class="text-[10px] text-slate-400">Projected New CGPA</span>
-            <p id="sim-new-cgpa" class="text-xl font-bold text-emerald-400">0.00</p>
+            <p id="sim-new-cgpa" class="text-xl font-bold text-[#C9A44C]">0.00</p>
           </div>
         </div>
 
         <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-          <h4 class="text-xs font-bold text-sky-300 mb-1">Official Academic Standing Notes</h4>
+          <h4 class="text-xs font-bold text-[#C9A44C] mb-1">Official Academic Standing Notes</h4>
           <p id="sim-ai-advice" class="text-xs text-slate-300 leading-relaxed"></p>
         </div>
       </div>

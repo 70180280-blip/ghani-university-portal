@@ -408,3 +408,72 @@ table th.text-right, table td.text-right {
     width: 100% !important;
   }
 }
+
+
+/* ========================================================================== */
+/* SAP FIORI UNIFIED TYPOGRAPHY SYSTEM (Font Consistency & Bold Headings)    */
+/* ========================================================================== */
+
+/* All Section Headers - Bold & Unified */
+.fiori-section-header {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text-main) !important;
+}
+
+/* Fiori Tile Standard Typography */
+.fiori-tile {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Tile Category Overlines (Subheaders) */
+.fiori-tile span.text-xs.font-semibold,
+.fiori-tile .tile-category {
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* Tile Main Titles - Bold & Uniform */
+.fiori-tile h3 {
+  color: var(--text-main) !important;
+  font-weight: 700 !important;
+  font-size: 0.925rem !important;
+  line-height: 1.35 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+/* Tile Metric / Count Values - Prominent Bold Numbers */
+.fiori-tile p[id$="-count"],
+.fiori-tile p.text-xl.font-bold {
+  color: var(--color-gold) !important;
+  font-weight: 800 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.015em !important;
+}
+
+html.light .fiori-tile p[id$="-count"],
+html.light .fiori-tile p.text-xl.font-bold {
+  color: var(--color-primary) !important;
+}
+
+/* Tile Footer Descriptions - Muted & Clean */
+.fiori-tile p[id$="-sub"],
+.fiori-tile p.text-xs.mt-3 {
+  color: var(--text-muted) !important;
+  font-weight: 400 !important;
+  font-size: 0.75rem !important;
+  line-height: 1.4 !important;
+}
+
+/* Unified Tile Icon Boxes */
+.fiori-tile .p-2.rounded-lg {
+  background-color: rgba(201, 164, 76, 0.15) !important;
+  color: #C9A44C !important;
+}
+
+html.light .fiori-tile .p-2.rounded-lg {
+  background-color: rgba(29, 102, 82, 0.12) !important;
+  color: #1D6652 !important;
+}
